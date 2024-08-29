@@ -8,6 +8,11 @@ def create_form():
     # Crear la ventana principal
     root = tk.Tk()
     root.title("Gestión de Movimientos de Stock")
+    root.geometry("500x400")
+    root.minsize(400, 300)
+    root.maxsize(800, 600)
+    root.iconbitmap("img/inventario.png")
+    root.configure(bg="skyblue")
 
     # Crear los campos del formulario
     tk.Label(root, text="UBICACIÓN:").grid(row=0, column=0, padx=10, pady=5)
