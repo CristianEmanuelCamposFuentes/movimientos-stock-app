@@ -11,7 +11,7 @@ def create_form():
     root.geometry("500x400")
     root.minsize(400, 300)
     root.maxsize(800, 600)
-    root.iconbitmap("img/deposito.png")
+    root.iconbitmap("img/inventario.png")
     root.configure(bg="skyblue")
 
     # Crear los campos del formulario
