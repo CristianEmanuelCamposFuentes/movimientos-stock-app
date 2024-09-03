@@ -23,18 +23,25 @@ def get_db():
     finally:
         db.close()
 
-# Modelo de la tabla de stock actual
+# Modelo de la tabla Pasillos
+class Pasillos(Base):
+    __tablename__ = "pasillos"
+    id = Column(Integer, primary_key=True, index=True)
+    pasillo = Column(String, nullable=False)
+    ubicacion = Column(String, nullable=False, unique=True)
+
+# Modelo de la tabla StockActual
 class StockActual(Base):
     __tablename__ = "stock_actual"
     id = Column(Integer, primary_key=True, index=True)
     pasillo = Column(String, nullable=False)
     ubicacion = Column(String, nullable=False)
-    codigo = Column(String, nullable=False)  # Eliminé `unique=True` para permitir duplicados
+    codigo = Column(String, nullable=False)
     descripcion = Column(String, nullable=False)
     cantidad = Column(Float, nullable=False)
     fecha = Column(Date, nullable=False)
 
-# Modelo de la tabla de movimientos
+# Modelo de la tabla Movimientos
 class Movimientos(Base):
     __tablename__ = "movimientos"
     id = Column(Integer, primary_key=True, index=True)
@@ -48,4 +55,5 @@ class Movimientos(Base):
 
 # Crear las tablas en la base de datos
 Base.metadata.create_all(bind=engine)
+
 
