@@ -1,4 +1,5 @@
 import csv
+import os
 from sqlalchemy.orm import Session
 from modules.database import StockActual, engine
 
@@ -20,4 +21,11 @@ def import_stock_data(csv_file):
     session.close()
 
 if __name__ == "__main__":
-    import_stock_data("../data/stock_actual.csv")
+    # Obtener la ruta absoluta del directorio de este script
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    
+    # Construir la ruta del archivo CSV relativa al directorio de este script
+    csv_path = os.path.join(base_dir, '..', 'data', 'stock_actual.csv')
+    
+    import_stock_data(csv_path)
+

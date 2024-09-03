@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
 from tkinter import messagebox  # <--- Importación agregada
-from modules.database import StockActual, Movimiento, get_db
+from modules.database import StockActual, Movimientos, Pasillos, get_db  
 
 def get_description_by_code(db: Session, codigo: str) -> str:
     """Obtener la descripción del producto dado su código."""
@@ -24,6 +24,13 @@ def process_data(ubicacion: str, codigo: str, cantidad: str, fecha: str, nota_de
         # Validar que la fecha es válida
         fecha = datetime.strptime(fecha, "%d/%m/%Y")
         
+        # Obtener el pasillo desde la tabla Pasillos
+        pasillo_item = db.query(Pasillos).filter(Pasillos.ubicacion == ubicacion).first()
+        if not pasillo_item:
+            raise ValueError(f"No se encontró el pasillo correspondiente para la ubicación {ubicacion}.")
+        
+        pasillo = pasillo_item.pasillo
+
         # Obtener el registro actual de stock
         stock_item = db.query(StockActual).filter(
             StockActual.ubicacion == ubicacion,
@@ -37,7 +44,7 @@ def process_data(ubicacion: str, codigo: str, cantidad: str, fecha: str, nota_de
             else:
                 # Si no existe el registro, creamos uno nuevo
                 stock_item = StockActual(
-                    pasillo=ubicacion.split('-')[0],  # Ejemplo de cómo extraer pasillo de la ubicación
+                    pasillo=pasillo,
                     ubicacion=ubicacion,
                     codigo=codigo,
                     descripcion=get_description_by_code(db, codigo),
@@ -57,7 +64,7 @@ def process_data(ubicacion: str, codigo: str, cantidad: str, fecha: str, nota_de
                 raise ValueError("No se encontró stock para el código y la ubicación especificados.")
         
         # Registrar el movimiento en la tabla de históricos
-        movimiento = Movimiento(
+        movimiento = Movimientos(
             ubicacion=ubicacion,
             codigo=codigo,
             descripcion=stock_item.descripcion if stock_item else get_description_by_code(db, codigo),
@@ -80,4 +87,6 @@ def process_data(ubicacion: str, codigo: str, cantidad: str, fecha: str, nota_de
         messagebox.showerror("Error de validación", str(ve))
     finally:
         db.close()
+
+
 

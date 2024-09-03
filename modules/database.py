@@ -1,12 +1,16 @@
+import os
 from sqlalchemy import create_engine, Column, Integer, String, Float, Date
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# Ruta de la base de datos
-DATABASE_URL = "sqlite:///../data/stock_management.db"
+# Obtener la ruta absoluta del directorio de este script
+base_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Configuración de SQLAlchemy
-engine = create_engine(DATABASE_URL, echo=True)
+# Construir la ruta de la base de datos relativa al directorio de este script
+db_path = os.path.join(base_dir, '..', 'data', 'stock_management.db')
+
+# Configuración de SQLAlchemy con la ruta relativa
+engine = create_engine(f'sqlite:///{db_path}', echo=True)
 Base = declarative_base()
 
 # Configuración de la sesión
@@ -25,7 +29,7 @@ class StockActual(Base):
     id = Column(Integer, primary_key=True, index=True)
     pasillo = Column(String, nullable=False)
     ubicacion = Column(String, nullable=False)
-    codigo = Column(String, nullable=False, unique=True)
+    codigo = Column(String, nullable=False)  # Eliminé `unique=True` para permitir duplicados
     descripcion = Column(String, nullable=False)
     cantidad = Column(Float, nullable=False)
     fecha = Column(Date, nullable=False)
@@ -44,3 +48,4 @@ class Movimientos(Base):
 
 # Crear las tablas en la base de datos
 Base.metadata.create_all(bind=engine)
+
