@@ -2,8 +2,6 @@ from modules.form import create_form
 import os
 from sqlalchemy import create_engine
 
-
-
 # Obtener la ruta absoluta del directorio donde está main.py
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
