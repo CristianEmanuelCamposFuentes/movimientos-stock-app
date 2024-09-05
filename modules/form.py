@@ -1,97 +1,109 @@
-import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox
+import sys
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QVBoxLayout, QPushButton, QComboBox, QMessageBox
 from datetime import datetime
-from modules.stock_manager import process_data, get_description_by_code
-from modules.database import get_db
+import sqlite3
 
-def create_form():
-    # Crear la ventana principal
-    root = tk.Tk()
-    root.title("Gestión de Movimientos de Stock")
-    root.geometry("500x400")
-    root.minsize(400, 300)
-    root.maxsize(800, 600)
-    root.iconbitmap("img/inventario.png")
-    root.configure(bg="skyblue")
+class StockMovementApp(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+        
+    def initUI(self):
+        self.setWindowTitle("Gestión de Movimientos de Stock")
+        self.setGeometry(100, 100, 400, 300)
+        
+        layout = QVBoxLayout()
 
-    # Conectar con la base de datos
-    db = next(get_db())
+        # Campos del formulario
+        self.ubicacion_label = QLabel("Ubicación:")
+        self.ubicacion_input = QLineEdit()
+        layout.addWidget(self.ubicacion_label)
+        layout.addWidget(self.ubicacion_input)
 
-    # Crear los campos del formulario
-    tk.Label(root, text="UBICACIÓN:").grid(row=0, column=0, padx=10, pady=5)
-    entry_ubicacion = tk.Entry(root)
-    entry_ubicacion.grid(row=0, column=1, padx=10, pady=5)
+        self.codigo_label = QLabel("Código:")
+        self.codigo_input = QLineEdit()
+        layout.addWidget(self.codigo_label)
+        layout.addWidget(self.codigo_input)
 
-    tk.Label(root, text="CÓDIGO:").grid(row=1, column=0, padx=10, pady=5)
-    entry_codigo = tk.Entry(root)
-    entry_codigo.grid(row=1, column=1, padx=10, pady=5)
-    
-    # Evento para autocompletar la descripción
-    def on_codigo_change(event):
-        codigo = entry_codigo.get()
-        descripcion = get_description_by_code(db, codigo)
-        if descripcion:
-            entry_descripcion.delete(0, tk.END)
-            entry_descripcion.insert(0, descripcion)
-    
-    entry_codigo.bind("<FocusOut>", on_codigo_change)
+        self.descripcion_label = QLabel("Descripción:")
+        self.descripcion_input = QLineEdit()
+        layout.addWidget(self.descripcion_label)
+        layout.addWidget(self.descripcion_input)
 
-    tk.Label(root, text="DESCRIPCIÓN:").grid(row=2, column=0, padx=10, pady=5)
-    entry_descripcion = tk.Entry(root)
-    entry_descripcion.grid(row=2, column=1, padx=10, pady=5)
+        self.cantidad_label = QLabel("Cantidad:")
+        self.cantidad_input = QLineEdit()
+        layout.addWidget(self.cantidad_label)
+        layout.addWidget(self.cantidad_input)
 
-    tk.Label(root, text="CANTIDAD:").grid(row=3, column=0, padx=10, pady=5)
-    entry_cantidad = tk.Entry(root)
-    entry_cantidad.grid(row=3, column=1, padx=10, pady=5)
+        self.fecha_label = QLabel("Fecha (DD/MM/YYYY):")
+        self.fecha_input = QLineEdit(datetime.now().strftime('%d/%m/%Y'))
+        layout.addWidget(self.fecha_label)
+        layout.addWidget(self.fecha_input)
 
-    tk.Label(root, text="FECHA (DD/MM/YYYY):").grid(row=4, column=0, padx=10, pady=5)
-    entry_fecha = tk.Entry(root)
-    entry_fecha.grid(row=4, column=1, padx=10, pady=5)
-    entry_fecha.insert(0, datetime.now().strftime('%d/%m/%Y'))
+        self.nota_devolucion_label = QLabel("Nota/Devolución:")
+        self.nota_devolucion_input = QLineEdit()
+        layout.addWidget(self.nota_devolucion_label)
+        layout.addWidget(self.nota_devolucion_input)
 
-    tk.Label(root, text="NOTA/DEVOLUCIÓN:").grid(row=5, column=0, padx=10, pady=5)
-    entry_nota_devolucion = tk.Entry(root)
-    entry_nota_devolucion.grid(row=5, column=1, padx=10, pady=5)
+        self.tipo_movimiento_label = QLabel("Tipo de Movimiento:")
+        self.tipo_movimiento_combo = QComboBox()
+        self.tipo_movimiento_combo.addItems(["Ingreso", "Egreso"])
+        layout.addWidget(self.tipo_movimiento_label)
+        layout.addWidget(self.tipo_movimiento_combo)
 
-    tk.Label(root, text="TIPO DE MOVIMIENTO:").grid(row=6, column=0, padx=10, pady=5)
-    combo_tipo_movimiento = ttk.Combobox(root, values=["Ingreso", "Egreso"])
-    combo_tipo_movimiento.grid(row=6, column=1, padx=10, pady=5)
+        self.observaciones_label = QLabel("Observaciones:")
+        self.observaciones_input = QLineEdit()
+        layout.addWidget(self.observaciones_label)
+        layout.addWidget(self.observaciones_input)
 
-    tk.Label(root, text="OBSERVACIONES:").grid(row=7, column=0, padx=10, pady=5)
-    entry_observaciones = tk.Entry(root)
-    entry_observaciones.grid(row=7, column=1, padx=10, pady=5)
+        # Botón para registrar el movimiento
+        self.registrar_button = QPushButton("Registrar Movimiento")
+        self.registrar_button.clicked.connect(self.registrar_movimiento)
+        layout.addWidget(self.registrar_button)
 
-    # Validación de campos vacíos
-    def validate_fields():
-        if not entry_ubicacion.get() or not entry_codigo.get() or not entry_cantidad.get() or not combo_tipo_movimiento.get():
-            messagebox.showerror("Error", "Por favor, complete todos los campos obligatorios.")
-            return False
-        return True
+        self.setLayout(layout)
 
-    # Botón para enviar los datos
-    submit_button = tk.Button(root, text="Registrar Movimiento", 
-                              command=lambda: process_data(
-                                  entry_ubicacion.get(), 
-                                  entry_codigo.get(), 
-                                  entry_cantidad.get(), 
-                                  validate_fecha(entry_fecha.get()), 
-                                  entry_nota_devolucion.get(), 
-                                  combo_tipo_movimiento.get(), 
-                                  entry_observaciones.get()) if validate_fields() else None)
-    submit_button.grid(row=8, column=0, columnspan=2, pady=10)
+    def registrar_movimiento(self):
+        # Aquí agregamos la lógica para procesar el movimiento
+        ubicacion = self.ubicacion_input.text()
+        codigo = self.codigo_input.text()
+        descripcion = self.descripcion_input.text()
+        cantidad = self.cantidad_input.text()
+        fecha = self.fecha_input.text()
+        nota_devolucion = self.nota_devolucion_input.text()
+        tipo_movimiento = self.tipo_movimiento_combo.currentText()
+        observaciones = self.observaciones_input.text()
 
-    # Iniciar la aplicación
-    root.mainloop()
+        # Validar los campos (similar a como lo tenías en Tkinter)
+        if not ubicacion or not codigo or not cantidad:
+            QMessageBox.warning(self, "Error", "Por favor, complete todos los campos obligatorios.")
+            return
 
-def validate_fecha(fecha):
-    try:
-        if len(fecha) == 5:  # Si solo se ingresa dd/mm
-            fecha += f"/{datetime.now().year}"  # Añadir el año actual
-        # Convertir la fecha al formato dd/mm/yyyy
-        datetime_obj = datetime.strptime(fecha, "%d/%m/%Y")
-        return datetime_obj.strftime('%d/%m/%Y')
-    except ValueError:
-        messagebox.showerror("Error", "Formato de fecha inválido. Usa dd/mm/yyyy.")
-        return None
+        # Aquí podrías insertar los datos en la base de datos SQLite
+        try:
+            cantidad = float(cantidad)
+            self.insertar_en_base_datos(ubicacion, codigo, descripcion, cantidad, fecha, nota_devolucion, tipo_movimiento, observaciones)
+            QMessageBox.information(self, "Éxito", "Movimiento registrado correctamente.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"No se pudo registrar el movimiento: {str(e)}")
+
+    def insertar_en_base_datos(self, ubicacion, codigo, descripcion, cantidad, fecha, nota_devolucion, tipo_movimiento, observaciones):
+        # Conectar con SQLite e insertar el movimiento
+        conexion = sqlite3.connect('data/stock_management.db')
+        cursor = conexion.cursor()
+        
+        cursor.execute('''
+            INSERT INTO movimientos (ubicacion, codigo, cantidad, fecha, nota_devolucion, tipo_movimiento, observaciones)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (ubicacion, codigo, cantidad, fecha, nota_devolucion, tipo_movimiento, observaciones))
+
+        conexion.commit()
+        conexion.close()
+
+if __name__ == "__main__":
+    app = QApplication(sys.argv)
+    ventana = StockMovementApp()
+    ventana.show()
+    sys.exit(app.exec_())
+
 
