@@ -2,7 +2,10 @@ from PyQt5.QtWidgets import QTabWidget, QWidget, QLabel, QVBoxLayout, QHBoxLayou
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
 import pandas as pd
-import sqlite3
+from modules.stock_manager import abrir_ingresos_egresos, abrir_gestion_stock, abrir_registros_movimientos, abrir_admin_productos
+from modules.pedidos import abrir_nota_pedido
+from modules.usuarios import abrir_gestion_usuarios
+from modules.ui_functions import aplicar_estilos
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -30,20 +33,34 @@ class MainWindow(QWidget):
         menu_layout = QVBoxLayout()
         btn_ingresos = QPushButton("Ingresos/Egresos")
         btn_gestion_stock = QPushButton("Gestión de Stock")
+        btn_nota_pedido = QPushButton("Generar Nota de Pedido")
         btn_admin_productos = QPushButton("Administrar Productos")
         btn_registros_movimientos = QPushButton("Registros de Movimientos")
+        btn_usuarios = QPushButton("Gestión de Usuarios")
 
         # Agregar iconos (asegúrate de tener las imágenes en la carpeta 'img')
         btn_ingresos.setIcon(QIcon('img/icono_ingresos.png'))
         btn_gestion_stock.setIcon(QIcon('img/icono_gestion.png'))
+        btn_nota_pedido.setIcon(QIcon('img/icono_nota_pedido.png'))
         btn_admin_productos.setIcon(QIcon('img/icono_admin.png'))
         btn_registros_movimientos.setIcon(QIcon('img/icono_registros.png'))
+        btn_usuarios.setIcon(QIcon('img/icono_usuarios.png')) 
 
         menu_layout.addWidget(btn_ingresos)
         menu_layout.addWidget(btn_gestion_stock)
+        menu_layout.addWidget(btn_nota_pedido)
         menu_layout.addWidget(btn_admin_productos)
         menu_layout.addWidget(btn_registros_movimientos)
+        menu_layout.addWidget(btn_usuarios)
         menu_layout.addStretch()  # Para empujar los botones hacia arriba
+        
+        #Crear eventos para cada boton al clickearlos
+        btn_ingresos.clicked.connect(abrir_ingresos_egresos)
+        btn_gestion_stock.clicked.connect(abrir_gestion_stock)
+        btn_nota_pedido.clicked.connect(abrir_nota_pedido)
+        btn_admin_productos.clicked.connect(abrir_admin_productos)
+        btn_registros_movimientos.clicked.connect(abrir_registros_movimientos)
+        btn_usuarios.clicked.connect(abrir_gestion_usuarios)
 
         # Contenido central - Implementar Tabs
         tabs = QTabWidget()
@@ -82,3 +99,15 @@ class MainWindow(QWidget):
 
         self.setLayout(main_layout)
 
+        # # Aplicar estilo a los botones
+        # btn_ingresos.setStyleSheet(button_style)
+        # btn_gestion_stock.setStyleSheet(button_style)
+        # btn_nota_pedido.setStyleSheet(button_style)
+        # btn_admin_productos.setStyleSheet(button_style)
+        # btn_registros_movimientos.setStyleSheet(button_style)
+        # btn_usuarios.setStyleSheet(button_style)
+        
+        # Aplicar estilos
+        aplicar_estilos([btn_ingresos, btn_gestion_stock, btn_nota_pedido, btn_admin_productos, btn_registros_movimientos, btn_usuarios])
+
+        

@@ -2,7 +2,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy.exc import SQLAlchemyError
 from datetime import datetime
 from tkinter import messagebox  # <--- Importación agregada
-from modules.database import StockActual, Movimientos, Pasillos, get_db  
+from modules.database import StockActual, Movimientos, Pasillos, get_db 
+from PyQt5.QtWidgets import QMessageBox 
 
 def get_description_by_code(db: Session, codigo: str) -> str:
     """Obtener la descripción del producto dado su código."""
@@ -90,3 +91,30 @@ def process_data(ubicacion: str, codigo: str, cantidad: str, fecha: str, nota_de
 
 
 
+def abrir_ingresos_egresos():
+    msg = QMessageBox()
+    msg.setWindowTitle("Ingresos/Egresos")
+    msg.setText("Se abrirá la ventana para gestionar Ingresos y Egresos.")
+    msg.exec_()
+
+def abrir_gestion_stock():
+    msg = QMessageBox()
+    msg.setWindowTitle("Gestión de Stock")
+    msg.setText("Se abrirá la ventana para la gestión de stock.")
+    msg.exec_()
+    
+from PyQt5.QtWidgets import QMessageBox
+
+# Función para la ventana de "Administrar Productos"
+def abrir_admin_productos():
+    msg = QMessageBox()
+    msg.setWindowTitle("Administrar Productos")
+    msg.setText("Se abrirá la ventana para administrar productos.")
+    msg.exec_()
+
+# Función para la ventana de "Registros de Movimientos"
+def abrir_registros_movimientos():
+    msg = QMessageBox()
+    msg.setWindowTitle("Registros de Movimientos")
+    msg.setText("Se abrirá la ventana para ver los registros de movimientos.")
+    msg.exec_()
