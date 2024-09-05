@@ -1,4 +1,7 @@
 
 venv/
 *.pyc
-/modules/__pycache__
+modules/__pycache__/
+base/
+
+__pycache__
