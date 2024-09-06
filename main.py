@@ -13,6 +13,7 @@ db_path = os.path.join(base_dir, 'data', 'stock_management.db')
 engine = create_engine(f'sqlite:///{db_path}')
 
 print(f"Ruta de la base de datos: {db_path}")
+        
 
 if __name__ == "__main__":
     app = QApplication([])  # Inicializar la aplicación de PyQt
