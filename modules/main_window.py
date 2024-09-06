@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QTabWidget, QWidget, QLabel, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import Qt
-import pandas as pd
 from modules.stock_manager import abrir_ingresos_egresos, abrir_gestion_stock, abrir_registros_movimientos, abrir_admin_productos
 from modules.pedidos import abrir_nota_pedido
 from modules.usuarios import abrir_gestion_usuarios
