@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QVBoxLayou
 from datetime import datetime
 import sqlite3
 
-class StockMovementApp(QWidget):
+class Form(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -102,7 +102,7 @@ class StockMovementApp(QWidget):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    ventana = StockMovementApp()
+    ventana = Form()
     ventana.show()
     sys.exit(app.exec_())
 
