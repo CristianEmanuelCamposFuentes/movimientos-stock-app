@@ -10,12 +10,13 @@ base_dir = os.path.dirname(os.path.abspath(__file__))
 db_path = os.path.join(base_dir, '..', 'data', 'stock_management.db')
 
 # Configuración de SQLAlchemy con la ruta relativa
-engine = create_engine(f'sqlite:///{db_path}', echo=True)
+engine = create_engine(f'sqlite:///{db_path}', echo=False)  # echo=False para no generar log
 Base = declarative_base()
 
 # Configuración de la sesión
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Función para obtener una sesión de la base de datos
 def get_db():
     db = SessionLocal()
     try:
@@ -53,7 +54,8 @@ class Movimientos(Base):
     tipo_movimiento = Column(String, nullable=False)
     observaciones = Column(String)
 
-# Crear las tablas en la base de datos
-Base.metadata.create_all(bind=engine)
+# Función para crear las tablas (solo se ejecuta cuando sea necesario)
+def crear_tablas():
+    Base.metadata.create_all(bind=engine)
 
 
