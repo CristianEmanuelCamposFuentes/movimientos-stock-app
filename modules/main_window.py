@@ -20,10 +20,12 @@ class MainWindow(QWidget):
         # Layout principal
         main_layout = QVBoxLayout()
 
-        # Barra de navegación superior
+        # Barra de navegación superior (actualizable con el nombre de la sección)
         nav_layout = QHBoxLayout()
-        nav_layout.addWidget(QLabel(f"Bienvenido, {self.usuario}"))  # Mostrar nombre de usuario
-        nav_layout.addStretch()  # Espacio flexible para alinear el texto
+        self.titulo_seccion = QLabel("Bienvenido")  # Título dinámico de la vista
+        nav_layout.addWidget(self.titulo_seccion)
+        nav_layout.addStretch()  # Espacio flexible para alinear el texto a la izquierda
+        nav_layout.addWidget(QLabel(f"Usuario: {self.usuario}"))  # Nombre del usuario actual
 
         # Menú lateral (botones)
         menu_layout = QVBoxLayout()
@@ -36,22 +38,22 @@ class MainWindow(QWidget):
         btn_ajustes = QPushButton("Ajustes de Stock")
 
         # Conectar botones a funciones
-        btn_ingresos_egresos.clicked.connect(self.mostrar_ingresos_egresos)
-        btn_gestion_stock.clicked.connect(self.mostrar_gestion_stock)
-        btn_notas_pedido.clicked.connect(self.mostrar_notas_pedido)
-        btn_admin_productos.clicked.connect(self.mostrar_admin_productos)
-        btn_registros_movimientos.clicked.connect(self.mostrar_registros_movimientos)
-        btn_gestion_usuarios.clicked.connect(self.mostrar_gestion_usuarios)
-        btn_ajustes.clicked.connect(self.mostrar_ajustes)
-
+        btn_ingresos_egresos.clicked.connect(lambda: self.mostrar_vista(self.ingresos_egresos_view, "Ingresos/Egresos"))
+        btn_gestion_stock.clicked.connect(lambda: self.mostrar_vista(self.gestion_stock_view, "Gestión de Stock"))
+        btn_ajustes.clicked.connect(lambda: self.mostrar_vista(self.ajustes_view, "Ajustes de Stock"))
+        btn_notas_pedido.clicked.connect(lambda: self.mostrar_vista(self.notas_pedido_view, "Notas de Pedido"))
+        btn_admin_productos.clicked.connect(lambda: self.mostrar_vista(self.admin_productos_view, "Administrar Productos"))
+        btn_registros_movimientos.clicked.connect(lambda: self.mostrar_vista(self.registros_movimientos_view, "Registros de Movimientos"))
+        btn_gestion_usuarios.clicked.connect(lambda: self.mostrar_vista(self.gestion_usuarios_view, "Gestión de Usuarios"))
+        
         # Agregar botones al menú lateral
         menu_layout.addWidget(btn_ingresos_egresos)
         menu_layout.addWidget(btn_gestion_stock)
+        menu_layout.addWidget(btn_ajustes)
         menu_layout.addWidget(btn_notas_pedido)
         menu_layout.addWidget(btn_admin_productos)
         menu_layout.addWidget(btn_registros_movimientos)
         menu_layout.addWidget(btn_gestion_usuarios)
-        menu_layout.addWidget(btn_ajustes)
 
         # Contenido principal (pestañas)
         self.contenido_principal = QStackedWidget()
@@ -63,7 +65,7 @@ class MainWindow(QWidget):
         self.notas_pedido_view = NotasPedidoView()
         self.admin_productos_view = AdminProductosView()
         self.registros_movimientos_view = RegistrosMovimientosView()
-        self.gestion_usuarios_view = GestionUsuariosView()
+        self.gestion_usuarios_view = GestionUsuariosView(self.usuario)
 
         # Añadir las vistas al QStackedWidget
         self.contenido_principal.addWidget(self.ingresos_egresos_view)
@@ -84,25 +86,9 @@ class MainWindow(QWidget):
         main_layout.addLayout(content_layout)
         self.setLayout(main_layout)
 
-    # Funciones para cambiar entre vistas
-    def mostrar_ingresos_egresos(self):
-        self.contenido_principal.setCurrentWidget(self.ingresos_egresos_view)
+    # Función para cambiar entre vistas y actualizar el título
+    def mostrar_vista(self, vista, titulo):
+        self.contenido_principal.setCurrentWidget(vista)
+        self.titulo_seccion.setText(titulo)  # Actualizar el título en la barra de navegación
 
-    def mostrar_gestion_stock(self):
-        self.contenido_principal.setCurrentWidget(self.gestion_stock_view)
-
-    def mostrar_notas_pedido(self):
-        self.contenido_principal.setCurrentWidget(self.notas_pedido_view)
-
-    def mostrar_admin_productos(self):
-        self.contenido_principal.setCurrentWidget(self.admin_productos_view)
-
-    def mostrar_registros_movimientos(self):
-        self.contenido_principal.setCurrentWidget(self.registros_movimientos_view)
-
-    def mostrar_gestion_usuarios(self):
-        self.contenido_principal.setCurrentWidget(self.gestion_usuarios_view)
-
-    def mostrar_ajustes(self):
-        self.contenido_principal.setCurrentWidget(self.ajustes_view)
 
