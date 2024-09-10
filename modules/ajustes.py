@@ -1,5 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QLabel
 from PyQt5.QtCore import Qt
+from sqlalchemy.orm import Session
+from modules.database import get_db, StockActual, Movimientos
+from datetime import datetime
 
 class AjustesView(QWidget):
     def __init__(self):
@@ -7,41 +10,97 @@ class AjustesView(QWidget):
         self.initUI()
 
     def initUI(self):
+        self.setWindowTitle("Ajustes de Stock")
+        
         # Layout principal
-        layout_principal = QVBoxLayout()
+        main_layout = QVBoxLayout()
 
-        label_titulo = QLabel("Ajustes de Stock")
-        label_titulo.setAlignment(Qt.AlignCenter)
-        layout_principal.addWidget(label_titulo)
+        # Barra de búsqueda
+        search_layout = QHBoxLayout()
+        search_label = QLabel("Buscar:")
+        self.search_input = QLineEdit()
+        btn_buscar = QPushButton("Buscar")
+        btn_buscar.clicked.connect(self.buscar_stock)
+        search_layout.addWidget(search_label)
+        search_layout.addWidget(self.search_input)
+        search_layout.addWidget(btn_buscar)
 
-        # Formulario para hacer ajustes
-        label_ubicacion = QLabel("Ubicación:")
-        self.input_ubicacion = QLineEdit()
-        layout_principal.addWidget(label_ubicacion)
-        layout_principal.addWidget(self.input_ubicacion)
+        # Tabla de stock ajustable
+        self.stock_table = QTableWidget()
+        self.stock_table.setColumnCount(5)
+        self.stock_table.setHorizontalHeaderLabels(["Ubicación", "Código", "Descripción", "Cantidad", "Fecha"])
+        self.cargar_stock()
 
-        label_codigo = QLabel("Código:")
-        self.input_codigo = QLineEdit()
-        layout_principal.addWidget(label_codigo)
-        layout_principal.addWidget(self.input_codigo)
+        # Botones adicionales
+        botones_layout = QHBoxLayout()
+        btn_guardar_ajustes = QPushButton("Guardar Ajustes")
+        btn_guardar_ajustes.clicked.connect(self.guardar_ajustes)
+        
+        botones_layout.addWidget(btn_guardar_ajustes)
 
-        label_cantidad = QLabel("Nueva Cantidad:")
-        self.input_cantidad = QLineEdit()
-        layout_principal.addWidget(label_cantidad)
-        layout_principal.addWidget(self.input_cantidad)
+        # Agregar todo al layout principal
+        main_layout.addLayout(search_layout)
+        main_layout.addWidget(self.stock_table)
+        main_layout.addLayout(botones_layout)
 
-        # Botón para aplicar ajuste
-        btn_aplicar_ajuste = QPushButton("Aplicar Ajuste")
-        btn_aplicar_ajuste.clicked.connect(self.aplicar_ajuste)
-        layout_principal.addWidget(btn_aplicar_ajuste)
+        self.setLayout(main_layout)
 
-        self.setLayout(layout_principal)
+    def cargar_stock(self):
+        """Cargar los datos del stock en la tabla para ajustes"""
+        db = next(get_db())
+        stock_items = db.query(StockActual).all()
 
-    def aplicar_ajuste(self):
-        # Aquí iría la lógica para aplicar el ajuste en la base de datos
-        ubicacion = self.input_ubicacion.text()
-        codigo = self.input_codigo.text()
-        cantidad = self.input_cantidad.text()
+        self.stock_table.setRowCount(len(stock_items))
+        for row_num, item in enumerate(stock_items):
+            self.stock_table.setItem(row_num, 0, QTableWidgetItem(item.ubicacion))
+            self.stock_table.setItem(row_num, 1, QTableWidgetItem(item.codigo))
+            self.stock_table.setItem(row_num, 2, QTableWidgetItem(item.descripcion))
+            cantidad_item = QTableWidgetItem(str(item.cantidad))
+            cantidad_item.setFlags(Qt.ItemIsEditable | Qt.ItemIsEnabled)  # Editable
+            self.stock_table.setItem(row_num, 3, cantidad_item)
+            fecha_item = QTableWidgetItem(item.fecha.strftime("%d/%m/%Y"))
+            fecha_item.setFlags(Qt.ItemIsEditable | Qt.ItemIsEnabled)  # Editable
+            self.stock_table.setItem(row_num, 4, fecha_item)
+    def buscar_stock(self):
+        """Buscar stock para ajustes"""
+        search_term = self.search_input.text()
+        # Aquí puedes agregar la lógica para filtrar los productos
+        print(f"Buscando: {search_term}")
 
-        # Simulación de confirmación de ajuste
-        QMessageBox.information(self, "Ajuste", f"Ajuste aplicado a {codigo} en {ubicacion} con nueva cantidad: {cantidad}")
+    def guardar_ajustes(self):
+        """Guardar los ajustes realizados al stock"""
+        db = next(get_db())
+        try:
+            for row in range(self.stock_table.rowCount()):
+                ubicacion = self.stock_table.item(row, 0).text()
+                codigo = self.stock_table.item(row, 1).text()
+                cantidad = float(self.stock_table.item(row, 3).text())
+                fecha = datetime.strptime(self.stock_table.item(row, 4).text(), "%d/%m/%Y")
+
+                # Actualizar la base de datos
+                stock_item = db.query(StockActual).filter(StockActual.ubicacion == ubicacion, StockActual.codigo == codigo).first()
+                if stock_item:
+                    stock_item.cantidad = cantidad
+                    stock_item.fecha = fecha
+
+                    # Registrar el ajuste en la tabla de movimientos
+                    movimiento = Movimientos(
+                        ubicacion=ubicacion,
+                        codigo=codigo,
+                        cantidad=cantidad,
+                        fecha=fecha,
+                        nota_devolucion="Ajuste de Stock",
+                        tipo_movimiento="Ajuste",
+                        observaciones="Ajuste manual desde la vista de ajustes"
+                    )
+                    db.add(movimiento)
+
+            db.commit()
+            print("Ajustes guardados exitosamente")
+
+        except Exception as e:
+            db.rollback()
+            print(f"Error al guardar ajustes: {e}")
+
+        finally:
+            db.close()
