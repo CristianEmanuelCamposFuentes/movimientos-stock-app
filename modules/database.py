@@ -54,8 +54,47 @@ class Movimientos(Base):
     tipo_movimiento = Column(String, nullable=False)
     observaciones = Column(String)
 
+# Modelo de la tabla NotasPedido    
+class NotasPedido(Base):
+    __tablename__ = "notas_pedido"
+    id = Column(Integer, primary_key=True, index=True)
+    codigo = Column(String, nullable=False)
+    descripcion = Column(String, nullable=False)
+    cantidad = Column(Float, nullable=False)
+    fecha = Column(Date, nullable=False)
+    numero_nota = Column(String, nullable=True)
+
+# Modelo de la tabla Productos
+class Productos(Base):
+    __tablename__ = "productos"
+    id_producto = Column(Integer, primary_key=True, index=True)
+    codigo = Column(String, nullable=False, unique=True)
+    descripcion = Column(String, nullable=False)
+    categoria = Column(String, nullable=True)
+    imagen = Column(String, nullable=True)
+    
+class Usuarios(Base):
+    __tablename__ = "usuarios"
+    id = Column(Integer, primary_key=True, index=True)
+    nombre = Column(String, nullable=False, unique=True)
+    rol = Column(String, nullable=False)  # Puede ser 'Admin' o 'Usuario' 
+    
+# Agregar el modelo para la tabla Pendientes
+class Pendientes(Base):
+    __tablename__ = "pendientes"
+    id = Column(Integer, primary_key=True, index=True)
+    codigo = Column(String, nullable=False)
+    descripcion = Column(String, nullable=False)
+    cantidad = Column(Float, nullable=False)
+    fecha = Column(Date, nullable=False)
+    motivo = Column(String, nullable=False)
+    ubicacion = Column(String, nullable=True)        
+
 # Función para crear las tablas (solo se ejecuta cuando sea necesario)
 def crear_tablas():
     Base.metadata.create_all(bind=engine)
+
+
+
 
 
