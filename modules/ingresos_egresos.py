@@ -3,10 +3,14 @@ from PyQt5.QtCore import QDate
 from modules.ui_functions import cargar_ingreso, cargar_egreso
 from modules.ui_functions import crear_campo_formulario
 from modules.ui_styles import aplicar_estilos_especiales
+from modules.gestion_stock import GestionStockView
+from modules.database_operations import get_description_by_code
+
 class IngresosEgresosWindow(QWidget):
-    def __init__(self, usuario):
-        super().__init__()
+    def __init__(self, usuario,parent=None):
+        super().__init__(parent)
         self.usuario = usuario
+        self.parent = parent  # Referencia a la ventana principal para cambiar vistas
         self.initUI()
 
     def initUI(self):
@@ -52,10 +56,18 @@ class IngresosEgresosWindow(QWidget):
         btn_cargar_ajustes = QPushButton("Ir a Ajustes")
         btn_cargar_ajustes.clicked.connect(self.ir_a_ajustes)  # Conecta con la función ir_a_ajustes
 
+        btn_ver_consolidado = QPushButton("Ver Consolidado")
+        btn_ver_consolidado.clicked.connect(self.ver_consolidado)  
+
+        btn_mover_pallet = QPushButton("Mover Pallet")
+        btn_mover_pallet.clicked.connect(self.mover_pallet) 
+        
         # Añadir botones al layout
         buttons_layout.addWidget(btn_cargar_ingreso)
         buttons_layout.addWidget(btn_cargar_egreso)
         buttons_layout.addWidget(btn_cargar_ajustes)
+        buttons_layout.addWidget(btn_ver_consolidado)
+        buttons_layout.addWidget(btn_mover_pallet)
 
         # Agregar el formulario y los botones al layout principal
         layout.addLayout(form_layout)
@@ -69,15 +81,21 @@ class IngresosEgresosWindow(QWidget):
         colores = ["green", "red", "gray"]  # Definir colores específicos para cada botón
         aplicar_estilos_especiales(botones, colores)
 
-    # Funciones para manejar los eventos de los botones
+ # Funciones para los botones
     def cargar_ingreso(self):
-        # Aquí puedes manejar la lógica para cargar un ingreso
         print("Cargar Ingreso")
 
     def cargar_egreso(self):
-        # Aquí puedes manejar la lógica para cargar un egreso
-        print("Cargar Egreso")
+            print("Cargar Egreso")
 
     def ir_a_ajustes(self):
-        # Aquí puedes manejar la lógica para redirigir a la ventana de ajustes
         print("Ir a Ajustes")
+        self.parent.mostrar_ajustes()
+
+    def ver_consolidado(self):
+        print("Ver Consolidado")
+        self.parent.mostrar_gestion_stock()
+
+    def mover_pallet(self):
+        print("Mover Pallet")
+        self.parent.mostrar_gestion_stock()
