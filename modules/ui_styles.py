@@ -4,7 +4,6 @@ from PyQt5.QtCore import QSize
 
 # Estilos para la barra de navegación superior
 def aplicar_estilos_barra_navegacion(nav_layout):
-    # Aplicar estilos a los widgets dentro del nav_layout
     for i in range(nav_layout.count()):
         widget = nav_layout.itemAt(i).widget()
         if isinstance(widget, QLabel):
@@ -13,6 +12,7 @@ def aplicar_estilos_barra_navegacion(nav_layout):
                     font-size: 16px;
                     font-weight: bold;
                     color: #333;
+                    text-transform: uppercase;  /* Todas las letras en mayúsculas */
                 }
             """)
 
@@ -22,10 +22,10 @@ def aplicar_estilos_barra_lateral(botones):
     for boton in botones:
         boton.setStyleSheet("""
             QPushButton {
-                background-color: #E8E8E8;
-                color: #333;
+                background-color: #2C3E50;  /* Gris oscuro */
+                color: white;
                 font-size: 14px;
-                border: 1px solid #CCC;
+                border: none;
                 padding: 10px;
                 margin-bottom: 5px;
                 text-align: left;
@@ -33,10 +33,10 @@ def aplicar_estilos_barra_lateral(botones):
                 border-radius: 5px;
             }
             QPushButton:hover {
-                background-color: #D0D0D0;
+                background-color: #34495E;  /* Ligeramente más claro al pasar el mouse */
             }
             QPushButton:pressed {
-                background-color: #C0C0C0;
+                background-color: #1B2631;  /* Aún más oscuro al presionar */
             }
         """)
     
@@ -55,15 +55,14 @@ def aplicar_estilos_barra_lateral(botones):
 
 # Estilos globales de la ventana principal
 def aplicar_estilos_ventana_principal(window):
-    # Aplicar los estilos a la ventana principal
     window.setStyleSheet("""
         QWidget {
-            background-color: #FAFAFA;
+            background-color: #ECF0F1;  /* Fondo gris claro */
             font-family: 'Arial', sans-serif;
             color: #333;
         }
         QLineEdit {
-            border: 1px solid #CCC;
+            border: 1px solid #BDC3C7;  /* Bordes grises claros */
             border-radius: 4px;
             padding: 8px;
             font-size: 14px;
@@ -72,7 +71,7 @@ def aplicar_estilos_ventana_principal(window):
             font-size: 14px;
         }
         QPushButton {
-            background-color: #4CAF50;
+            background-color: #3498DB;  /* Azul para botones */
             color: white;
             font-size: 14px;
             border: none;
@@ -80,10 +79,10 @@ def aplicar_estilos_ventana_principal(window):
             text-align: center;
         }
         QPushButton:hover {
-            background-color: #45a049;
+            background-color: #2980B9;  /* Azul más oscuro al pasar el mouse */
         }
         QPushButton:pressed {
-            background-color: #2e7d32;
+            background-color: #1F618D;  /* Aún más oscuro al presionar */
         }
     """)
 
@@ -91,7 +90,7 @@ def aplicar_estilos_ventana_principal(window):
 def aplicar_estilos_botones_accion(btn_cargar_ingreso, btn_cargar_egreso, btn_ver_consolidado):
     btn_cargar_ingreso.setStyleSheet("""
         QPushButton {
-            background-color: green;
+            background-color: #27AE60;  /* Verde para ingresos */
             color: white;
             font-size: 16px;
             border: none;
@@ -99,15 +98,15 @@ def aplicar_estilos_botones_accion(btn_cargar_ingreso, btn_cargar_egreso, btn_ve
             border-radius: 5px;
         }
         QPushButton:hover {
-            background-color: #45a049;
+            background-color: #229954;
         }
         QPushButton:pressed {
-            background-color: #2e7d32;
+            background-color: #1E8449;
         }
     """)
     btn_cargar_egreso.setStyleSheet("""
         QPushButton {
-            background-color: red;
+            background-color: #E74C3C;  /* Rojo para egresos */
             color: white;
             font-size: 16px;
             border: none;
@@ -115,15 +114,15 @@ def aplicar_estilos_botones_accion(btn_cargar_ingreso, btn_cargar_egreso, btn_ve
             border-radius: 5px;
         }
         QPushButton:hover {
-            background-color: #d32f2f;
+            background-color: #C0392B;
         }
         QPushButton:pressed {
-            background-color: #b71c1c;
+            background-color: #A93226;
         }
     """)
     btn_ver_consolidado.setStyleSheet("""
         QPushButton {
-            background-color: #007BFF;
+            background-color: #3498DB;  /* Azul para ver consolidado */
             color: white;
             font-size: 16px;
             border: none;
@@ -131,10 +130,10 @@ def aplicar_estilos_botones_accion(btn_cargar_ingreso, btn_cargar_egreso, btn_ve
             border-radius: 5px;
         }
         QPushButton:hover {
-            background-color: #0056b3;
+            background-color: #2980B9;
         }
         QPushButton:pressed {
-            background-color: #003c82;
+            background-color: #1F618D;
         }
     """)
 
@@ -150,6 +149,7 @@ def aplicar_estilos_especiales(botones, colores):
             border: none;
             padding: 10px;
             text-align: left;
+            text-transform: uppercase;  /* Mayúsculas en los botones */
         }}
         QPushButton:hover {{
             background-color: {color};
@@ -162,21 +162,75 @@ def aplicar_estilos_especiales(botones, colores):
 
 # Estilos globales
 def aplicar_estilo_global(app):
-    # Aquí defines los estilos globales de la aplicación
     app.setStyleSheet("""
+        /* Estilos globales */
+        QWidget {
+            background-color: #F7F7F7;  /* Fondo muy suave */
+            font-family: 'Arial', sans-serif;
+            color: #333;  /* Texto en gris oscuro */
+        }
+        QLineEdit, QComboBox, QDateEdit {
+            border: 1px solid #CCC;
+            border-radius: 5px;
+            padding: 8px;
+            background-color: #FFF;
+            font-size: 14px;
+        }
+        QLabel {
+            font-size: 14px;
+            font-weight: normal;
+            color: #444;
+        }
         QPushButton {
-            background-color: #4CAF50;
-            color: white;
+            background-color: #E0E0E0;  /* Botón gris claro */
+            color: #333;
+            font-size: 14px;
             padding: 10px;
             border-radius: 5px;
         }
         QPushButton:hover {
-            background-color: #45a049;
+            background-color: #D5D5D5;  /* Hover: gris un poco más oscuro */
         }
-        QLabel {
+        QPushButton:pressed {
+            background-color: #C0C0C0;  /* Presionado: gris suave */
+        }
+        /* Estilos para tablas */
+        QTableWidget {
+            background-color: #FFF;
+            border: 1px solid #DDD;
+            gridline-color: #EEE;
             font-size: 14px;
         }
-        QMainWindow {
-            background-color: #f0f0f0;
+        QHeaderView::section {
+            background-color: #F0F0F0;  /* Cabeceras en gris claro */
+            padding: 8px;
+            border: none;
+            font-weight: bold;
+        }
+        QTableWidget::item {
+            padding: 8px;
+            border-bottom: 1px solid #EEE;
+        }
+        QTableWidget::item:selected {
+            background-color: #DFF0D8;  /* Selección verde suave */
+            color: #333;
+        }
+        /* Estilos para elementos flotantes */
+        QDialog {
+            background-color: #FFF;
+            border: 1px solid #DDD;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        /* Botones especiales */
+        QPushButton.special {
+            background-color: #B4D4F6;  /* Azul muy claro */
+            color: white;
+        }
+        QPushButton.special:hover {
+            background-color: #A4C4E6;  /* Hover en azul suave */
+        }
+        QPushButton.special:pressed {
+            background-color: #8AA8D2;  /* Presionado en azul suave */
         }
     """)

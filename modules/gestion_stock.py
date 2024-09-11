@@ -1,7 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QLabel, QFormLayout, QTableWidget, QTableWidgetItem, QTabWidget
 from PyQt5.QtCore import Qt
 from modules.database_operations import obtener_consolidado_stock, realizar_ajuste_stock, mover_pallet
-
 class GestionStockView(QWidget):
     def __init__(self):
         super().__init__()
@@ -12,18 +11,21 @@ class GestionStockView(QWidget):
         layout = QVBoxLayout()
 
         # Crear las pestañas
-        tabs = QTabWidget()
-        tabs.addTab(self.consolidado_tab(), "Consolidado")
-        tabs.addTab(self.ajustes_tab(), "Ajustes")
-        tabs.addTab(self.mover_pallet_tab(), "Mover Pallet")
+        self.tabs = QTabWidget()
+        self.tabs.addTab(self.consolidado_tab(), "Consolidado")
+        self.tabs.addTab(self.ajustes_tab(), "Ajustes")
+        self.tabs.addTab(self.mover_pallet_tab(), "Mover Pallet")
 
+        # Conectar el cambio de pestañas al evento para actualizar la tabla
+        self.tabs.currentChanged.connect(self.on_tab_changed)
+        
         # Agregar pestañas al layout principal
-        layout.addWidget(tabs)
+        layout.addWidget(self.tabs)
         self.setLayout(layout)
 
     # Pestaña 1: Consolidado
     def consolidado_tab(self):
-        widget = QWidget()
+        self.consolidado_widget = QWidget()
         layout = QVBoxLayout()
 
         # Botón para buscar y filtrar
@@ -52,21 +54,21 @@ class GestionStockView(QWidget):
         export_layout.addWidget(imprimir_pallet_button)
         layout.addLayout(export_layout)
 
-        widget.setLayout(layout)
-        return widget
+        self.consolidado_widget.setLayout(layout)
+        return self.consolidado_widget
 
     # Función para buscar y filtrar consolidado
     def buscar_consolidado(self):
-        filtro = self.buscar_input.text()
-        resultados = obtener_consolidado_stock(filtro)  # Función simulada que devolvería resultados del stock
-        self.consolidado_table.setRowCount(0)
+        filtro = self.buscar_input.text()  # Obtener el texto de búsqueda
+        resultados = obtener_consolidado_stock(filtro)  # Ahora el filtro se puede pasar a la función
+        self.consolidado_table.setRowCount(0)  # Limpiar la tabla antes de llenarla
         for i, item in enumerate(resultados):
             self.consolidado_table.insertRow(i)
-            self.consolidado_table.setItem(i, 0, QTableWidgetItem(item["codigo"]))
-            self.consolidado_table.setItem(i, 1, QTableWidgetItem(item["descripcion"]))
-            self.consolidado_table.setItem(i, 2, QTableWidgetItem(item["ubicacion"]))
-            self.consolidado_table.setItem(i, 3, QTableWidgetItem(str(item["cantidad"])))
-            self.consolidado_table.setItem(i, 4, QTableWidgetItem(item["fecha"]))
+            self.consolidado_table.setItem(i, 0, QTableWidgetItem(item.codigo))
+            self.consolidado_table.setItem(i, 1, QTableWidgetItem(item.descripcion))
+            self.consolidado_table.setItem(i, 2, QTableWidgetItem(item.ubicacion))
+            self.consolidado_table.setItem(i, 3, QTableWidgetItem(str(item.cantidad)))
+            self.consolidado_table.setItem(i, 4, QTableWidgetItem(item.fecha.strftime('%d/%m/%Y')))
 
     # Pestaña 2: Ajustes
     def ajustes_tab(self):
@@ -100,8 +102,8 @@ class GestionStockView(QWidget):
         codigo = self.codigo_input.text()
         ubicacion = self.ubicacion_input.text()
         cantidad = self.cantidad_input.text()
-        resultado = realizar_ajuste_stock(codigo, ubicacion, cantidad)  # Función simulada para ajustar stock
-        print(resultado)  # Simulación de éxito
+        realizar_ajuste_stock(codigo, ubicacion, float(cantidad))  # Función simulada para ajustar stock
+
 
     # Pestaña 3: Mover Pallet
     def mover_pallet_tab(self):
@@ -135,5 +137,9 @@ class GestionStockView(QWidget):
         codigo_pallet = self.codigo_pallet_input.text()
         ubicacion_actual = self.ubicacion_actual_input.text()
         nueva_ubicacion = self.ubicacion_nueva_input.text()
-        resultado = mover_pallet(codigo_pallet, ubicacion_actual, nueva_ubicacion)  # Función simulada para mover pallet
-        print(resultado)  # Simulación de éxito
+        mover_pallet(codigo_pallet, ubicacion_actual, nueva_ubicacion)  # Función simulada para mover pallet
+        
+    # Función para actualizar automáticamente la tabla de consolidado cuando se selecciona la pestaña
+    def on_tab_changed(self, index):
+        if index == 0:  # Pestaña de consolidado
+            self.buscar_consolidado()  # Cargar datos automáticamente

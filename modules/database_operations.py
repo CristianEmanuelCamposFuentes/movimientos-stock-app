@@ -14,11 +14,17 @@ def registrar_movimiento(session: Session, movimiento_data):
     session.add(nuevo_movimiento)
     session.commit()
 
-# Obtener el consolidado de stock
-def obtener_consolidado_stock():
+# Obtener el consolidado de stock con un filtro opcional
+def obtener_consolidado_stock(filtro=None):
     db = next(get_db())
     try:
-        consolidado = obtener_stock(db)
+        if filtro:
+            # Aplicar el filtro para buscar registros específicos
+            consolidado = db.query(StockActual).filter(StockActual.codigo.contains(filtro) | StockActual.descripcion.contains(filtro)).all()
+        else:
+            # Devolver todos los registros si no hay filtro
+            consolidado = db.query(StockActual).all()
+        print(f"Consolidado encontrado: {consolidado}")         
         return consolidado
     except Exception as e:
         print(f"Error al obtener el consolidado de stock: {e}")

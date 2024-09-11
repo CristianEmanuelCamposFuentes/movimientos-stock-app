@@ -1,100 +1,69 @@
-import os
-from sqlalchemy import create_engine, Column, Integer, String, Float, Date
+from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import relationship
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session
 
-# Obtener la ruta absoluta del directorio de este script
-base_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Construir la ruta de la base de datos relativa al directorio de este script
-db_path = os.path.join(base_dir, '..', 'data', 'stock_management.db')
-
-# Configuración de SQLAlchemy con la ruta relativa
-engine = create_engine(f'sqlite:///{db_path}', echo=False)  # echo=False para no generar log
+# Definir la base
 Base = declarative_base()
 
-# Configuración de la sesión
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# Tabla Productos
+class Producto(Base):
+    __tablename__ = 'Productos'
 
-# Función para obtener una sesión de la base de datos
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
-
-# Modelo de la tabla Pasillos
-class Pasillos(Base):
-    __tablename__ = "pasillos"
-    id = Column(Integer, primary_key=True, index=True)
-    pasillo = Column(String, nullable=False)
-    ubicacion = Column(String, nullable=False, unique=True)
-
-# Modelo de la tabla StockActual
-class StockActual(Base):
-    __tablename__ = "stock_actual"
-    id = Column(Integer, primary_key=True, index=True)
-    pasillo = Column(String, nullable=False)
-    ubicacion = Column(String, nullable=False)
+    id_producto = Column(Integer, primary_key=True, autoincrement=True)
     codigo = Column(String, nullable=False)
     descripcion = Column(String, nullable=False)
-    cantidad = Column(Float, nullable=False)
-    fecha = Column(Date, nullable=False)
+    categoria = Column(String)
+    imagen = Column(String)
 
-# Modelo de la tabla Movimientos
-class Movimientos(Base):
-    __tablename__ = "movimientos"
-    id = Column(Integer, primary_key=True, index=True)
+# Tabla Ubicaciones
+class Ubicacion(Base):
+    __tablename__ = 'Ubicaciones'
+
+    id_ubicacion = Column(Integer, primary_key=True, autoincrement=True)
+    pasillo = Column(String, nullable=False)
+    fila = Column(String, nullable=False)
+
+# Tabla Stock
+class Stock(Base):
+    __tablename__ = 'Stock'
+
+    id_stock = Column(Integer, primary_key=True, autoincrement=True)
+    id_producto = Column(Integer, ForeignKey('Productos.id_producto'), nullable=False)
+    id_ubicacion = Column(Integer, ForeignKey('Ubicaciones.id_ubicacion'), nullable=False)
+    cantidad = Column(Float, nullable=False)
+
+    producto = relationship('Producto', backref='stock')
+    ubicacion = relationship('Ubicacion', backref='stock')
+
+# Tabla Movimientos
+class Movimiento(Base):
+    __tablename__ = 'Movimientos'
+
+    id_movimiento = Column(Integer, primary_key=True, autoincrement=True)
     ubicacion = Column(String, nullable=False)
     codigo = Column(String, nullable=False)
     cantidad = Column(Float, nullable=False)
     fecha = Column(Date, nullable=False)
-    nota_devolucion = Column(String, nullable=False)
+    nota_devolucion = Column(String)
     tipo_movimiento = Column(String, nullable=False)
     observaciones = Column(String)
 
-# Modelo de la tabla NotasPedido    
-class NotasPedido(Base):
-    __tablename__ = "notas_pedido"
-    id = Column(Integer, primary_key=True, index=True)
-    codigo = Column(String, nullable=False)
-    descripcion = Column(String, nullable=False)
-    cantidad = Column(Float, nullable=False)
-    fecha = Column(Date, nullable=False)
-    numero_nota = Column(String, nullable=True)
+# Tabla Pendientes (para registrar incidentes)
+class Pendiente(Base):
+    __tablename__ = 'Pendientes'
 
-# Modelo de la tabla Productos
-class Productos(Base):
-    __tablename__ = "productos"
-    id_producto = Column(Integer, primary_key=True, index=True)
-    codigo = Column(String, nullable=False, unique=True)
-    descripcion = Column(String, nullable=False)
-    categoria = Column(String, nullable=True)
-    imagen = Column(String, nullable=True)
-    
-class Usuarios(Base):
-    __tablename__ = "usuarios"
-    id = Column(Integer, primary_key=True, index=True)
-    nombre = Column(String, nullable=False, unique=True)
-    rol = Column(String, nullable=False)  # Puede ser 'Admin' o 'Usuario' 
-    
-# Agregar el modelo para la tabla Pendientes
-class Pendientes(Base):
-    __tablename__ = "pendientes"
-    id = Column(Integer, primary_key=True, index=True)
-    codigo = Column(String, nullable=False)
-    descripcion = Column(String, nullable=False)
+    id_pendiente = Column(Integer, primary_key=True, autoincrement=True)
+    id_producto = Column(Integer, ForeignKey('Productos.id_producto'), nullable=False)
+    id_ubicacion = Column(Integer, ForeignKey('Ubicaciones.id_ubicacion'), nullable=False)
     cantidad = Column(Float, nullable=False)
-    fecha = Column(Date, nullable=False)
     motivo = Column(String, nullable=False)
-    ubicacion = Column(String, nullable=True)        
+    fecha = Column(Date, nullable=False)
 
-# Función para crear las tablas (solo se ejecuta cuando sea necesario)
-def crear_tablas():
-    Base.metadata.create_all(bind=engine)
+# Conectar con la base de datos
+db_path = './data/stock_management.db'
+engine = create_engine(f'sqlite:///{db_path}', echo=True)
 
-
-
-
-
+# Crear todas las tablas si no existen
+Base.metadata.create_all(engine)

@@ -3,6 +3,7 @@ from PyQt5.QtCore import Qt
 from sqlalchemy.orm import Session
 from modules.database import get_db, StockActual, Movimientos
 from datetime import datetime
+from modules.ui_styles import aplicar_estilos_especiales
 
 class AjustesView(QWidget):
     def __init__(self):
@@ -43,7 +44,9 @@ class AjustesView(QWidget):
         main_layout.addWidget(self.stock_table)
         main_layout.addLayout(botones_layout)
 
-        self.setLayout(main_layout)
+        self.setLayout(main_layout) 
+        
+        
 
     def cargar_stock(self):
         """Cargar los datos del stock en la tabla para ajustes"""

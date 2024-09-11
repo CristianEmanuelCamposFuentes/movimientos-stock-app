@@ -5,6 +5,8 @@ from modules.ui_functions import crear_campo_formulario
 from modules.ui_styles import aplicar_estilos_especiales
 from modules.gestion_stock import GestionStockView
 from modules.database_operations import get_description_by_code
+from modules.database_operations import obtener_consolidado_stock
+
 
 
 class IngresosEgresosWindow(QWidget):
@@ -57,9 +59,11 @@ class IngresosEgresosWindow(QWidget):
         btn_cargar_ajustes = QPushButton("Ir a Ajustes")
         btn_cargar_ajustes.clicked.connect(self.ir_a_ajustes)  # Conecta con la función ir_a_ajustes
 
+        # Botón para ver Consolidado
         btn_ver_consolidado = QPushButton("Ver Consolidado")
         btn_ver_consolidado.clicked.connect(self.ver_consolidado)  
 
+        # Botón para mover Pallet
         btn_mover_pallet = QPushButton("Mover Pallet")
         btn_mover_pallet.clicked.connect(self.mover_pallet) 
         
@@ -95,7 +99,18 @@ class IngresosEgresosWindow(QWidget):
 
     def ver_consolidado(self):
         print("Ver Consolidado")
-        self.parent.mostrar_gestion_stock()
+        consolidado = obtener_consolidado_stock()
+         # Supongamos que 'self.table_widget' es el QTableWidget donde mostrarás el stock
+        self.stock_table.setRowCount(0)  # Limpiar tabla antes de llenarla
+        for i, item in enumerate(consolidado):
+            self.stock_table.insertRow(i)
+            self.stock_table.setItem(i, 0, QTableWidgetItem(item.codigo))
+            self.stock_table.setItem(i, 1, QTableWidgetItem(item.descripcion))
+            self.stock_table.setItem(i, 2, QTableWidgetItem(str(item.cantidad)))
+            self.stock_table.setItem(i, 3, QTableWidgetItem(item.ubicacion))
+            self.stock_table.setItem(i, 4, QTableWidgetItem(item.fecha.strftime("%d/%m/%Y")))
+            
+        
 
     def mover_pallet(self):
         print("Mover Pallet")
