@@ -6,6 +6,7 @@ from modules.ui_styles import aplicar_estilos_especiales
 from modules.gestion_stock import GestionStockView
 from modules.database_operations import get_description_by_code
 
+
 class IngresosEgresosWindow(QWidget):
     def __init__(self, usuario,parent=None):
         super().__init__(parent)

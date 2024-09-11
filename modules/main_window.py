@@ -6,6 +6,10 @@ from modules.notas_pedido import NotasPedidoView
 from modules.admin_productos import AdminProductosView
 from modules.registros_movimientos import RegistrosMovimientosView
 from modules.gestion_usuarios import GestionUsuariosView
+from modules.ui_styles import aplicar_estilos_barra_navegacion, aplicar_estilos_barra_lateral, aplicar_estilos_ventana_principal
+from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import QSize 
+
 
 class MainWindow(QWidget):
     def __init__(self, usuario):
@@ -27,6 +31,9 @@ class MainWindow(QWidget):
         nav_layout.addStretch()  # Espacio flexible para alinear el texto a la izquierda
         nav_layout.addWidget(QLabel(f"Usuario: {self.usuario}"))  # Nombre del usuario actual
 
+        # Aplicar estilos a la barra de navegación
+        aplicar_estilos_barra_navegacion(nav_layout)
+
         # Menú lateral (botones)
         menu_layout = QVBoxLayout()
         btn_ingresos_egresos = QPushButton("Ingresos/Egresos")
@@ -36,6 +43,18 @@ class MainWindow(QWidget):
         btn_registros_movimientos = QPushButton("Registros de Movimientos")
         btn_gestion_usuarios = QPushButton("Gestión de Usuarios")
         btn_ajustes = QPushButton("Ajustes de Stock")
+
+                # Aplicar íconos a los botones
+        botones = [btn_ingresos_egresos, btn_gestion_stock, btn_notas_pedido, btn_admin_productos, btn_registros_movimientos, btn_gestion_usuarios, btn_ajustes]
+        botones_iconos = ["img/icono_ingresos.png", "img/icono_gestion.png", "img/icono_nota_pedido.png", 
+                          "img/icono_admin.png", "img/icono_registros.png", "img/icono_usuarios.png", "img/icono_ajustes.png"]
+        
+        for i, boton in enumerate(botones):
+            boton.setIcon(QIcon(botones_iconos[i]))
+            boton.setIconSize(QSize(24, 24))
+
+        # Aplicar estilos al menú lateral
+        aplicar_estilos_barra_lateral(botones)
 
         # Conectar botones a funciones
         btn_ingresos_egresos.clicked.connect(lambda: self.mostrar_vista(self.ingresos_egresos_view, "Ingresos/Egresos"))
@@ -59,7 +78,7 @@ class MainWindow(QWidget):
         self.contenido_principal = QStackedWidget()
 
         # Inicialización de las vistas
-        self.ingresos_egresos_view = IngresosEgresosWindow(self.usuario)
+        self.ingresos_egresos_view = IngresosEgresosWindow(self.usuario, self)
         self.ajustes_view = AjustesView()
         self.gestion_stock_view = GestionStockView()
         self.notas_pedido_view = NotasPedidoView()
@@ -80,6 +99,9 @@ class MainWindow(QWidget):
         content_layout = QHBoxLayout()
         content_layout.addLayout(menu_layout)  # Menú lateral
         content_layout.addWidget(self.contenido_principal)  # Vistas principales
+
+                # Aplicar estilos globales a la ventana principal
+        aplicar_estilos_ventana_principal(self)
 
         # Agregar la barra de navegación y el contenido al layout principal
         main_layout.addLayout(nav_layout)
