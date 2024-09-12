@@ -1,5 +1,7 @@
+from datetime import datetime
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QFormLayout, QLineEdit, QTabWidget, QFileDialog, QMessageBox
 from modules.database_operations import obtener_movimientos_historicos, obtener_movimientos_pendientes, generar_pdf, exportar_csv
+from modules.database import get_db, Movimiento, Pendiente
 
 class RegistrosMovimientosView(QWidget):
     def __init__(self):
@@ -147,10 +149,41 @@ class RegistrosMovimientosView(QWidget):
     def ver_ubicacion(self, pendiente):
         QMessageBox.information(self, "Ubicación", f"Información de la ubicación: {pendiente['ubicacion']}")
 
-    # Función para registrar movimiento del pendiente
     def registrar_movimiento(self, pendiente):
-        QMessageBox.information(self, "Registrar Movimiento", f"Movimiento registrado para: {pendiente['codigo']}")
+        db = next(get_db())
+        try:
+            # Crear un movimiento en base al pendiente
+            movimiento = Movimiento(
+                ubicacion=pendiente['ubicacion'],
+                codigo=pendiente['codigo'],
+                cantidad=pendiente['cantidad'],
+                fecha=datetime.now(),
+                nota_devolucion="Movimiento desde pendiente",
+                tipo_movimiento="Egreso",
+                observaciones="Se registra el movimiento desde pendiente"
+            )
+            db.add(movimiento)
+            db.commit()
 
-    # Función para cancelar un pendiente
+            # Luego de registrar el movimiento, eliminar el pendiente
+            db.query(Pendiente).filter(Pendiente.codigo == pendiente['codigo']).delete()
+            db.commit()
+
+            QMessageBox.information(self, "Éxito", f"Movimiento registrado y pendiente eliminado: {pendiente['codigo']}")
+        except Exception as e:
+            db.rollback()
+            QMessageBox.critical(self, "Error", f"Error al registrar movimiento: {e}")
+        finally:
+            db.close()
+
     def cancelar_pendiente(self, pendiente):
-        QMessageBox.information(self, "Cancelar", f"Pendiente cancelado: {pendiente['codigo']}")
+        db = next(get_db())
+        try:
+            db.query(Pendiente).filter(Pendiente.codigo == pendiente['codigo']).delete()
+            db.commit()
+            QMessageBox.information(self, "Éxito", f"Pendiente cancelado: {pendiente['codigo']}")
+        except Exception as e:
+            db.rollback()
+            QMessageBox.critical(self, "Error", f"Error al cancelar pendiente: {e}")
+        finally:
+            db.close()

@@ -1,18 +1,33 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QVBoxLayout, QPushButton, QComboBox, QMessageBox
+from PyQt5.QtGui import QColor, QPalette
 from datetime import datetime
 import sqlite3
+
+# Importar los estilos globales
+from modules.ui_styles import aplicar_estilo_global
+
 
 class Form(QWidget):
     def __init__(self):
         super().__init__()
         self.initUI()
-        
+        self.habilitar_formulario(False)  # El formulario está deshabilitado inicialmente
+
     def initUI(self):
         self.setWindowTitle("Gestión de Movimientos de Stock")
         self.setGeometry(100, 100, 400, 300)
-        
+
         layout = QVBoxLayout()
+
+        # Botones de tipo de movimiento
+        self.ingreso_button = QPushButton("Ingresar Ingresos")
+        self.egreso_button = QPushButton("Ingresar Egresos")
+        self.ingreso_button.clicked.connect(lambda: self.desplegar_formulario("Ingreso"))
+        self.egreso_button.clicked.connect(lambda: self.desplegar_formulario("Egreso"))
+
+        layout.addWidget(self.ingreso_button)
+        layout.addWidget(self.egreso_button)
 
         # Campos del formulario
         self.ubicacion_label = QLabel("Ubicación:")
@@ -45,12 +60,6 @@ class Form(QWidget):
         layout.addWidget(self.nota_devolucion_label)
         layout.addWidget(self.nota_devolucion_input)
 
-        self.tipo_movimiento_label = QLabel("Tipo de Movimiento:")
-        self.tipo_movimiento_combo = QComboBox()
-        self.tipo_movimiento_combo.addItems(["Ingreso", "Egreso"])
-        layout.addWidget(self.tipo_movimiento_label)
-        layout.addWidget(self.tipo_movimiento_combo)
-
         self.observaciones_label = QLabel("Observaciones:")
         self.observaciones_input = QLineEdit()
         layout.addWidget(self.observaciones_label)
@@ -63,6 +72,27 @@ class Form(QWidget):
 
         self.setLayout(layout)
 
+    def habilitar_formulario(self, habilitar):
+        """Habilitar o deshabilitar el formulario completo"""
+        widgets = [self.ubicacion_input, self.codigo_input, self.descripcion_input,
+                   self.cantidad_input, self.fecha_input, self.nota_devolucion_input,
+                   self.observaciones_input, self.registrar_button]
+        
+        # Habilitar/deshabilitar campos y cambiar el color de fondo
+        for widget in widgets:
+            widget.setEnabled(habilitar)
+            pal = widget.palette()
+            if habilitar:
+                pal.setColor(QPalette.Base, QColor(255, 255, 255))  # Fondo blanco si está habilitado
+            else:
+                pal.setColor(QPalette.Base, QColor(200, 200, 200))  # Fondo gris si está deshabilitado
+            widget.setPalette(pal)
+
+    def desplegar_formulario(self, tipo_movimiento):
+        """Desbloquear el formulario y establecer el tipo de movimiento"""
+        self.habilitar_formulario(True)
+        self.tipo_movimiento = tipo_movimiento
+
     def registrar_movimiento(self):
         # Aquí agregamos la lógica para procesar el movimiento
         ubicacion = self.ubicacion_input.text()
@@ -71,10 +101,11 @@ class Form(QWidget):
         cantidad = self.cantidad_input.text()
         fecha = self.fecha_input.text()
         nota_devolucion = self.nota_devolucion_input.text()
-        tipo_movimiento = self.tipo_movimiento_combo.currentText()
+        tipo_movimiento = self.tipo_movimiento  # Ya está predefinido
+
         observaciones = self.observaciones_input.text()
 
-        # Validar los campos (similar a como lo tenías en Tkinter)
+        # Validar los campos
         if not ubicacion or not codigo or not cantidad:
             QMessageBox.warning(self, "Error", "Por favor, complete todos los campos obligatorios.")
             return
@@ -91,7 +122,7 @@ class Form(QWidget):
         # Conectar con SQLite e insertar el movimiento
         conexion = sqlite3.connect('data/stock_management.db')
         cursor = conexion.cursor()
-        
+
         cursor.execute('''
             INSERT INTO movimientos (ubicacion, codigo, cantidad, fecha, nota_devolucion, tipo_movimiento, observaciones)
             VALUES (?, ?, ?, ?, ?, ?, ?)
@@ -100,10 +131,16 @@ class Form(QWidget):
         conexion.commit()
         conexion.close()
 
+
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+
+    # Aplicar estilos globales
+    aplicar_estilo_global(app)
+
     ventana = Form()
     ventana.show()
     sys.exit(app.exec_())
+
 
 

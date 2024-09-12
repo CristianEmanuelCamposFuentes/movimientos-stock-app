@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QLabel
 from PyQt5.QtCore import Qt
 from sqlalchemy.orm import Session
-from modules.database import get_db, StockActual, Movimientos
+from modules.database import get_db, Stock, Movimiento
 from datetime import datetime
 from modules.ui_styles import aplicar_estilos_especiales
 
@@ -46,12 +46,11 @@ class AjustesView(QWidget):
 
         self.setLayout(main_layout) 
         
-        
 
     def cargar_stock(self):
         """Cargar los datos del stock en la tabla para ajustes"""
         db = next(get_db())
-        stock_items = db.query(StockActual).all()
+        stock_items = db.query(Stock).all()
 
         self.stock_table.setRowCount(len(stock_items))
         for row_num, item in enumerate(stock_items):
@@ -64,6 +63,7 @@ class AjustesView(QWidget):
             fecha_item = QTableWidgetItem(item.fecha.strftime("%d/%m/%Y"))
             fecha_item.setFlags(Qt.ItemIsEditable | Qt.ItemIsEnabled)  # Editable
             self.stock_table.setItem(row_num, 4, fecha_item)
+
     def buscar_stock(self):
         """Buscar stock para ajustes"""
         search_term = self.search_input.text()
@@ -81,13 +81,13 @@ class AjustesView(QWidget):
                 fecha = datetime.strptime(self.stock_table.item(row, 4).text(), "%d/%m/%Y")
 
                 # Actualizar la base de datos
-                stock_item = db.query(StockActual).filter(StockActual.ubicacion == ubicacion, StockActual.codigo == codigo).first()
+                stock_item = db.query(Stock).filter(Stock.ubicacion == ubicacion, Stock.codigo == codigo).first()
                 if stock_item:
                     stock_item.cantidad = cantidad
                     stock_item.fecha = fecha
 
                     # Registrar el ajuste en la tabla de movimientos
-                    movimiento = Movimientos(
+                    movimiento = Movimiento(
                         ubicacion=ubicacion,
                         codigo=codigo,
                         cantidad=cantidad,

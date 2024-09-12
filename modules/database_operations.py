@@ -1,30 +1,43 @@
 from sqlalchemy.orm import Session
-from modules.database import StockActual, Movimientos, get_db, NotasPedido, Usuarios, Productos, Pendientes
+from modules.database import Stock, Movimiento, get_db, NotasPedido, Producto, Pendiente
 from datetime import datetime
+import csv
+from fpdf import FPDF  # Necesitarás instalar esta librería con `pip install fpdf`
+from datetime import datetime
+
+
 
 # Obtener el consolidado de stock actual
 def obtener_stock(session: Session):
     """Obtiene todos los registros de stock actual"""
-    return session.query(StockActual).all()
+    return session.query(Stock).all()
 
+# Registrar un nuevo movimiento
 # Registrar un nuevo movimiento
 def registrar_movimiento(session: Session, movimiento_data):
     """Registra un nuevo movimiento en la base de datos"""
-    nuevo_movimiento = Movimientos(**movimiento_data)
-    session.add(nuevo_movimiento)
-    session.commit()
+    try:
+        nuevo_movimiento = Movimiento(**movimiento_data)
+        session.add(nuevo_movimiento)
+        session.commit()
+        print("Movimiento registrado con éxito")
+    except Exception as e:
+        session.rollback()
+        print(f"Error al registrar el movimiento: {e}")
 
 # Obtener el consolidado de stock con un filtro opcional
 def obtener_consolidado_stock(filtro=None):
     db = next(get_db())
     try:
         if filtro:
-            # Aplicar el filtro para buscar registros específicos
-            consolidado = db.query(StockActual).filter(StockActual.codigo.contains(filtro) | StockActual.descripcion.contains(filtro)).all()
+            # Aplicar el filtro para buscar registros específicos por código o descripción
+            consolidado = db.query(Stock).join(Producto).filter(
+                (Producto.codigo.contains(filtro)) | (Producto.descripcion.contains(filtro))
+            ).all()
         else:
             # Devolver todos los registros si no hay filtro
-            consolidado = db.query(StockActual).all()
-        print(f"Consolidado encontrado: {consolidado}")         
+            consolidado = db.query(Stock).all()
+        print(f"Consolidado encontrado: {consolidado}")
         return consolidado
     except Exception as e:
         print(f"Error al obtener el consolidado de stock: {e}")
@@ -32,13 +45,25 @@ def obtener_consolidado_stock(filtro=None):
     finally:
         db.close()
 
+
 # Realizar ajuste de stock
-def realizar_ajuste_stock(ubicacion: str, codigo: str, nueva_cantidad: float):
+def realizar_ajuste_stock(codigo: str, ubicacion: str, nueva_cantidad: float):
     db = next(get_db())
     try:
-        stock_item = db.query(StockActual).filter(StockActual.ubicacion == ubicacion, StockActual.codigo == codigo).first()
+        # Buscar el ítem de stock que coincida con el código y la ubicación
+        stock_item = db.query(Stock).join(Producto).filter(Stock.ubicacion == ubicacion, Producto.codigo == codigo).first()
         if stock_item:
-            stock_item.cantidad = nueva_cantidad
+            stock_item.cantidad = nueva_cantidad  # Actualizar la cantidad de stock
+            movimiento = Movimiento(
+                ubicacion=ubicacion,
+                codigo=codigo,
+                cantidad=nueva_cantidad,
+                fecha=datetime.now(),
+                nota_devolucion="Ajuste manual",
+                tipo_movimiento="Ajuste",
+                observaciones="Ajuste de stock"
+            )
+            db.add(movimiento)  # Registrar el ajuste como un movimiento
             db.commit()
             print(f"Stock ajustado correctamente para {codigo} en {ubicacion}")
         else:
@@ -53,22 +78,37 @@ def realizar_ajuste_stock(ubicacion: str, codigo: str, nueva_cantidad: float):
 def mover_pallet(codigo: str, ubicacion_origen: str, ubicacion_destino: str, cantidad: float):
     db = next(get_db())
     try:
-        stock_origen = db.query(StockActual).filter(StockActual.ubicacion == ubicacion_origen, StockActual.codigo == codigo).first()
+        # Buscar el stock en la ubicación de origen
+        stock_origen = db.query(Stock).join(Producto).filter(Stock.ubicacion == ubicacion_origen, Producto.codigo == codigo).first()
         if stock_origen and stock_origen.cantidad >= cantidad:
-            stock_origen.cantidad -= cantidad
-            stock_destino = db.query(StockActual).filter(StockActual.ubicacion == ubicacion_destino, StockActual.codigo == codigo).first()
+            stock_origen.cantidad -= cantidad  # Descontar la cantidad del origen
+            
+            # Buscar o crear el stock en la ubicación de destino
+            stock_destino = db.query(Stock).join(Producto).filter(Stock.ubicacion == ubicacion_destino, Producto.codigo == codigo).first()
             if stock_destino:
-                stock_destino.cantidad += cantidad
+                stock_destino.cantidad += cantidad  # Añadir la cantidad al destino
             else:
-                nuevo_stock = StockActual(
+                # Si no existe en destino, creamos un nuevo registro
+                nuevo_stock = Stock(
                     ubicacion=ubicacion_destino,
-                    codigo=codigo,
-                    descripcion=stock_origen.descripcion,
                     cantidad=cantidad,
-                    pasillo=stock_origen.pasillo,
-                    fecha=stock_origen.fecha
+                    id_producto=stock_origen.id_producto,
+                    id_ubicacion=stock_origen.id_ubicacion
                 )
                 db.add(nuevo_stock)
+
+            # Registrar el movimiento como "Movimiento de pallet"
+            movimiento = Movimiento(
+                ubicacion=ubicacion_origen,
+                codigo=codigo,
+                cantidad=-cantidad,
+                fecha=datetime.now(),
+                nota_devolucion="Movimiento de pallet",
+                tipo_movimiento="Movimiento",
+                observaciones=f"Movido a {ubicacion_destino}"
+            )
+            db.add(movimiento)
+
             db.commit()
             print(f"Pallet movido de {ubicacion_origen} a {ubicacion_destino}")
         else:
@@ -81,202 +121,209 @@ def mover_pallet(codigo: str, ubicacion_origen: str, ubicacion_destino: str, can
 
 # Función para generar una nueva nota de pedido
 def generar_nota_pedido(session: Session, codigo: str, descripcion: str, cantidad: float, fecha: str, numero_nota: str = None):
-    """Genera una nueva nota de pedido y la guarda en la base de datos"""
-    nueva_nota = NotasPedido(
-        codigo=codigo,
-        descripcion=descripcion,
-        cantidad=cantidad,
-        fecha=fecha,
-        numero_nota=numero_nota
-    )
-    session.add(nueva_nota)
-    session.commit()
-
-# Función para cargar una nota de pedido existente (usada para actualizarla)
-def cargar_nota_pedido(session: Session, numero_nota: str):
-    """Carga una nota de pedido por su número"""
-    return session.query(NotasPedido).filter(NotasPedido.numero_nota == numero_nota).all()
-
-# Función para obtener todos los registros de notas de pedido
-def obtener_registros_notas(session: Session):
-    """Obtiene todas las notas de pedido"""
-    return session.query(NotasPedido).all()
-
-# Función para agregar un producto
-def agregar_producto(session: Session, codigo: str, descripcion: str, categoria: str, imagen: str = None):
-    """Agregar un nuevo producto a la base de datos"""
-    nuevo_producto = Productos(
-        codigo=codigo,
-        descripcion=descripcion,
-        categoria=categoria,
-        imagen=imagen
-    )
-    session.add(nuevo_producto)
-    session.commit()
-
-# Función para obtener todos los productos
-def obtener_productos(session: Session):
-    """Obtener todos los productos de la base de datos"""
-    return session.query(Productos).all()
-
-# Función para editar un producto existente
-def editar_producto(session: Session, producto_id: int, datos_actualizados: dict):
-    """Editar un producto existente en la base de datos"""
-    producto = session.query(Productos).filter(Productos.id_producto == producto_id).first()
-    if producto:
-        for key, value in datos_actualizados.items():
-            setattr(producto, key, value)
-        session.commit()
-
-# Función para eliminar un producto
-def eliminar_producto(session: Session, producto_id: int):
-    """Eliminar un producto de la base de datos"""
-    producto = session.query(Productos).filter(Productos.id_producto == producto_id).first()
-    if producto:
-        session.delete(producto)
-        session.commit()
-        
-def obtener_usuarios():
-    """Obtener la lista de usuarios desde la base de datos."""
-    db = next(get_db())
-    usuarios = db.query(Usuarios).all()
-    db.close()
-    return usuarios
-
-def agregar_usuario(nombre):
-    """Agregar un nuevo usuario a la base de datos."""
-    db = next(get_db())
-    nuevo_usuario = Usuarios(nombre=nombre, rol="Usuario")  # Puedes cambiar el rol según sea necesario
-    db.add(nuevo_usuario)
-    db.commit()
-    db.close()
-
-def editar_usuario(id_usuario, nuevo_nombre):
-    """Editar un usuario existente."""
-    db = next(get_db())
-    usuario = db.query(Usuarios).filter(Usuarios.id == id_usuario).first()
-    if usuario:
-        usuario.nombre = nuevo_nombre
-        db.commit()
-    db.close()
-
-def eliminar_usuario(id_usuario):
-    """Eliminar un usuario de la base de datos."""
-    db = next(get_db())
-    usuario = db.query(Usuarios).filter(Usuarios.id == id_usuario).first()
-    if usuario:
-        db.delete(usuario)
-        db.commit()
-    db.close()        
-    
-    
-# Obtener los movimientos históricos
-def obtener_movimientos_historicos():
-    """Obtener la lista de movimientos históricos."""
-    db = next(get_db())
-    movimientos = db.query(Movimientos).all()
-    db.close()
-    return movimientos
-
-# Obtener los movimientos pendientes
-def obtener_movimientos_pendientes():
-    """Obtener la lista de movimientos pendientes."""
-    # Aquí asumo que hay un campo o tabla que guarda los pendientes
-    # Si no, se debería agregar una tabla o campo específico
-    db = next(get_db())
-    pendientes = db.query(Movimientos).filter(Movimientos.tipo_movimiento == 'Pendiente').all()
-    db.close()
-    return pendientes
-
-# Función para generar PDF (requerirá una librería como ReportLab o similar)
-def generar_pdf(movimientos):
-    """Generar un PDF con los movimientos proporcionados."""
-    # Implementar la lógica para generar un PDF usando movimientos
-    pass
-
-# Función para exportar CSV
-def exportar_csv(movimientos, file_path):
-    """Exportar movimientos a un archivo CSV."""
-    import csv
-    with open(file_path, mode='w', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow(['ID', 'Ubicación', 'Código', 'Cantidad', 'Fecha', 'Nota/Devolución', 'Tipo Movimiento', 'Observaciones'])
-        for mov in movimientos:
-            writer.writerow([mov.id, mov.ubicacion, mov.codigo, mov.cantidad, mov.fecha, mov.nota_devolucion, mov.tipo_movimiento, mov.observaciones])    
-            
-# Función para registrar un movimiento pendiente
-def registrar_pendiente(session: Session, codigo: str, descripcion: str, cantidad: float, fecha: str, motivo: str, ubicacion: str = None):
-    pendiente = Pendientes(
-        codigo=codigo,
-        descripcion=descripcion,
-        cantidad=cantidad,
-        fecha=datetime.strptime(fecha, "%d/%m/%Y"),
-        motivo=motivo,
-        ubicacion=ubicacion
-    )
-    session.add(pendiente)
-    session.commit()
-
-# Función para procesar movimientos con la opción "Sin ubicación"
-def process_movement(ubicacion: str, codigo: str, cantidad: float, fecha: str, tipo_movimiento: str, motivo: str, observaciones: str):
-    db = next(get_db())
     try:
-        cantidad = float(cantidad)
-        fecha = datetime.strptime(fecha, "%d/%m/%Y")
-        
-        # Opción "Sin ubicación"
-        if ubicacion == "Sin ubicación":
-            registrar_pendiente(db, codigo, get_description_by_code(db, codigo), cantidad, fecha.strftime('%d/%m/%Y'), motivo, ubicacion)
-            return "Movimiento registrado como 'Sin ubicación' en la tabla de pendientes."
-        
-        # Caso normal (ubicación regular)
-        stock_item = db.query(StockActual).filter(StockActual.ubicacion == ubicacion, StockActual.codigo == codigo).first()
-
-        if tipo_movimiento == "Ingreso":
-            if stock_item:
-                stock_item.cantidad += cantidad
-            else:
-                # Crear un nuevo registro si no existe
-                new_stock = StockActual(
-                    pasillo='Pasillo desconocido',  # Ajustar esto con el valor adecuado
-                    ubicacion=ubicacion,
-                    codigo=codigo,
-                    descripcion=get_description_by_code(db, codigo),
-                    cantidad=cantidad,
-                    fecha=fecha
-                )
-                db.add(new_stock)
-        elif tipo_movimiento == "Egreso":
-            if stock_item and stock_item.cantidad >= cantidad:
-                stock_item.cantidad -= cantidad
-            else:
-                registrar_pendiente(db, codigo, get_description_by_code(db, codigo), cantidad, fecha.strftime('%d/%m/%Y'), "Cantidad insuficiente", ubicacion)
-                return "Movimiento registrado como pendiente por cantidad insuficiente."
-
-        # Registrar el movimiento
-        movimiento = Movimientos(
-            ubicacion=ubicacion,
+        nueva_nota = NotasPedido(
             codigo=codigo,
+            descripcion=descripcion,
             cantidad=cantidad,
-            fecha=fecha,
-            nota_devolucion=motivo,
-            tipo_movimiento=tipo_movimiento,
-            observaciones=observaciones
+            fecha_pedido=fecha,
+            numero_nota=numero_nota
         )
-        db.add(movimiento)
-        db.commit()
-        return "Movimiento registrado con éxito."
-    
+        session.add(nueva_nota)
+        session.commit()
+        print("Nota de pedido generada con éxito")
     except Exception as e:
-        db.rollback()
-        return str(e)
-    finally:
-        db.close()      
-        
+        session.rollback()
+        print(f"Error al generar la nota de pedido: {e}")
+
+# Función para registrar un pendiente
+def registrar_pendiente(session: Session, codigo: str, descripcion: str, cantidad: float, fecha: str, motivo: str, ubicacion: str = None):
+    try:
+        pendiente = Pendiente(
+            codigo=codigo,
+            descripcion=descripcion,
+            cantidad=cantidad,
+            fecha=datetime.strptime(fecha, "%d/%m/%Y"),
+            motivo=motivo,
+            ubicacion=ubicacion
+        )
+        session.add(pendiente)
+        session.commit()
+        print("Pendiente registrado con éxito")
+    except Exception as e:
+        session.rollback()
+        print(f"Error al registrar el pendiente: {e}")
+
 # Función para obtener la descripción del producto dado su código
 def get_description_by_code(db: Session, codigo: str) -> str:
     """Obtener la descripción del producto dado su código."""
-    stock_item = db.query(StockActual).filter(StockActual.codigo == codigo).first()
-    if stock_item:
-        return stock_item.descripcion
-    return "Descripción no encontrada"              
+    producto = db.query(Producto).filter(Producto.codigo == codigo).first()
+    if producto:
+        return producto.descripcion
+    return "Descripción no encontrada"
+
+# Función para cargar una nota de pedido
+def cargar_nota_pedido(db: Session, numero_nota: str):
+    """
+    Carga una nota de pedido por su número.
+    :param db: La sesión de base de datos.
+    :param numero_nota: El número de la nota de pedido a buscar.
+    :return: Lista de productos y detalles asociados a la nota.
+    """
+    try:
+        # Busca la nota de pedido con el número proporcionado
+        nota = db.query(NotasPedido).filter(NotasPedido.numero_nota == numero_nota).all()
+        
+        if not nota:
+            return []
+        
+        # Devuelve la información de la nota de pedido
+        return [{
+            'codigo': item.codigo,
+            'descripcion': db.query(Producto).filter(Producto.codigo == item.codigo).first().descripcion,
+            'cantidad': item.cantidad,
+            'ubicacion': item.ubicacion  # Este campo se debe ajustar según la estructura de tu DB
+        } for item in nota]
+        
+    except Exception as e:
+        print(f"Error al cargar la nota de pedido: {e}")
+        return []
+
+# Función para obtener los registros de notas de pedido
+def obtener_registros_notas(session: Session, filtro=None):
+    """Obtiene todas las notas de pedido con un filtro opcional."""
+    try:
+        query = session.query(NotasPedido)
+        if filtro:
+            # Aplicar filtro por código o descripción si es necesario
+            query = query.filter(
+                (NotasPedido.codigo.contains(filtro)) |
+                (NotasPedido.descripcion.contains(filtro))
+            )
+        notas = query.all()
+        return [{
+            'numero_nota': nota.numero_nota,
+            'codigo': nota.codigo,
+            'cantidad': nota.cantidad,
+            'ubicacion': session.query(Stock).filter(Stock.codigo == nota.codigo).first().ubicacion if nota else "Sin ubicación",
+            'fecha': nota.fecha_pedido.strftime('%d/%m/%Y')
+        } for nota in notas]
+    except Exception as e:
+        print(f"Error al obtener registros de notas de pedido: {e}")
+        return []
+    
+# Función para agregar un producto
+def agregar_producto(session: Session, codigo: str, descripcion: str, categoria: str, imagen: str = None):
+    """Agregar un nuevo producto a la base de datos."""
+    try:
+        nuevo_producto = Producto(
+            codigo=codigo,
+            descripcion=descripcion,
+            categoria=categoria,
+            imagen=imagen
+        )
+        session.add(nuevo_producto)
+        session.commit()
+        print("Producto agregado con éxito")
+    except Exception as e:
+        session.rollback()
+        print(f"Error al agregar el producto: {e}")
+
+# Función para obtener todos los productos
+def obtener_productos(session: Session):
+    """Obtener todos los productos de la base de datos."""
+    try:
+        productos = session.query(Producto).all()
+        return productos
+    except Exception as e:
+        print(f"Error al obtener los productos: {e}")
+        return []
+
+# Función para editar un producto existente
+def editar_producto(session: Session, producto_id: int, datos_actualizados: dict):
+    """Editar un producto existente en la base de datos."""
+    try:
+        producto = session.query(Producto).filter(Producto.id_producto == producto_id).first()
+        if producto:
+            for key, value in datos_actualizados.items():
+                setattr(producto, key, value)
+            session.commit()
+            print(f"Producto {producto_id} editado con éxito")
+        else:
+            print(f"No se encontró el producto con ID {producto_id}")
+    except Exception as e:
+        session.rollback()
+        print(f"Error al editar el producto: {e}")
+
+# Función para eliminar un producto
+def eliminar_producto(session: Session, producto_id: int):
+    """Eliminar un producto de la base de datos."""
+    try:
+        producto = session.query(Producto).filter(Producto.id_producto == producto_id).first()
+        if producto:
+            session.delete(producto)
+            session.commit()
+            print(f"Producto {producto_id} eliminado con éxito")
+        else:
+            print(f"No se encontró el producto con ID {producto_id}")
+    except Exception as e:
+        session.rollback()
+        print(f"Error al eliminar el producto: {e}")    
+
+
+
+# Obtener movimientos históricos
+def obtener_movimientos_historicos():
+    db = next(get_db())  # Obtener sesión
+    try:
+        movimientos = db.query(Movimiento).all()  # Obtener todos los movimientos
+        return [{"ubicacion": mov.ubicacion, "codigo": mov.codigo, "cantidad": mov.cantidad, 
+                 "fecha": mov.fecha, "nota_devolucion": mov.nota_devolucion, "observaciones": mov.observaciones} 
+                 for mov in movimientos]
+    except Exception as e:
+        print(f"Error al obtener movimientos históricos: {e}")
+        return []
+    finally:
+        db.close()
+
+# Obtener movimientos pendientes
+def obtener_movimientos_pendientes():
+    db = next(get_db())  # Obtener sesión
+    try:
+        pendientes = db.query(Pendiente).all()  # Obtener todos los pendientes
+        return [{"ubicacion": p.ubicacion, "codigo": p.codigo, "cantidad": p.cantidad, 
+                 "fecha": p.fecha, "motivo": p.motivo} for p in pendientes]
+    except Exception as e:
+        print(f"Error al obtener movimientos pendientes: {e}")
+        return []
+    finally:
+        db.close()
+
+# Generar un PDF con los movimientos proporcionados
+def generar_pdf(movimientos, ruta_pdf):
+    """Generar un PDF con los movimientos proporcionados."""
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Arial", size=12)
+
+    # Agregar encabezado
+    pdf.cell(200, 10, txt="Reporte de Movimientos", ln=True, align="C")
+
+    # Agregar cada movimiento al PDF
+    for mov in movimientos:
+        pdf.cell(200, 10, txt=f"Ubicación: {mov.ubicacion}, Código: {mov.codigo}, Cantidad: {mov.cantidad}", ln=True)
+
+    pdf.output(ruta_pdf)
+
+# Exportar movimientos a un archivo CSV
+def exportar_csv(movimientos, file_path):
+    """Exportar movimientos a un archivo CSV."""
+    try:
+        with open(file_path, mode='w', newline='') as file:
+            writer = csv.writer(file)
+            writer.writerow(['Ubicación', 'Código', 'Cantidad', 'Fecha', 'Nota/Devolución', 'Observaciones'])
+            for mov in movimientos:
+                writer.writerow([mov.ubicacion, mov.codigo, mov.cantidad, mov.fecha, mov.nota_devolucion, mov.observaciones])
+        print(f"CSV exportado a {file_path}")
+    except Exception as e:
+        print(f"Error al exportar CSV: {e}")

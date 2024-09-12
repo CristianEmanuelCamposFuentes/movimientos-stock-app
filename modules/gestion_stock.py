@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QLabel, QFormLayout, QTableWidget, QTableWidgetItem, QTabWidget
 from PyQt5.QtCore import Qt
 from modules.database_operations import obtener_consolidado_stock, realizar_ajuste_stock, mover_pallet
+
 class GestionStockView(QWidget):
     def __init__(self):
         super().__init__()
@@ -102,7 +103,7 @@ class GestionStockView(QWidget):
         codigo = self.codigo_input.text()
         ubicacion = self.ubicacion_input.text()
         cantidad = self.cantidad_input.text()
-        realizar_ajuste_stock(codigo, ubicacion, float(cantidad))  # Función simulada para ajustar stock
+        realizar_ajuste_stock(ubicacion, codigo, float(cantidad))  # Se pasa primero ubicación y luego código
 
 
     # Pestaña 3: Mover Pallet
@@ -137,7 +138,7 @@ class GestionStockView(QWidget):
         codigo_pallet = self.codigo_pallet_input.text()
         ubicacion_actual = self.ubicacion_actual_input.text()
         nueva_ubicacion = self.ubicacion_nueva_input.text()
-        mover_pallet(codigo_pallet, ubicacion_actual, nueva_ubicacion)  # Función simulada para mover pallet
+        mover_pallet(codigo_pallet, ubicacion_actual, nueva_ubicacion, 0)  # Añadir cantidad según sea necesario
         
     # Función para actualizar automáticamente la tabla de consolidado cuando se selecciona la pestaña
     def on_tab_changed(self, index):

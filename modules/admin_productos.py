@@ -74,7 +74,7 @@ class AdminProductosView(QWidget):
         if dialog.exec_():
             nuevo_producto = dialog.get_data()
             db = next(get_db())  # Obtener la sesión de la base de datos
-            agregar_producto(db, nuevo_producto)
+            agregar_producto(db, nuevo_producto["codigo"], nuevo_producto["descripcion"], nuevo_producto["categoria"])
             self.cargar_productos()
 
     # Función para abrir el diálogo de editar producto
@@ -83,13 +83,13 @@ class AdminProductosView(QWidget):
         if dialog.exec_():
             producto_actualizado = dialog.get_data()
             db = next(get_db())  # Obtener la sesión de la base de datos
-            editar_producto(db, producto_actualizado)
+            editar_producto(db, producto.id_producto, producto_actualizado)
             self.cargar_productos()
 
     # Función para eliminar producto
     def eliminar_producto(self, producto):
         db = next(get_db())  # Obtener la sesión de la base de datos
-        eliminar_producto(db, producto)
+        eliminar_producto(db, producto.id_producto)
         self.cargar_productos()
 
     # Pestaña 2: Clasificaciones de Productos
@@ -169,3 +169,4 @@ class ProductoDialog(QDialog):
             "descripcion": self.descripcion_input.text(),
             "categoria": self.categoria_input.text()
         }
+

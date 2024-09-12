@@ -2,14 +2,15 @@ from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
+
 
 # Definir la base
 Base = declarative_base()
 
-# Tabla Productos
+# Tabla Producto
 class Producto(Base):
-    __tablename__ = 'Productos'
+    __tablename__ = 'Producto'
 
     id_producto = Column(Integer, primary_key=True, autoincrement=True)
     codigo = Column(String, nullable=False)
@@ -17,9 +18,9 @@ class Producto(Base):
     categoria = Column(String)
     imagen = Column(String)
 
-# Tabla Ubicaciones
+# Tabla Ubicacion
 class Ubicacion(Base):
-    __tablename__ = 'Ubicaciones'
+    __tablename__ = 'Ubicacion'
 
     id_ubicacion = Column(Integer, primary_key=True, autoincrement=True)
     pasillo = Column(String, nullable=False)
@@ -30,16 +31,16 @@ class Stock(Base):
     __tablename__ = 'Stock'
 
     id_stock = Column(Integer, primary_key=True, autoincrement=True)
-    id_producto = Column(Integer, ForeignKey('Productos.id_producto'), nullable=False)
-    id_ubicacion = Column(Integer, ForeignKey('Ubicaciones.id_ubicacion'), nullable=False)
+    id_producto = Column(Integer, ForeignKey('Producto.id_producto'), nullable=False)
+    id_ubicacion = Column(Integer, ForeignKey('Ubicacion.id_ubicacion'), nullable=False)
     cantidad = Column(Float, nullable=False)
 
     producto = relationship('Producto', backref='stock')
     ubicacion = relationship('Ubicacion', backref='stock')
 
-# Tabla Movimientos
+# Tabla Movimiento
 class Movimiento(Base):
-    __tablename__ = 'Movimientos'
+    __tablename__ = 'Movimiento'
 
     id_movimiento = Column(Integer, primary_key=True, autoincrement=True)
     ubicacion = Column(String, nullable=False)
@@ -50,20 +51,52 @@ class Movimiento(Base):
     tipo_movimiento = Column(String, nullable=False)
     observaciones = Column(String)
 
-# Tabla Pendientes (para registrar incidentes)
+# Tabla Pendiente (para registrar incidentes)
 class Pendiente(Base):
-    __tablename__ = 'Pendientes'
+    __tablename__ = 'Pendiente'
 
     id_pendiente = Column(Integer, primary_key=True, autoincrement=True)
-    id_producto = Column(Integer, ForeignKey('Productos.id_producto'), nullable=False)
-    id_ubicacion = Column(Integer, ForeignKey('Ubicaciones.id_ubicacion'), nullable=False)
+    id_producto = Column(Integer, ForeignKey('Producto.id_producto'), nullable=False)
+    id_ubicacion = Column(Integer, ForeignKey('Ubicacion.id_ubicacion'), nullable=False)
     cantidad = Column(Float, nullable=False)
     motivo = Column(String, nullable=False)
     fecha = Column(Date, nullable=False)
+    
+# Tabla NotasPedido (para gestionar las notas de pedido)
+class NotasPedido(Base):
+    __tablename__ = 'NotasPedido'
+
+    id_nota = Column(Integer, primary_key=True, autoincrement=True)
+    codigo = Column(String, nullable=False)
+    cantidad = Column(Float, nullable=False)
+    fecha_pedido = Column(Date, nullable=False)
+    fecha_entrega = Column(Date)
+    observaciones = Column(String)    
+    
+# Tabla Usuario (para gestionar usuarios)
+class Usuario(Base):
+    __tablename__ = 'Usuario'
+
+    id_usuario = Column(Integer, primary_key=True, autoincrement=True)
+    nombre = Column(String, nullable=False)
+    correo = Column(String, nullable=False, unique=True)
+    contraseña = Column(String, nullable=False)
+    rol = Column(String, nullable=False)    
 
 # Conectar con la base de datos
 db_path = './data/stock_management.db'
 engine = create_engine(f'sqlite:///{db_path}', echo=True)
 
+# Definir una sesión
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 # Crear todas las tablas si no existen
 Base.metadata.create_all(engine)
+
+# Función para obtener la sesión de base de datos
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

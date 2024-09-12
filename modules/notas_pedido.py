@@ -1,6 +1,8 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QLabel, QFormLayout, QTableWidget, QTableWidgetItem, QTabWidget, QTextEdit
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QLabel, QFormLayout, QTableWidget, QTableWidgetItem, QTabWidget, QComboBox, QTextEdit
 from modules.database_operations import generar_nota_pedido, cargar_nota_pedido, obtener_registros_notas
+from modules.database import get_db, Movimiento, Stock, Producto
+from datetime import datetime
+
 
 class NotasPedidoView(QWidget):
     def __init__(self):
@@ -53,9 +55,21 @@ class NotasPedidoView(QWidget):
     def generar_nota(self):
         codigo = self.codigo_input.text()
         cantidad = self.cantidad_input.text()
-        descripcion = generar_nota_pedido(codigo, cantidad)  # Función simulada que genera la nota de pedido
-        self.descripcion_output.setText(descripcion)  # Mostrar la descripción
 
+        # Debemos buscar la descripción del producto en la base de datos
+        db = next(get_db())
+        producto = db.query(Producto).filter(Producto.codigo == codigo).first()
+
+        if producto:
+            descripcion = producto.descripcion
+            self.descripcion_output.setText(descripcion)
+            generar_nota_pedido(db, codigo, descripcion, float(cantidad), datetime.now().strftime("%d/%m/%Y"))
+            print("Nota de pedido generada con éxito")
+        else:
+            self.descripcion_output.setText("Producto no encontrado")
+            print("Error: Producto no encontrado")
+            
+            
     # Pestaña 2: Cargar Notas de Pedido
     def cargar_nota_tab(self):
         widget = QWidget()
@@ -67,29 +81,94 @@ class NotasPedidoView(QWidget):
         self.numero_nota_input = QLineEdit()
         form_layout.addRow("Número de Nota:", self.numero_nota_input)
 
-        self.ubicacion_input = QLineEdit()
-        form_layout.addRow("Ubicación:", self.ubicacion_input)
-
-        self.cantidad_entregada_input = QLineEdit()
-        form_layout.addRow("Cantidad Entregada:", self.cantidad_entregada_input)
-
-        # Botón para cargar la nota
-        cargar_button = QPushButton("Cargar Nota")
-        cargar_button.clicked.connect(self.cargar_nota)
-
+        # Botón para buscar la nota
+        buscar_button = QPushButton("Buscar Nota")
+        buscar_button.clicked.connect(self.buscar_nota)
+        
+        # Tabla para mostrar códigos, cantidades, ubicaciones y checkboxes
+        self.nota_table = QTableWidget(0, 4)
+        self.nota_table.setHorizontalHeaderLabels(["Código", "Cantidad", "Ubicación", "Cantidad para descontar"])
+        
         layout.addLayout(form_layout)
-        layout.addWidget(cargar_button)
+        layout.addWidget(buscar_button)
+        layout.addWidget(self.nota_table)
+        
+        # Botón para cargar la nota actualizada
+        cargar_button = QPushButton("Cargar Nota")
+        cargar_button.clicked.connect(self.guardar_nota_actualizada)
 
+        layout.addWidget(cargar_button)
         widget.setLayout(layout)
         return widget
 
-    # Función para cargar la nota de pedido
-    def cargar_nota(self):
+    # Función para buscar la nota e insertar los datos en la tabla
+    def buscar_nota(self):
         numero_nota = self.numero_nota_input.text()
-        ubicacion = self.ubicacion_input.text()
-        cantidad_entregada = self.cantidad_entregada_input.text()
-        resultado = cargar_nota_pedido(numero_nota, ubicacion, cantidad_entregada)  # Función simulada para cargar la nota
-        print(resultado)  # Simulación de éxito
+        db = next(get_db())  # Obtener la sesión de la base de datos
+        nota = cargar_nota_pedido(db, numero_nota)  # Cargar los datos de la nota
+        
+        self.nota_table.setRowCount(0)
+        
+        # Recorrer cada código y mostrar sus ubicaciones y cantidades en la tabla
+        for i, item in enumerate(nota):
+            self.nota_table.insertRow(i)
+            self.nota_table.setItem(i, 0, QTableWidgetItem(item.codigo))
+            self.nota_table.setItem(i, 1, QTableWidgetItem(str(item.cantidad)))
+
+            # Cargar las ubicaciones en cada fila
+            ubicaciones = self.obtener_ubicaciones_por_codigo(item.codigo)
+            ubicacion_combo = QComboBox()
+            ubicacion_combo.addItems([ub.ubicacion for ub in ubicaciones])
+            self.nota_table.setCellWidget(i, 2, ubicacion_combo)
+
+            # Cantidad a descontar, editable
+            cantidad_descuento = QLineEdit()
+            cantidad_descuento.setPlaceholderText("0")  # Se puede modificar para ingresar la cantidad a descontar
+            self.nota_table.setCellWidget(i, 3, cantidad_descuento)
+
+    # Función para guardar la nota actualizada
+    def guardar_nota_actualizada(self):
+        db = next(get_db())
+        
+        for row in range(self.nota_table.rowCount()):
+            codigo = self.nota_table.item(row, 0).text()
+            ubicacion = self.nota_table.cellWidget(row, 2).currentText()  # Ubicación seleccionada
+            cantidad_descuento = self.nota_table.cellWidget(row, 3).text()
+            
+            # Validar si la cantidad está en 0 o si hay que descontar
+            if cantidad_descuento and float(cantidad_descuento) > 0:
+                # Lógica para actualizar el stock y registrar el movimiento
+                self.registrar_descuento(db, codigo, ubicacion, float(cantidad_descuento))
+        
+        db.commit()
+        print("Nota de pedido actualizada con éxito")
+
+        
+    # Función para registrar el descuento de stock
+    def registrar_descuento(self, db, codigo, ubicacion, cantidad_descuento):
+        stock_item = db.query(Stock).filter(Stock.codigo == codigo, Stock.ubicacion == ubicacion).first()
+        if stock_item and stock_item.cantidad >= cantidad_descuento:
+            stock_item.cantidad -= cantidad_descuento  # Restar la cantidad a descontar
+            movimiento = Movimiento(
+                ubicacion=ubicacion,
+                codigo=codigo,
+                cantidad=-cantidad_descuento,  # Registrar el descuento como un movimiento negativo
+                fecha=datetime.now(),
+                nota_devolucion="Ajuste por entrega de Nota de Pedido",
+                tipo_movimiento="Egreso",
+                observaciones="Descuento registrado desde la nota de pedido"
+            )
+            db.add(movimiento)  # Registrar el movimiento en la tabla Movimientos
+            print(f"Descuento registrado para {codigo} en {ubicacion}")
+        else:
+            print(f"Error: No hay suficiente stock para descontar {cantidad_descuento} en {ubicacion}")
+        
+
+    # Función real para obtener ubicaciones por código
+    def obtener_ubicaciones_por_codigo(self, codigo):
+        db = next(get_db())  # Abrir la sesión de la base de datos
+        ubicaciones = db.query(Stock).filter(Stock.codigo == codigo).all()  # Consulta para obtener las ubicaciones
+        return ubicaciones  # Retornamos las ubicaciones relacionadas con el código
 
     # Pestaña 3: Registros de Notas de Pedido
     def registros_tab(self):
@@ -116,12 +195,13 @@ class NotasPedidoView(QWidget):
     # Función para buscar registros de notas de pedido
     def buscar_registros(self):
         filtro = self.buscar_registros_input.text()
-        resultados = obtener_registros_notas(filtro)  # Función simulada que devolvería los registros de notas
+        db = next(get_db())
+        resultados = obtener_registros_notas(db, filtro)  # Obtener los registros de la base de datos
         self.registros_table.setRowCount(0)
         for i, item in enumerate(resultados):
             self.registros_table.insertRow(i)
-            self.registros_table.setItem(i, 0, QTableWidgetItem(item["numero_nota"]))
-            self.registros_table.setItem(i, 1, QTableWidgetItem(item["codigo"]))
-            self.registros_table.setItem(i, 2, QTableWidgetItem(str(item["cantidad"])))
-            self.registros_table.setItem(i, 3, QTableWidgetItem(item["ubicacion"]))
-            self.registros_table.setItem(i, 4, QTableWidgetItem(item["fecha"]))
+            self.registros_table.setItem(i, 0, QTableWidgetItem(item.numero_nota))
+            self.registros_table.setItem(i, 1, QTableWidgetItem(item.codigo))
+            self.registros_table.setItem(i, 2, QTableWidgetItem(str(item.cantidad)))
+            self.registros_table.setItem(i, 3, QTableWidgetItem(item.ubicacion))
+            self.registros_table.setItem(i, 4, QTableWidgetItem(item.fecha.strftime('%d/%m/%Y')))
