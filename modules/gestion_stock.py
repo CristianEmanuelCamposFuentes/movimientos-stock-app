@@ -1,15 +1,20 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QLabel, QFormLayout, QTableWidget, QTableWidgetItem, QTabWidget
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel, QPushButton, QTableWidget, QTableWidgetItem, QTabWidget, QFormLayout
 from PyQt5.QtCore import Qt
 from modules.database_operations import obtener_consolidado_stock, realizar_ajuste_stock, mover_pallet
+from modules.ui_styles import aplicar_estilos_especiales, crear_contenedor_con_estilo
+
 
 class GestionStockView(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent  # Referencia a la ventana principal
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle("Gestión de Stock")
-        layout = QVBoxLayout()
+
+        # Crear el contenedor principal con estilo
+        main_layout = crear_contenedor_con_estilo()
 
         # Crear las pestañas
         self.tabs = QTabWidget()
@@ -19,19 +24,21 @@ class GestionStockView(QWidget):
 
         # Conectar el cambio de pestañas al evento para actualizar la tabla
         self.tabs.currentChanged.connect(self.on_tab_changed)
-        
+
         # Agregar pestañas al layout principal
-        layout.addWidget(self.tabs)
-        self.setLayout(layout)
+        main_layout.addWidget(self.tabs)
+        main_layout.addLayout(self.parent.crear_barra_botones_inferiores())  # Barra de botones inferior reutilizable
+        self.setLayout(main_layout)
 
     # Pestaña 1: Consolidado
     def consolidado_tab(self):
-        self.consolidado_widget = QWidget()
+        consolidado_widget = QWidget()
         layout = QVBoxLayout()
 
-        # Botón para buscar y filtrar
+        # Buscador de stock
         buscar_layout = QHBoxLayout()
         self.buscar_input = QLineEdit()
+        buscar_layout.addWidget(QLabel("Buscar:"))
         buscar_layout.addWidget(self.buscar_input)
         buscar_button = QPushButton("Buscar")
         buscar_button.clicked.connect(self.buscar_consolidado)
@@ -43,7 +50,7 @@ class GestionStockView(QWidget):
         self.consolidado_table.setHorizontalHeaderLabels(["Código", "Descripción", "Ubicación", "Cantidad", "Fecha"])
         layout.addWidget(self.consolidado_table)
 
-        # Botones para exportar o imprimir
+        # Botones de exportar e imprimir
         export_layout = QHBoxLayout()
         export_excel_button = QPushButton("Exportar a Excel")
         export_csv_button = QPushButton("Exportar a CSV")
@@ -53,16 +60,22 @@ class GestionStockView(QWidget):
         export_layout.addWidget(export_csv_button)
         export_layout.addWidget(generar_pdf_button)
         export_layout.addWidget(imprimir_pallet_button)
+
+        # Aplicar estilos a los botones
+        botones = [export_excel_button, export_csv_button, generar_pdf_button, imprimir_pallet_button]
+        colores = ["blue", "blue", "blue", "blue"]
+        aplicar_estilos_especiales(botones, colores)
+
         layout.addLayout(export_layout)
 
-        self.consolidado_widget.setLayout(layout)
-        return self.consolidado_widget
+        consolidado_widget.setLayout(layout)
+        return consolidado_widget
 
     # Función para buscar y filtrar consolidado
     def buscar_consolidado(self):
-        filtro = self.buscar_input.text()  # Obtener el texto de búsqueda
-        resultados = obtener_consolidado_stock(filtro)  # Ahora el filtro se puede pasar a la función
-        self.consolidado_table.setRowCount(0)  # Limpiar la tabla antes de llenarla
+        filtro = self.buscar_input.text()
+        resultados = obtener_consolidado_stock(filtro)
+        self.consolidado_table.setRowCount(0)
         for i, item in enumerate(resultados):
             self.consolidado_table.insertRow(i)
             self.consolidado_table.setItem(i, 0, QTableWidgetItem(item.codigo))
@@ -73,12 +86,10 @@ class GestionStockView(QWidget):
 
     # Pestaña 2: Ajustes
     def ajustes_tab(self):
-        widget = QWidget()
+        ajustes_widget = QWidget()
         layout = QVBoxLayout()
 
         form_layout = QFormLayout()
-        
-        # Campos del formulario
         self.codigo_input = QLineEdit()
         form_layout.addRow("Código del producto:", self.codigo_input)
 
@@ -88,32 +99,31 @@ class GestionStockView(QWidget):
         self.cantidad_input = QLineEdit()
         form_layout.addRow("Cantidad ajustada:", self.cantidad_input)
 
-        # Botón para confirmar ajuste
         ajustar_button = QPushButton("Ajustar Stock")
         ajustar_button.clicked.connect(self.ajustar_stock)
         
+        # Aplicar estilo especial al botón
+        aplicar_estilos_especiales([ajustar_button], ["green"])
+
         layout.addLayout(form_layout)
         layout.addWidget(ajustar_button)
 
-        widget.setLayout(layout)
-        return widget
+        ajustes_widget.setLayout(layout)
+        return ajustes_widget
 
     # Función para realizar ajuste de stock
     def ajustar_stock(self):
         codigo = self.codigo_input.text()
         ubicacion = self.ubicacion_input.text()
         cantidad = self.cantidad_input.text()
-        realizar_ajuste_stock(ubicacion, codigo, float(cantidad))  # Se pasa primero ubicación y luego código
-
+        realizar_ajuste_stock(ubicacion, codigo, float(cantidad))
 
     # Pestaña 3: Mover Pallet
     def mover_pallet_tab(self):
-        widget = QWidget()
+        mover_pallet_widget = QWidget()
         layout = QVBoxLayout()
 
         form_layout = QFormLayout()
-        
-        # Campos del formulario
         self.codigo_pallet_input = QLineEdit()
         form_layout.addRow("Código del pallet:", self.codigo_pallet_input)
 
@@ -123,24 +133,26 @@ class GestionStockView(QWidget):
         self.ubicacion_nueva_input = QLineEdit()
         form_layout.addRow("Nueva ubicación:", self.ubicacion_nueva_input)
 
-        # Botón para mover pallet
         mover_button = QPushButton("Mover Pallet")
         mover_button.clicked.connect(self.mover_pallet)
+        
+        # Aplicar estilo especial al botón
+        aplicar_estilos_especiales([mover_button], ["salmon"])
 
         layout.addLayout(form_layout)
         layout.addWidget(mover_button)
 
-        widget.setLayout(layout)
-        return widget
+        mover_pallet_widget.setLayout(layout)
+        return mover_pallet_widget
 
     # Función para mover pallet
     def mover_pallet(self):
         codigo_pallet = self.codigo_pallet_input.text()
         ubicacion_actual = self.ubicacion_actual_input.text()
         nueva_ubicacion = self.ubicacion_nueva_input.text()
-        mover_pallet(codigo_pallet, ubicacion_actual, nueva_ubicacion, 0)  # Añadir cantidad según sea necesario
-        
+        mover_pallet(codigo_pallet, ubicacion_actual, nueva_ubicacion, 0)
+
     # Función para actualizar automáticamente la tabla de consolidado cuando se selecciona la pestaña
     def on_tab_changed(self, index):
         if index == 0:  # Pestaña de consolidado
-            self.buscar_consolidado()  # Cargar datos automáticamente
+            self.buscar_consolidado()

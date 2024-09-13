@@ -3,6 +3,7 @@ from PyQt5.QtCore import QDate
 from modules.ui_functions import cargar_ingreso, cargar_egreso
 from modules.ui_functions import crear_campo_formulario
 from modules.ui_styles import aplicar_estilos_especiales
+from modules.ui_styles import crear_contenedor_con_estilo
 from modules.gestion_stock import GestionStockView
 from modules.database_operations import get_description_by_code
 from modules.database_operations import obtener_consolidado_stock
@@ -19,8 +20,8 @@ class IngresosEgresosWindow(QWidget):
     def initUI(self):
         self.setWindowTitle("Gestión de Movimientos de Stock - Ingresos/Egresos")
         
-        # Layout principal
-        layout = QVBoxLayout()
+         # Crear el contenedor con estilo
+        main_layout = crear_contenedor_con_estilo()
 
         # Crear el formulario usando la función modular
         form_layout = QFormLayout()
@@ -42,43 +43,34 @@ class IngresosEgresosWindow(QWidget):
         form_layout.addRow(nota_label, nota_input)
         form_layout.addRow(observaciones_label, observaciones_input)
 
-        # Crear los botones de acción
-        buttons_layout = QHBoxLayout()
-
-        # Botón para cargar Ingreso
+         # Crear botones de acción
         btn_cargar_ingreso = QPushButton("Cargar Ingreso")
-        btn_cargar_ingreso.setStyleSheet("background-color: green; color: white;")
-        btn_cargar_ingreso.clicked.connect(self.cargar_ingreso)  # Conecta con la función cargar_ingreso
+        btn_cargar_ingreso.clicked.connect(self.cargar_ingreso)
 
-        # Botón para cargar Egreso
         btn_cargar_egreso = QPushButton("Cargar Egreso")
-        btn_cargar_egreso.setStyleSheet("background-color: red; color: white;")
-        btn_cargar_egreso.clicked.connect(self.cargar_egreso)  # Conecta con la función cargar_egreso
+        btn_cargar_egreso.clicked.connect(self.cargar_egreso)
 
-        # Botón para ir a Ajustes
         btn_cargar_ajustes = QPushButton("Ir a Ajustes")
-        btn_cargar_ajustes.clicked.connect(self.ir_a_ajustes)  # Conecta con la función ir_a_ajustes
+        btn_cargar_ajustes.clicked.connect(self.ir_a_ajustes)
 
-        # Botón para ver Consolidado
         btn_ver_consolidado = QPushButton("Ver Consolidado")
-        btn_ver_consolidado.clicked.connect(self.ver_consolidado)  
+        btn_ver_consolidado.clicked.connect(self.ver_consolidado)
 
-        # Botón para mover Pallet
         btn_mover_pallet = QPushButton("Mover Pallet")
-        btn_mover_pallet.clicked.connect(self.mover_pallet) 
-        
-        # Añadir botones al layout
-        buttons_layout.addWidget(btn_cargar_ingreso)
-        buttons_layout.addWidget(btn_cargar_egreso)
-        buttons_layout.addWidget(btn_cargar_ajustes)
-        buttons_layout.addWidget(btn_ver_consolidado)
-        buttons_layout.addWidget(btn_mover_pallet)
+        btn_mover_pallet.clicked.connect(self.mover_pallet)
 
-        # Agregar el formulario y los botones al layout principal
-        layout.addLayout(form_layout)
-        layout.addLayout(buttons_layout)
-        layout.setContentsMargins(20, 20, 20, 20) 
-        self.setLayout(layout)
+        # Aplicar estilos especiales a los botones
+        botones = [btn_cargar_ingreso, btn_cargar_egreso, btn_cargar_ajustes]
+        colores = ["green", "red", "gray"]
+        aplicar_estilos_especiales(botones, colores)
+
+        # Añadir el formulario y los botones al layout principal
+        main_layout.addLayout(form_layout)
+        main_layout.addStretch()  # Para separar un poco el formulario del final
+        main_layout.addLayout(self.parent.crear_barra_botones_inferiores())  # Reutilizar la barra de botones inferior
+
+        # Establecer el layout final
+        self.setLayout(main_layout)
         
         # Aplicar estilos especiales
         # En el método initUI o donde crees los botones:
@@ -86,12 +78,12 @@ class IngresosEgresosWindow(QWidget):
         colores = ["green", "red", "gray"]  # Definir colores específicos para cada botón
         aplicar_estilos_especiales(botones, colores)
 
- # Funciones para los botones
+    # Funciones para los botones
     def cargar_ingreso(self):
         print("Cargar Ingreso")
 
     def cargar_egreso(self):
-            print("Cargar Egreso")
+        print("Cargar Egreso")
 
     def ir_a_ajustes(self):
         print("Ir a Ajustes")
@@ -100,7 +92,6 @@ class IngresosEgresosWindow(QWidget):
     def ver_consolidado(self):
         print("Ver Consolidado")
         consolidado = obtener_consolidado_stock()
-         # Supongamos que 'self.table_widget' es el QTableWidget donde mostrarás el stock
         self.stock_table.setRowCount(0)  # Limpiar tabla antes de llenarla
         for i, item in enumerate(consolidado):
             self.stock_table.insertRow(i)
@@ -109,8 +100,6 @@ class IngresosEgresosWindow(QWidget):
             self.stock_table.setItem(i, 2, QTableWidgetItem(str(item.cantidad)))
             self.stock_table.setItem(i, 3, QTableWidgetItem(item.ubicacion))
             self.stock_table.setItem(i, 4, QTableWidgetItem(item.fecha.strftime("%d/%m/%Y")))
-            
-        
 
     def mover_pallet(self):
         print("Mover Pallet")

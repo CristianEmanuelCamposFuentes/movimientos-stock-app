@@ -6,16 +6,16 @@ from modules.notas_pedido import NotasPedidoView
 from modules.admin_productos import AdminProductosView
 from modules.registros_movimientos import RegistrosMovimientosView
 from modules.gestion_usuarios import GestionUsuariosView
-from modules.ui_styles import aplicar_estilos_barra_navegacion, aplicar_estilos_barra_lateral, aplicar_estilos_ventana_principal
+from modules.ui_styles import aplicar_estilos_barra_navegacion, aplicar_estilos_barra_lateral, aplicar_estilos_ventana_principal, aplicar_estilos_especiales
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize
-
 
 class MainWindow(QWidget):
     def __init__(self, usuario):
         super().__init__()
         self.usuario = usuario
         self.initUI()
+        self.setWindowIcon(QIcon("img/icono_app.png"))
 
     def initUI(self):
         self.setWindowTitle("Gestión de Movimientos de Stock")
@@ -24,58 +24,18 @@ class MainWindow(QWidget):
         # Layout principal
         main_layout = QVBoxLayout()
 
-        # Barra de navegación superior (actualizable con el nombre de la sección)
-        nav_layout = QHBoxLayout()
-        self.titulo_seccion = QLabel("Bienvenido")  # Título dinámico de la vista
-        nav_layout.addWidget(self.titulo_seccion)
-        nav_layout.addStretch()  # Espacio flexible para alinear el texto a la izquierda
-        nav_layout.addWidget(QLabel(f"Usuario: {self.usuario}"))  # Nombre del usuario actual
+        # Crear el layout de navegación
+        nav_layout = self.crear_barra_navegacion()
 
-        # Aplicar estilos a la barra de navegación
-        aplicar_estilos_barra_navegacion(nav_layout)
+        # Crear el menú lateral
+        menu_layout = self.crear_menu_lateral()
 
-        # Menú lateral (botones)
-        menu_layout = QVBoxLayout()
-        btn_ingresos_egresos = QPushButton("Ingresos/Egresos")
-        btn_gestion_stock = QPushButton("Gestión de Stock")
-        btn_notas_pedido = QPushButton("Notas de Pedido")
-        btn_admin_productos = QPushButton("Administrar Productos")
-        btn_registros_movimientos = QPushButton("Registros de Movimientos")
-        btn_gestion_usuarios = QPushButton("Gestión de Usuarios")
-        btn_ajustes = QPushButton("Ajustes de Stock")
-
-        # Aplicar íconos a los botones
-        botones = [btn_ingresos_egresos, btn_gestion_stock, btn_notas_pedido, btn_admin_productos, btn_registros_movimientos, btn_gestion_usuarios, btn_ajustes]
-        botones_iconos = ["img/icono_ingresos.png", "img/icono_gestion.png", "img/icono_nota_pedido.png", 
-                          "img/icono_admin.png", "img/icono_registros.png", "img/icono_usuarios.png", "img/icono_ajustes.png"]
-
-        for i, boton in enumerate(botones):
-            boton.setIcon(QIcon(botones_iconos[i]))
-            boton.setIconSize(QSize(24, 24))
-
-        # Aplicar estilos al menú lateral
-        aplicar_estilos_barra_lateral(botones)
-
-        # Conectar botones a funciones
-        btn_ingresos_egresos.clicked.connect(lambda: self.mostrar_vista(self.ingresos_egresos_view, "Ingresos/Egresos"))
-        btn_gestion_stock.clicked.connect(lambda: self.mostrar_vista(self.gestion_stock_view, "Gestión de Stock"))
-        btn_ajustes.clicked.connect(lambda: self.mostrar_vista(self.ajustes_view, "Ajustes de Stock"))
-        btn_notas_pedido.clicked.connect(lambda: self.mostrar_vista(self.notas_pedido_view, "Notas de Pedido"))
-        btn_admin_productos.clicked.connect(lambda: self.mostrar_vista(self.admin_productos_view, "Administrar Productos"))
-        btn_registros_movimientos.clicked.connect(lambda: self.mostrar_vista(self.registros_movimientos_view, "Registros de Movimientos"))
-        btn_gestion_usuarios.clicked.connect(lambda: self.mostrar_vista(self.gestion_usuarios_view, "Gestión de Usuarios"))
-
-        # Agregar botones al menú lateral
-        menu_layout.addWidget(btn_ingresos_egresos)
-        menu_layout.addWidget(btn_gestion_stock)
-        menu_layout.addWidget(btn_ajustes)
-        menu_layout.addWidget(btn_notas_pedido)
-        menu_layout.addWidget(btn_admin_productos)
-        menu_layout.addWidget(btn_registros_movimientos)
-        menu_layout.addWidget(btn_gestion_usuarios)
-
-        # Contenido principal (pestañas)
+        # Crear el contenido principal
         self.contenido_principal = QStackedWidget()
+        self.contenido_principal.setObjectName("main-content")
+
+        # Crear la barra inferior de botones
+        bottom_layout = self.crear_barra_botones_inferiores()
 
         # Inicialización de las vistas
         self.ingresos_egresos_view = IngresosEgresosWindow(self.usuario, self)
@@ -95,18 +55,119 @@ class MainWindow(QWidget):
         self.contenido_principal.addWidget(self.registros_movimientos_view)
         self.contenido_principal.addWidget(self.gestion_usuarios_view)
 
-        # Agregar el layout del menú y el contenido principal
+        # Crear el layout horizontal para el menú lateral y contenido principal
         content_layout = QHBoxLayout()
-        content_layout.addLayout(menu_layout)  # Menú lateral
-        content_layout.addWidget(self.contenido_principal)  # Vistas principales
+        content_layout.addLayout(menu_layout)  # Agregar el menú lateral
+        content_layout.addWidget(self.contenido_principal)  # Agregar el área de contenido principal
 
-        # Aplicar estilos globales a la ventana principal
-        aplicar_estilos_ventana_principal(self)
+        # Agregar todo al layout principal
+        main_layout.addLayout(nav_layout)  # Barra de navegación
+        main_layout.addLayout(content_layout)  # Contenido principal
+        main_layout.addLayout(bottom_layout)  # Barra inferior de botones
 
-        # Agregar la barra de navegación y el contenido al layout principal
-        main_layout.addLayout(nav_layout)
-        main_layout.addLayout(content_layout)
+        # Aplicar el layout principal a la ventana
         self.setLayout(main_layout)
+
+    def crear_barra_navegacion(self):
+        # Crear la barra de navegación superior
+        nav_layout = QHBoxLayout()
+        self.titulo_seccion = QLabel("Bienvenido")
+        self.titulo_seccion.setObjectName("nav-bar")
+        nav_layout.addWidget(self.titulo_seccion)
+        nav_layout.addStretch()  # Alinear el texto a la izquierda
+        nav_layout.addWidget(QLabel(f"Usuario: {self.usuario}"))
+        nav_layout.setObjectName("nav-bar")
+
+        # Aplicar estilos
+        aplicar_estilos_barra_navegacion(nav_layout)
+
+        return nav_layout
+
+    def crear_menu_lateral(self):
+        # Crear el menú lateral con botones
+        menu_layout = QVBoxLayout()
+        botones = {
+            "Ingresos/Egresos": self.mostrar_ingresos_egresos,
+            "Gestión de Stock": self.mostrar_gestion_stock,
+            "Notas de Pedido": self.mostrar_notas_pedido,
+            "Administrar Productos": self.mostrar_admin_productos,
+            "Registros de Movimientos": self.mostrar_registros_movimientos,
+            "Gestión de Usuarios": self.mostrar_gestion_usuarios,
+            "Ajustes de Stock": self.mostrar_ajustes
+        }
+
+        # Lista de botones para aplicar los estilos
+        botones_widgets = []
+
+        for texto, funcion in botones.items():
+            boton = QPushButton(texto)
+            boton.clicked.connect(funcion)
+            menu_layout.addWidget(boton)
+            botones_widgets.append(boton)
+
+        # Aplicar los estilos al menú lateral
+        aplicar_estilos_barra_lateral(botones_widgets)
+
+        return menu_layout
+
+    def crear_barra_botones_inferiores(self):
+        bottom_layout = QHBoxLayout()
+
+        # Botón para cargar Ingreso
+        btn_cargar_ingreso = QPushButton("Cargar Ingreso")
+        btn_cargar_ingreso.setObjectName("btn-cargar-ingreso")  # Asignar un nombre de objeto para personalizar el estilo
+        btn_cargar_ingreso.clicked.connect(self.ingresos_egresos_view.cargar_ingreso)
+
+        # Botón para cargar Egreso
+        btn_cargar_egreso = QPushButton("Cargar Egreso")
+        btn_cargar_egreso.setObjectName("btn-cargar-egreso")
+        btn_cargar_egreso.clicked.connect(self.ingresos_egresos_view.cargar_egreso)
+
+        # Botón para ver Consolidado
+        btn_ver_consolidado = QPushButton("Ver Consolidado")
+        btn_ver_consolidado.setObjectName("btn-ver-consolidado")
+        btn_ver_consolidado.clicked.connect(self.ingresos_egresos_view.ver_consolidado)
+
+        # Botón para mover Pallet
+        btn_mover_pallet = QPushButton("Mover Pallet")
+        btn_mover_pallet.setObjectName("btn-mover-pallet")
+        btn_mover_pallet.clicked.connect(self.ingresos_egresos_view.mover_pallet)
+
+        # Añadir botones al layout inferior
+        bottom_layout.addWidget(btn_cargar_ingreso)
+        bottom_layout.addWidget(btn_cargar_egreso)
+        bottom_layout.addWidget(btn_ver_consolidado)
+        bottom_layout.addWidget(btn_mover_pallet)
+
+        # Aplicar estilos especiales a los botones
+        botones = [btn_cargar_ingreso, btn_cargar_egreso, btn_ver_consolidado, btn_mover_pallet]
+        colores = ["green", "red", "blue", "blue"]  # Definir colores específicos para cada botón
+        aplicar_estilos_especiales(botones, colores)
+
+        return bottom_layout
+
+
+    # Funciones para mostrar cada vista
+    def mostrar_ingresos_egresos(self):
+        self.mostrar_vista(self.ingresos_egresos_view, "Ingresos/Egresos")
+
+    def mostrar_gestion_stock(self):
+        self.mostrar_vista(self.gestion_stock_view, "Gestión de Stock")
+
+    def mostrar_notas_pedido(self):
+        self.mostrar_vista(self.notas_pedido_view, "Notas de Pedido")
+
+    def mostrar_admin_productos(self):
+        self.mostrar_vista(self.admin_productos_view, "Administrar Productos")
+
+    def mostrar_registros_movimientos(self):
+        self.mostrar_vista(self.registros_movimientos_view, "Registros de Movimientos")
+
+    def mostrar_gestion_usuarios(self):
+        self.mostrar_vista(self.gestion_usuarios_view, "Gestión de Usuarios")
+
+    def mostrar_ajustes(self):
+        self.mostrar_vista(self.ajustes_view, "Ajustes de Stock")
 
     # Función para cambiar entre vistas y actualizar el título
     def mostrar_vista(self, vista, titulo):
