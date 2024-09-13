@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QLineEdit, QLabel, QMessageBox
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QLineEdit, QLabel, QMessageBox, QInputDialog
 from modules.database_operations import obtener_usuarios, agregar_usuario, editar_usuario, eliminar_usuario
+from modules.database import get_db
 
 class GestionUsuariosView(QWidget):
     def __init__(self, usuario):
@@ -43,32 +44,58 @@ class GestionUsuariosView(QWidget):
 
     def cargar_usuarios(self):
         """Cargar los usuarios desde la base de datos y mostrarlos en la tabla."""
-        usuarios = obtener_usuarios()
-        self.table_usuarios.setRowCount(0)
-        for row_idx, usuario in enumerate(usuarios):
-            self.table_usuarios.insertRow(row_idx)
-            self.table_usuarios.setItem(row_idx, 0, QTableWidgetItem(str(usuario.id)))
-            self.table_usuarios.setItem(row_idx, 1, QTableWidgetItem(usuario.nombre))
-            self.table_usuarios.setItem(row_idx, 2, QTableWidgetItem(usuario.rol))
+        db = next(get_db())  # Obtener la sesión de la base de datos
+        try:
+            usuarios = obtener_usuarios(db)  # Pasar la sesión activa
+            self.table_usuarios.setRowCount(0)
+            for row_idx, usuario in enumerate(usuarios):
+                self.table_usuarios.insertRow(row_idx)
+                self.table_usuarios.setItem(row_idx, 0, QTableWidgetItem(str(usuario.id_usuario)))
+                self.table_usuarios.setItem(row_idx, 1, QTableWidgetItem(usuario.nombre))
+                self.table_usuarios.setItem(row_idx, 2, QTableWidgetItem(usuario.rol))
+        except Exception as e:
+            print(f"Error al cargar usuarios: {e}")
+        finally:
+            db.close()
 
     def agregar_usuario(self):
         """Función para agregar un nuevo usuario."""
-        nombre_usuario, ok = QLineEdit.getText(self, "Agregar Usuario", "Nombre de Usuario:")
+        nombre_usuario, ok = QInputDialog.getText(self, "Agregar Usuario", "Nombre de Usuario:")
         if ok and nombre_usuario:
-            agregar_usuario(nombre_usuario)
-            QMessageBox.information(self, "Éxito", "Usuario agregado exitosamente.")
-            self.cargar_usuarios()
+            rol_usuario, ok = QInputDialog.getText(self, "Agregar Usuario", "Rol del Usuario:")
+            if ok and rol_usuario:
+                password_usuario, ok = QInputDialog.getText(self, "Agregar Usuario", "Contraseña del Usuario:")
+                if ok and password_usuario:
+                    db = next(get_db())  # Obtener la sesión de la base de datos
+                    try:
+                        agregar_usuario(db, nombre_usuario, rol_usuario, password_usuario)  # Pasar la sesión
+                        QMessageBox.information(self, "Éxito", "Usuario agregado exitosamente.")
+                        self.cargar_usuarios()  # Actualizar la tabla
+                    except Exception as e:
+                        QMessageBox.critical(self, "Error", f"Error al agregar usuario: {e}")
+                    finally:
+                        db.close()
 
     def editar_usuario(self):
         """Función para editar un usuario seleccionado."""
         row = self.table_usuarios.currentRow()
         if row >= 0:
             id_usuario = self.table_usuarios.item(row, 0).text()
-            nuevo_nombre, ok = QLineEdit.getText(self, "Editar Usuario", "Nuevo Nombre de Usuario:")
+            nuevo_nombre, ok = QInputDialog.getText(self, "Editar Usuario", "Nuevo Nombre de Usuario:")
             if ok and nuevo_nombre:
-                editar_usuario(id_usuario, nuevo_nombre)
-                QMessageBox.information(self, "Éxito", "Usuario editado exitosamente.")
-                self.cargar_usuarios()
+                nuevo_rol, ok = QInputDialog.getText(self, "Editar Usuario", "Nuevo Rol del Usuario:")
+                if ok and nuevo_rol:
+                    nueva_password, ok = QInputDialog.getText(self, "Editar Usuario", "Nueva Contraseña (opcional):", QLineEdit.Normal)
+                    if ok:
+                        db = next(get_db())  # Obtener la sesión de la base de datos
+                        try:
+                            editar_usuario(db, id_usuario, nuevo_nombre, nuevo_rol, nueva_password)  # Pasar la sesión
+                            QMessageBox.information(self, "Éxito", "Usuario editado exitosamente.")
+                            self.cargar_usuarios()  # Actualizar la tabla
+                        except Exception as e:
+                            QMessageBox.critical(self, "Error", f"Error al editar usuario: {e}")
+                        finally:
+                            db.close()
         else:
             QMessageBox.warning(self, "Error", "Selecciona un usuario para editar.")
 
@@ -77,8 +104,14 @@ class GestionUsuariosView(QWidget):
         row = self.table_usuarios.currentRow()
         if row >= 0:
             id_usuario = self.table_usuarios.item(row, 0).text()
-            eliminar_usuario(id_usuario)
-            QMessageBox.information(self, "Éxito", "Usuario eliminado exitosamente.")
-            self.cargar_usuarios()
+            db = next(get_db())  # Obtener la sesión de la base de datos
+            try:
+                eliminar_usuario(db, id_usuario)  # Pasar la sesión
+                QMessageBox.information(self, "Éxito", "Usuario eliminado exitosamente.")
+                self.cargar_usuarios()  # Actualizar la tabla
+            except Exception as e:
+                QMessageBox.critical(self, "Error", f"Error al eliminar usuario: {e}")
+            finally:
+                db.close()
         else:
             QMessageBox.warning(self, "Error", "Selecciona un usuario para eliminar.")

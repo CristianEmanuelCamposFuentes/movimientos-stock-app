@@ -8,7 +8,7 @@ from modules.registros_movimientos import RegistrosMovimientosView
 from modules.gestion_usuarios import GestionUsuariosView
 from modules.ui_styles import aplicar_estilos_barra_navegacion, aplicar_estilos_barra_lateral, aplicar_estilos_ventana_principal
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QSize 
+from PyQt5.QtCore import QSize
 
 
 class MainWindow(QWidget):
@@ -44,11 +44,11 @@ class MainWindow(QWidget):
         btn_gestion_usuarios = QPushButton("Gestión de Usuarios")
         btn_ajustes = QPushButton("Ajustes de Stock")
 
-                # Aplicar íconos a los botones
+        # Aplicar íconos a los botones
         botones = [btn_ingresos_egresos, btn_gestion_stock, btn_notas_pedido, btn_admin_productos, btn_registros_movimientos, btn_gestion_usuarios, btn_ajustes]
         botones_iconos = ["img/icono_ingresos.png", "img/icono_gestion.png", "img/icono_nota_pedido.png", 
                           "img/icono_admin.png", "img/icono_registros.png", "img/icono_usuarios.png", "img/icono_ajustes.png"]
-        
+
         for i, boton in enumerate(botones):
             boton.setIcon(QIcon(botones_iconos[i]))
             boton.setIconSize(QSize(24, 24))
@@ -64,7 +64,7 @@ class MainWindow(QWidget):
         btn_admin_productos.clicked.connect(lambda: self.mostrar_vista(self.admin_productos_view, "Administrar Productos"))
         btn_registros_movimientos.clicked.connect(lambda: self.mostrar_vista(self.registros_movimientos_view, "Registros de Movimientos"))
         btn_gestion_usuarios.clicked.connect(lambda: self.mostrar_vista(self.gestion_usuarios_view, "Gestión de Usuarios"))
-        
+
         # Agregar botones al menú lateral
         menu_layout.addWidget(btn_ingresos_egresos)
         menu_layout.addWidget(btn_gestion_stock)
@@ -100,7 +100,7 @@ class MainWindow(QWidget):
         content_layout.addLayout(menu_layout)  # Menú lateral
         content_layout.addWidget(self.contenido_principal)  # Vistas principales
 
-                # Aplicar estilos globales a la ventana principal
+        # Aplicar estilos globales a la ventana principal
         aplicar_estilos_ventana_principal(self)
 
         # Agregar la barra de navegación y el contenido al layout principal
@@ -112,5 +112,3 @@ class MainWindow(QWidget):
     def mostrar_vista(self, vista, titulo):
         self.contenido_principal.setCurrentWidget(vista)
         self.titulo_seccion.setText(titulo)  # Actualizar el título en la barra de navegación
-
-

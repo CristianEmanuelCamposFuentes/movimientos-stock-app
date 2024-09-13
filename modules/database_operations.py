@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from modules.database import Stock, Movimiento, get_db, NotasPedido, Producto, Pendiente
+from modules.database import Stock, Movimiento, get_db, NotasPedido, Producto, Pendiente, Usuario
 from datetime import datetime
 import csv
 from fpdf import FPDF  # Necesitarás instalar esta librería con `pip install fpdf`
@@ -327,3 +327,46 @@ def exportar_csv(movimientos, file_path):
         print(f"CSV exportado a {file_path}")
     except Exception as e:
         print(f"Error al exportar CSV: {e}")
+
+# Función para obtener todos los usuarios
+def obtener_usuarios(session: Session):
+    """Obtiene todos los usuarios registrados en la base de datos."""
+    return session.query(Usuario).all()
+
+# Función para agregar un nuevo usuario
+def agregar_usuario(session: Session, nombre: str, rol: str, password: str):
+    """Agrega un nuevo usuario a la base de datos."""
+    nuevo_usuario = Usuario(
+        nombre=nombre,
+        rol=rol,
+        password=password,
+        fecha_creacion=datetime.now()
+    )
+    session.add(nuevo_usuario)
+    session.commit()
+    print(f"Usuario {nombre} agregado con éxito.")
+
+# Función para editar un usuario existente
+def editar_usuario(session: Session, usuario_id: int, nombre: str, rol: str, password: str):
+    """Edita un usuario existente en la base de datos."""
+    usuario = session.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if usuario:
+        usuario.nombre = nombre
+        usuario.rol = rol
+        if password:  # Solo actualiza la contraseña si se proporciona
+            usuario.password = password
+        session.commit()
+        print(f"Usuario {nombre} actualizado con éxito.")
+    else:
+        print(f"Usuario con ID {usuario_id} no encontrado.")
+
+# Función para eliminar un usuario
+def eliminar_usuario(session: Session, usuario_id: int):
+    """Elimina un usuario de la base de datos."""
+    usuario = session.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if usuario:
+        session.delete(usuario)
+        session.commit()
+        print(f"Usuario con ID {usuario_id} eliminado con éxito.")
+    else:
+        print(f"Usuario con ID {usuario_id} no encontrado.")        

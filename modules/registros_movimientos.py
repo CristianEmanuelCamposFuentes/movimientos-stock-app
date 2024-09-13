@@ -2,6 +2,7 @@ from datetime import datetime
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QFormLayout, QLineEdit, QTabWidget, QFileDialog, QMessageBox
 from modules.database_operations import obtener_movimientos_historicos, obtener_movimientos_pendientes, generar_pdf, exportar_csv
 from modules.database import get_db, Movimiento, Pendiente
+import csv
 
 class RegistrosMovimientosView(QWidget):
     def __init__(self):
@@ -55,7 +56,7 @@ class RegistrosMovimientosView(QWidget):
 
     # Función para cargar los registros históricos
     def cargar_registros_historicos(self):
-        movimientos = obtener_movimientos_historicos()  # Función simulada para obtener los movimientos históricos
+        movimientos = obtener_movimientos_historicos()  # Función para obtener los movimientos históricos
         self.historico_table.setRowCount(0)
         for i, movimiento in enumerate(movimientos):
             self.historico_table.insertRow(i)
@@ -76,10 +77,17 @@ class RegistrosMovimientosView(QWidget):
 
     # Función para exportar a CSV
     def exportar_csv(self):
+        movimientos = obtener_movimientos_historicos()  # Obtenemos los movimientos históricos
         ruta_csv, _ = QFileDialog.getSaveFileName(self, "Guardar CSV", "", "CSV Files (*.csv)")
         if ruta_csv:
-            exportar_csv(ruta_csv)  # Función simulada para exportar los datos a CSV
+            with open(ruta_csv, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(['Ubicación', 'Código', 'Cantidad', 'Fecha', 'Nota/Devolución', 'Observaciones'])
+                for mov in movimientos:
+                    writer.writerow([mov['ubicacion'], mov['codigo'], mov['cantidad'], 
+                                    mov['fecha'].strftime("%d/%m/%Y"), mov['nota_devolucion'], mov['observaciones']])
             QMessageBox.information(self, "Éxito", f"CSV generado en {ruta_csv}")
+
 
     # Función para filtrar registros (Placeholder)
     def filtrar_registros(self):
@@ -118,13 +126,13 @@ class RegistrosMovimientosView(QWidget):
 
             # Botones de acción: Ver Ubicación, Registrar Movimiento, Cancelar
             btn_ver_ubicacion = QPushButton("Ver Ubicación")
-            btn_ver_ubicacion.clicked.connect(lambda _, p=pendiente: self.ver_ubicacion(p))
+            btn_ver_ubicacion.clicked.connect(self.crear_boton_ver_ubicacion(pendiente))
 
             btn_registrar_movimiento = QPushButton("Registrar Movimiento")
-            btn_registrar_movimiento.clicked.connect(lambda _, p=pendiente: self.registrar_movimiento(p))
+            btn_registrar_movimiento.clicked.connect(self.crear_boton_registrar_movimiento(pendiente))
 
             btn_cancelar = QPushButton("Cancelar")
-            btn_cancelar.clicked.connect(lambda _, p=pendiente: self.cancelar_pendiente(p))
+            btn_cancelar.clicked.connect(self.crear_boton_cancelar_pendiente(pendiente))
 
             acciones_layout = QHBoxLayout()
             acciones_layout.addWidget(btn_ver_ubicacion)
@@ -134,6 +142,16 @@ class RegistrosMovimientosView(QWidget):
             acciones_widget = QWidget()
             acciones_widget.setLayout(acciones_layout)
             self.pendientes_table.setCellWidget(i, 5, acciones_widget)
+
+    def crear_boton_ver_ubicacion(self, pendiente):
+        return lambda: self.ver_ubicacion(pendiente)
+
+    def crear_boton_registrar_movimiento(self, pendiente):
+        return lambda: self.registrar_movimiento(pendiente)
+
+    def crear_boton_cancelar_pendiente(self, pendiente):
+        return lambda: self.cancelar_pendiente(pendiente)    
+    
 
     # Botones de acción en pendientes
     def botones_acciones_pendientes(self):

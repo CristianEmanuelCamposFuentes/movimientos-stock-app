@@ -90,8 +90,10 @@ engine = create_engine(f'sqlite:///{db_path}', echo=True)
 # Definir una sesión
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Crear todas las tablas si no existen
-Base.metadata.create_all(engine)
+# Función para crear todas las tablas si no existen
+def crear_tablas():
+    Base.metadata.create_all(engine)
+    print("Tablas creadas con éxito.")
 
 # Función para obtener la sesión de base de datos
 def get_db():
