@@ -21,6 +21,15 @@ class MainWindow(QWidget):
         self.setWindowTitle("Gestión de Movimientos de Stock")
         self.setGeometry(100, 100, 1200, 800)
 
+        # Inicialización de las vistas antes de crear la barra de botones
+        self.ingresos_egresos_view = IngresosEgresosWindow(self.usuario, self)
+        self.ajustes_view = AjustesView()
+        self.gestion_stock_view = GestionStockView()
+        self.notas_pedido_view = NotasPedidoView()
+        self.admin_productos_view = AdminProductosView()
+        self.registros_movimientos_view = RegistrosMovimientosView()
+        self.gestion_usuarios_view = GestionUsuariosView(self.usuario)
+
         # Layout principal
         main_layout = QVBoxLayout()
 
@@ -34,18 +43,6 @@ class MainWindow(QWidget):
         self.contenido_principal = QStackedWidget()
         self.contenido_principal.setObjectName("main-content")
 
-        # Crear la barra inferior de botones
-        bottom_layout = self.crear_barra_botones_inferiores()
-
-        # Inicialización de las vistas
-        self.ingresos_egresos_view = IngresosEgresosWindow(self.usuario, self)
-        self.ajustes_view = AjustesView()
-        self.gestion_stock_view = GestionStockView()
-        self.notas_pedido_view = NotasPedidoView()
-        self.admin_productos_view = AdminProductosView()
-        self.registros_movimientos_view = RegistrosMovimientosView()
-        self.gestion_usuarios_view = GestionUsuariosView(self.usuario)
-
         # Añadir las vistas al QStackedWidget
         self.contenido_principal.addWidget(self.ingresos_egresos_view)
         self.contenido_principal.addWidget(self.ajustes_view)
@@ -54,6 +51,9 @@ class MainWindow(QWidget):
         self.contenido_principal.addWidget(self.admin_productos_view)
         self.contenido_principal.addWidget(self.registros_movimientos_view)
         self.contenido_principal.addWidget(self.gestion_usuarios_view)
+
+        # Crear la barra inferior de botones
+        bottom_layout = self.crear_barra_botones_inferiores()
 
         # Crear el layout horizontal para el menú lateral y contenido principal
         content_layout = QHBoxLayout()
@@ -116,22 +116,23 @@ class MainWindow(QWidget):
         # Botón para cargar Ingreso
         btn_cargar_ingreso = QPushButton("Cargar Ingreso")
         btn_cargar_ingreso.setObjectName("btn-cargar-ingreso")  # Asignar un nombre de objeto para personalizar el estilo
-        btn_cargar_ingreso.clicked.connect(self.ingresos_egresos_view.cargar_ingreso)
+        # En lugar de conectar directamente a la vista, puedes usar un evento genérico
+        btn_cargar_ingreso.clicked.connect(lambda: self.mostrar_ingresos_egresos())  # Cambiar función
 
         # Botón para cargar Egreso
         btn_cargar_egreso = QPushButton("Cargar Egreso")
         btn_cargar_egreso.setObjectName("btn-cargar-egreso")
-        btn_cargar_egreso.clicked.connect(self.ingresos_egresos_view.cargar_egreso)
+        btn_cargar_egreso.clicked.connect(lambda: self.mostrar_ingresos_egresos())  # Cambiar función
 
         # Botón para ver Consolidado
         btn_ver_consolidado = QPushButton("Ver Consolidado")
         btn_ver_consolidado.setObjectName("btn-ver-consolidado")
-        btn_ver_consolidado.clicked.connect(self.ingresos_egresos_view.ver_consolidado)
+        btn_ver_consolidado.clicked.connect(lambda: self.mostrar_gestion_stock())  # Cambiar función
 
         # Botón para mover Pallet
         btn_mover_pallet = QPushButton("Mover Pallet")
         btn_mover_pallet.setObjectName("btn-mover-pallet")
-        btn_mover_pallet.clicked.connect(self.ingresos_egresos_view.mover_pallet)
+        btn_mover_pallet.clicked.connect(lambda: self.mostrar_gestion_stock())  # Cambiar función
 
         # Añadir botones al layout inferior
         bottom_layout.addWidget(btn_cargar_ingreso)
@@ -141,11 +142,10 @@ class MainWindow(QWidget):
 
         # Aplicar estilos especiales a los botones
         botones = [btn_cargar_ingreso, btn_cargar_egreso, btn_ver_consolidado, btn_mover_pallet]
-        colores = ["green", "red", "blue", "blue"]  # Definir colores específicos para cada botón
+        colores = ["grass", "salmon", "snow", "snow"]  # Definir colores específicos para cada botón
         aplicar_estilos_especiales(botones, colores)
 
         return bottom_layout
-
 
     # Funciones para mostrar cada vista
     def mostrar_ingresos_egresos(self):

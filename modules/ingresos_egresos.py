@@ -1,17 +1,11 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QLineEdit, QComboBox, QTableWidget, QTableWidgetItem, QFormLayout
-from PyQt5.QtCore import QDate
-from modules.ui_functions import cargar_ingreso, cargar_egreso
-from modules.ui_functions import crear_campo_formulario
-from modules.ui_styles import aplicar_estilos_especiales
-from modules.ui_styles import crear_contenedor_con_estilo
-from modules.gestion_stock import GestionStockView
-from modules.database_operations import get_description_by_code
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QLineEdit, QFormLayout, QTableWidgetItem
+from modules.ui_functions import cargar_ingreso, cargar_egreso, crear_campo_formulario
+from modules.ui_styles import aplicar_estilos_especiales, crear_contenedor_con_estilo
 from modules.database_operations import obtener_consolidado_stock
 
 
-
 class IngresosEgresosWindow(QWidget):
-    def __init__(self, usuario,parent=None):
+    def __init__(self, usuario, parent=None):
         super().__init__(parent)
         self.usuario = usuario
         self.parent = parent  # Referencia a la ventana principal para cambiar vistas
@@ -20,12 +14,13 @@ class IngresosEgresosWindow(QWidget):
     def initUI(self):
         self.setWindowTitle("Gestión de Movimientos de Stock - Ingresos/Egresos")
         
-         # Crear el contenedor con estilo
+        # Crear el contenedor principal con estilo
         main_layout = crear_contenedor_con_estilo()
 
         # Crear el formulario usando la función modular
         form_layout = QFormLayout()
 
+        # Campos del formulario
         ubicacion_label, ubicacion_input = crear_campo_formulario("Ubicación:", "Ingrese la ubicación")
         codigo_label, codigo_input = crear_campo_formulario("Código:", "Ingrese el código del producto")
         descripcion_label, descripcion_input = crear_campo_formulario("Descripción:", "Descripción del producto")
@@ -43,7 +38,7 @@ class IngresosEgresosWindow(QWidget):
         form_layout.addRow(nota_label, nota_input)
         form_layout.addRow(observaciones_label, observaciones_input)
 
-         # Crear botones de acción
+        # Crear los botones de acción
         btn_cargar_ingreso = QPushButton("Cargar Ingreso")
         btn_cargar_ingreso.clicked.connect(self.cargar_ingreso)
 
@@ -60,47 +55,76 @@ class IngresosEgresosWindow(QWidget):
         btn_mover_pallet.clicked.connect(self.mover_pallet)
 
         # Aplicar estilos especiales a los botones
-        botones = [btn_cargar_ingreso, btn_cargar_egreso, btn_cargar_ajustes]
-        colores = ["green", "red", "gray"]
+        botones = [btn_cargar_ingreso, btn_cargar_egreso, btn_cargar_ajustes, btn_ver_consolidado, btn_mover_pallet]
+        colores = ["green", "red", "gray", "blue", "blue"]
         aplicar_estilos_especiales(botones, colores)
 
         # Añadir el formulario y los botones al layout principal
         main_layout.addLayout(form_layout)
-        main_layout.addStretch()  # Para separar un poco el formulario del final
+        main_layout.addStretch()  # Separar el formulario del final
         main_layout.addLayout(self.parent.crear_barra_botones_inferiores())  # Reutilizar la barra de botones inferior
 
         # Establecer el layout final
         self.setLayout(main_layout)
         
-        # Aplicar estilos especiales
-        # En el método initUI o donde crees los botones:
-        botones = [btn_cargar_ingreso, btn_cargar_egreso, btn_cargar_ajustes]
-        colores = ["green", "red", "gray"]  # Definir colores específicos para cada botón
-        aplicar_estilos_especiales(botones, colores)
-
-    # Funciones para los botones
+        
+        # Funciones para los botones
     def cargar_ingreso(self):
-        print("Cargar Ingreso")
+        # Obtener los valores del formulario
+        ubicacion = self.ubicacion_input.text().strip()
+        codigo = self.codigo_input.text().strip()
+        cantidad = self.cantidad_input.text().strip()
+        fecha = self.fecha_input.text().strip()
+        nota_devolucion = self.nota_input.text().strip()
+        observaciones = self.observaciones_input.text().strip()
+
+        # Validar que los campos obligatorios no estén vacíos
+        if not ubicacion or not codigo or not cantidad or not fecha:
+            print("Error: Los campos obligatorios no pueden estar vacíos.")
+            return
+
+        # Llamar a la función para registrar el ingreso en la base de datos
+        cargar_ingreso(ubicacion, codigo, float(cantidad), fecha, nota_devolucion, observaciones)
+
+        # Feedback para el usuario
+        print(f"Ingreso registrado: {cantidad} unidades de {codigo} en la ubicación {ubicacion}.")
+
 
     def cargar_egreso(self):
-        print("Cargar Egreso")
+        # Obtener los valores del formulario
+        ubicacion = self.ubicacion_input.text().strip()
+        codigo = self.codigo_input.text().strip()
+        cantidad = self.cantidad_input.text().strip()
+        fecha = self.fecha_input.text().strip()
+        nota_devolucion = self.nota_input.text().strip()
+        observaciones = self.observaciones_input.text().strip()
+
+        # Validar que los campos obligatorios no estén vacíos
+        if not ubicacion or not codigo or not cantidad or not fecha:
+            print("Error: Los campos obligatorios no pueden estar vacíos.")
+            return
+
+        # Llamar a la función para registrar el egreso en la base de datos
+        cargar_egreso(ubicacion, codigo, float(cantidad), fecha, nota_devolucion, observaciones)
+
+        # Feedback para el usuario
+        print(f"Egreso registrado: {cantidad} unidades de {codigo} desde la ubicación {ubicacion}.")
 
     def ir_a_ajustes(self):
-        print("Ir a Ajustes")
+        # Cambiar a la vista de Ajustes
         self.parent.mostrar_ajustes()
 
     def ver_consolidado(self):
-        print("Ver Consolidado")
-        consolidado = obtener_consolidado_stock()
-        self.stock_table.setRowCount(0)  # Limpiar tabla antes de llenarla
-        for i, item in enumerate(consolidado):
-            self.stock_table.insertRow(i)
-            self.stock_table.setItem(i, 0, QTableWidgetItem(item.codigo))
-            self.stock_table.setItem(i, 1, QTableWidgetItem(item.descripcion))
-            self.stock_table.setItem(i, 2, QTableWidgetItem(str(item.cantidad)))
-            self.stock_table.setItem(i, 3, QTableWidgetItem(item.ubicacion))
-            self.stock_table.setItem(i, 4, QTableWidgetItem(item.fecha.strftime("%d/%m/%Y")))
+        # Cambiar a la vista de Gestión de Stock (donde se muestra el consolidado)
+        self.parent.mostrar_gestion_stock()
+
+        # Seleccionar la pestaña de Consolidado dentro de la vista de gestión de stock
+        self.parent.gestion_stock_view.tabs.setCurrentIndex(0)  # Pestaña 0 es la del Consolidado
+
 
     def mover_pallet(self):
-        print("Mover Pallet")
+        # Cambiar a la vista de Gestión de Stock
         self.parent.mostrar_gestion_stock()
+
+        # Seleccionar la pestaña de Mover Pallet dentro de la vista de gestión de stock
+        self.parent.gestion_stock_view.tabs.setCurrentIndex(2)

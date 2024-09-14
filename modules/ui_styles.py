@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QLabel, QSizePolicy
+from PyQt5.QtWidgets import QLabel, QSizePolicy, QVBoxLayout
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize
 
@@ -275,6 +275,11 @@ def ajustar_estilos_tablas(tabla):
     tabla.horizontalHeader().setStretchLastSection(True)
     tabla.verticalHeader().setVisible(False)
     
-    
+def crear_contenedor_con_estilo():
+    """Función para crear un contenedor con estilos consistentes."""
+    layout = QVBoxLayout()
+    layout.setContentsMargins(20, 20, 20, 20)  # Ajustar márgenes
+    layout.setSpacing(15)  # Espaciado entre elementos
+    return layout    
 
 

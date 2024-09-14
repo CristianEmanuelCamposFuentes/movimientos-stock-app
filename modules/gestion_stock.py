@@ -27,7 +27,7 @@ class GestionStockView(QWidget):
 
         # Agregar pestañas al layout principal
         main_layout.addWidget(self.tabs)
-        main_layout.addLayout(self.parent.crear_barra_botones_inferiores())  # Barra de botones inferior reutilizable
+        #main_layout.addLayout(self.parent.crear_barra_botones_inferiores())  # Barra de botones inferior reutilizable
         self.setLayout(main_layout)
 
     # Pestaña 1: Consolidado
@@ -63,7 +63,7 @@ class GestionStockView(QWidget):
 
         # Aplicar estilos a los botones
         botones = [export_excel_button, export_csv_button, generar_pdf_button, imprimir_pallet_button]
-        colores = ["blue", "blue", "blue", "blue"]
+        colores = ["alge", "alge", "alge", "alge"]
         aplicar_estilos_especiales(botones, colores)
 
         layout.addLayout(export_layout)
@@ -103,7 +103,7 @@ class GestionStockView(QWidget):
         ajustar_button.clicked.connect(self.ajustar_stock)
         
         # Aplicar estilo especial al botón
-        aplicar_estilos_especiales([ajustar_button], ["green"])
+        aplicar_estilos_especiales([ajustar_button], ["grass"])
 
         layout.addLayout(form_layout)
         layout.addWidget(ajustar_button)
