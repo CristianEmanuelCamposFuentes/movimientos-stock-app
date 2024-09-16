@@ -1,8 +1,8 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel, QLineEdit, QFormLayout, QTableWidgetItem
 from modules.ui_functions import cargar_ingreso, cargar_egreso, crear_campo_formulario
-from modules.ui_styles import aplicar_estilos_especiales, crear_contenedor_con_estilo
+from modules.ui_styles import colors, aplicar_estilos_especiales, crear_contenedor_con_estilo
 from modules.database_operations import obtener_consolidado_stock
-
+from modules.ui_functions import crear_barra_botones
 
 class IngresosEgresosWindow(QWidget):
     def __init__(self, usuario, parent=None):
@@ -61,7 +61,7 @@ class IngresosEgresosWindow(QWidget):
 
         # Añadir el formulario y los botones al layout principal
         main_layout.addLayout(form_layout)
-        main_layout.addStretch()  # Separar el formulario del final
+        #main_layout.addStretch()  # Separar el formulario del final
         main_layout.addLayout(self.parent.crear_barra_botones_inferiores())  # Reutilizar la barra de botones inferior
 
         # Establecer el layout final

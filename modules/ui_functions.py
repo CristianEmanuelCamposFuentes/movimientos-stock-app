@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 from modules.database import Movimiento, get_db
-from PyQt5.QtWidgets import QLabel, QLineEdit, QFormLayout
+from PyQt5.QtWidgets import QLabel, QLineEdit, QFormLayout, QHBoxLayout, QPushButton
+from modules.ui_styles import aplicar_estilos_especiales
 
 def registrar_movimiento(ubicacion, codigo, cantidad, fecha, tipo_movimiento, nota_devolucion, observaciones):
     """Registra cualquier tipo de movimiento en la base de datos."""
@@ -88,3 +89,33 @@ def crear_campo_formulario(label_text, placeholder_text):
     
     # Retornamos la etiqueta y el campo como un tuple
     return label, input_field
+
+def crear_barra_botones(personalizaciones):
+    """
+    Función que crea una barra de botones según las personalizaciones definidas.
+    :param personalizaciones: Lista de diccionarios con las propiedades de cada botón:
+        [
+            {"texto": "Botón 1", "color": "green", "funcion": funcion_boton1},
+            {"texto": "Botón 2", "color": "blue", "funcion": funcion_boton2},
+        ]
+    :return: Un layout (QHBoxLayout) con los botones creados.
+    """
+    layout = QHBoxLayout()
+
+    botones = []
+    colores = []
+    
+    for personalizacion in personalizaciones:
+        boton = QPushButton(personalizacion["texto"])
+        boton.clicked.connect(personalizacion["funcion"])  # Conectar el evento de clic a la función
+        botones.append(boton)  # Añadir el botón a la lista para aplicar estilos
+        colores.append(personalizacion["color"])  # Añadir el color correspondiente
+    
+    aplicar_estilos_especiales(botones, colores)  # Aplicar los estilos personalizados a los botones
+    
+    # Añadir los botones al layout
+    for boton in botones:
+        layout.addWidget(boton)
+    
+    return layout
+

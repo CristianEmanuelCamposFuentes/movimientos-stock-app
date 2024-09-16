@@ -6,7 +6,7 @@ from modules.notas_pedido import NotasPedidoView
 from modules.admin_productos import AdminProductosView
 from modules.registros_movimientos import RegistrosMovimientosView
 from modules.gestion_usuarios import GestionUsuariosView
-from modules.ui_styles import aplicar_estilos_barra_navegacion, aplicar_estilos_barra_lateral, aplicar_estilos_ventana_principal, aplicar_estilos_especiales
+from modules.ui_styles import colors, aplicar_estilos_barra_navegacion, aplicar_estilos_barra_lateral, aplicar_estilos_ventana_principal, aplicar_estilos_especiales
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QSize
 
@@ -62,6 +62,7 @@ class MainWindow(QWidget):
 
         # Agregar todo al layout principal
         main_layout.addLayout(nav_layout)  # Barra de navegación
+        #main_layout.addStretch()
         main_layout.addLayout(content_layout)  # Contenido principal
         main_layout.addLayout(bottom_layout)  # Barra inferior de botones
 
@@ -86,6 +87,7 @@ class MainWindow(QWidget):
     def crear_menu_lateral(self):
         # Crear el menú lateral con botones
         menu_layout = QVBoxLayout()
+        
         botones = {
             "Ingresos/Egresos": self.mostrar_ingresos_egresos,
             "Gestión de Stock": self.mostrar_gestion_stock,
@@ -107,8 +109,14 @@ class MainWindow(QWidget):
 
         # Aplicar los estilos al menú lateral
         aplicar_estilos_barra_lateral(botones_widgets)
+        
+                # Crear un contenedor para el menú
+        menu_widget = QWidget()
+        menu_widget.setLayout(menu_layout)
+            # Aplicar fondo a la barra lateral
+        menu_widget.setStyleSheet(f"background-color: {colors['alge']};")
 
-        return menu_layout
+        return menu_widget
 
     def crear_barra_botones_inferiores(self):
         bottom_layout = QHBoxLayout()
