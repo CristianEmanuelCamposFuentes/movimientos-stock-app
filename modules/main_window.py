@@ -10,7 +10,7 @@ from modules.ui_styles import aplicar_estilos_barra_navegacion, aplicar_estilos_
 from PyQt5.QtGui import QIcon
 import datetime , csv
 from modules.database import get_db, Stock, Movimiento, Producto
-from sqalchemy.orm import Session
+from sqlalchemy.orm import Session
 
 class MainWindow(QWidget):
     def __init__(self, usuario):
