@@ -1,62 +1,140 @@
-import csv
-import os
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QLabel, QMessageBox
+from PyQt5.QtCore import Qt
 from sqlalchemy.orm import Session
-from database import Stock, engine
+from modules.database import get_db, Stock, Movimiento
 from datetime import datetime
+from modules.ui_styles import aplicar_estilos_especiales, colors
+from modules.database_operations import importar_stock_con_backup  # Asegúrate de tener esta función importada
+import os
 
-def import_stock_data(csv_file):
-    session = Session(bind=engine)
-    
-    with open(csv_file, newline='', encoding='utf-8-sig') as file:
-        reader = csv.DictReader(file)
+class AjustesView(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle("Ajustes de Stock")
         
-        # Verificar los encabezados
-        headers = reader.fieldnames
-        print(f"Encabezados encontrados: {headers}")  # Mostrar los encabezados
+        # Layout principal
+        main_layout = QVBoxLayout()
 
-        # Proceso para agregar cada fila a la base de datos
-        for row in reader:
-            try:
-                # Convertir la cantidad reemplazando la coma por un punto
-                cantidad = float(row['CANTIDAD'].replace(',', '.')) if row['CANTIDAD'].strip() else 0.0
+        # Barra de búsqueda
+        search_layout = QHBoxLayout()
+        search_label = QLabel("Buscar:")
+        self.search_input = QLineEdit()
+        btn_buscar = QPushButton("Buscar")
+        btn_buscar.clicked.connect(self.buscar_stock)
+        search_layout.addWidget(search_label)
+        search_layout.addWidget(self.search_input)
+        search_layout.addWidget(btn_buscar)
 
-                # Convertir la fecha al formato adecuado si es necesario
-                fecha = procesar_fecha(row['FECHA'])
+        # Tabla de stock ajustable
+        self.stock_table = QTableWidget()
+        self.stock_table.setColumnCount(5)
+        self.stock_table.setHorizontalHeaderLabels(["Ubicación", "Código", "Descripción", "Cantidad", "Fecha"])
+        self.cargar_stock()
 
-                # Reemplazar puntos por comas y convertir a mayúsculas en la ubicación
-                ubicacion = row['UBICACION'].replace('.', ',').upper()
+        # Botones adicionales
+        botones_layout = QHBoxLayout()
+        btn_guardar_ajustes = QPushButton("Guardar Ajustes")
+        btn_guardar_ajustes.clicked.connect(self.guardar_ajustes)
+        botones_layout.addWidget(btn_guardar_ajustes)
 
-                # Convertir el código a mayúsculas
-                codigo = row['CODIGO'].upper() if row['CODIGO'].strip() else ''
+        # Botón exclusivo para el admin para sobreescribir el stock desde CSV
+        btn_sobreescribir_stock = QPushButton("Sobreescribir Stock")
+        btn_sobreescribir_stock.setObjectName("btn-sobreescribir-stock")  # Para aplicar estilo personalizado
+        btn_sobreescribir_stock.clicked.connect(self.confirmar_sobreescritura_stock)
+        botones_layout.addWidget(btn_sobreescribir_stock)
 
-                stock_item = Stock(
-                    pasillo=row['PASILLO'].upper(),
-                    ubicacion=ubicacion,
-                    codigo=codigo,
-                    descripcion=row['DESCRIPCION'].upper(),
-                    cantidad=cantidad,  # Usamos la cantidad ya convertida
-                    fecha=fecha
-                )
-                session.add(stock_item)
-            except KeyError as e:
-                print(f"Error: columna {e} no encontrada en el archivo CSV.")
-                continue
-            except ValueError as e:
-                print(f"Error procesando fila {row}: {e}")
-                continue
-            except Exception as e:
-                print(f"Error procesando fila {row}: {e}")
-                continue
+        # Agregar todo al layout principal
+        main_layout.addLayout(search_layout)
+        main_layout.addWidget(self.stock_table)
+        main_layout.addLayout(botones_layout)
 
-        session.commit()
-    session.close()
+        self.setLayout(main_layout) 
 
-def procesar_fecha(fecha_str):
-    if not fecha_str.strip():  # Si la fecha está vacía
-        return None  # O algún valor por defecto, si es necesario
-    return datetime.strptime(fecha_str, '%d/%m/%Y')
+        # Aplicar estilos personalizados al botón de sobreescritura
+        aplicar_estilos_especiales([btn_sobreescribir_stock], ["snow"])  # Color personalizado
 
-if __name__ == "__main__":
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    csv_path = os.path.join(base_dir, '..', 'data', 'stock_actual.csv')
-    import_stock_data(csv_path)
+    def cargar_stock(self):
+        """Cargar los datos del stock en la tabla para ajustes"""
+        db = next(get_db())
+        stock_items = db.query(Stock).all()
+
+        self.stock_table.setRowCount(len(stock_items))
+        for row_num, item in enumerate(stock_items):
+            self.stock_table.setItem(row_num, 0, QTableWidgetItem(item.ubicacion))
+            self.stock_table.setItem(row_num, 1, QTableWidgetItem(item.codigo))
+            self.stock_table.setItem(row_num, 2, QTableWidgetItem(item.descripcion))
+            cantidad_item = QTableWidgetItem(str(item.cantidad))
+            cantidad_item.setFlags(Qt.ItemIsEditable | Qt.ItemIsEnabled)  # Editable
+            self.stock_table.setItem(row_num, 3, cantidad_item)
+            fecha_item = QTableWidgetItem(item.fecha.strftime("%d/%m/%Y"))
+            fecha_item.setFlags(Qt.ItemIsEditable | Qt.ItemIsEnabled)  # Editable
+            self.stock_table.setItem(row_num, 4, fecha_item)
+
+    def buscar_stock(self):
+        """Buscar stock para ajustes"""
+        search_term = self.search_input.text()
+        # Aquí puedes agregar la lógica para filtrar los productos
+        print(f"Buscando: {search_term}")
+
+    def guardar_ajustes(self):
+        """Guardar los ajustes realizados al stock"""
+        db = next(get_db())
+        try:
+            for row in range(self.stock_table.rowCount()):
+                ubicacion = self.stock_table.item(row, 0).text()
+                codigo = self.stock_table.item(row, 1).text()
+                cantidad = float(self.stock_table.item(row, 3).text())
+                fecha = datetime.strptime(self.stock_table.item(row, 4).text(), "%d/%m/%Y")
+
+                # Actualizar la base de datos
+                stock_item = db.query(Stock).filter(Stock.ubicacion == ubicacion, Stock.codigo == codigo).first()
+                if stock_item:
+                    stock_item.cantidad = cantidad
+                    stock_item.fecha = fecha
+
+                    # Registrar el ajuste en la tabla de movimientos
+                    movimiento = Movimiento(
+                        ubicacion=ubicacion,
+                        codigo=codigo,
+                        cantidad=cantidad,
+                        fecha=fecha,
+                        nota_devolucion="Ajuste de Stock",
+                        tipo_movimiento="Ajuste",
+                        observaciones="Ajuste manual desde la vista de ajustes"
+                    )
+                    db.add(movimiento)
+
+            db.commit()
+            print("Ajustes guardados exitosamente")
+
+        except Exception as e:
+            db.rollback()
+            print(f"Error al guardar ajustes: {e}")
+
+        finally:
+            db.close()
+
+    def confirmar_sobreescritura_stock(self):
+        """Mostrar cuadro de confirmación para sobreescribir el stock."""
+        reply = QMessageBox.question(self, 'Confirmación de Sobreescritura', 
+                                     "¿Estás seguro de que deseas sobreescribir el stock actual?\n"
+                                     "Se realizará un backup antes de proceder.", 
+                                     QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
+        
+        if reply == QMessageBox.Yes:
+            self.sobreescribir_stock()
+
+    def sobreescribir_stock(self):
+        """Función para sobreescribir el stock desde un archivo CSV."""
+        # Ruta del archivo CSV (puedes ajustarlo según sea necesario)
+        csv_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'stock_actual.csv')
+        
+        try:
+            # Llamar a la función que realiza el backup y sobreescribe el stock
+            importar_stock_con_backup(csv_path)
+            QMessageBox.information(self, "Éxito", "El stock ha sido sobreescrito y se ha realizado un backup.")
+        except Exception as e:
+            QMessageBox.critical(self, "Error", f"Error al sobreescribir el stock: {str(e)}")
