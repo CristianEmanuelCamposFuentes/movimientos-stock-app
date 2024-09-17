@@ -1,8 +1,9 @@
-from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey
+from sqlalchemy import Column, Integer, String, Float, Date, ForeignKey, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.orm import sessionmaker
+import bcrypt
 
 
 # Definir la base
@@ -13,7 +14,7 @@ class Producto(Base):
     __tablename__ = 'Producto'
 
     id_producto = Column(Integer, primary_key=True, autoincrement=True)
-    codigo = Column(String, nullable=False)
+    codigo = Column(String, nullable=False, index=True)  # Índice para mejorar la búsqueda
     descripcion = Column(String, nullable=False)
     categoria = Column(String)
     imagen = Column(String)
@@ -25,6 +26,10 @@ class Ubicacion(Base):
     id_ubicacion = Column(Integer, primary_key=True, autoincrement=True)
     pasillo = Column(String, nullable=False)
     fila = Column(String, nullable=False)
+
+    __table_args__ = (
+        Index('idx_ubicacion_pasillo_fila', 'pasillo', 'fila'),  # Índice combinado
+    )
 
 # Tabla Stock
 class Stock(Base):
@@ -61,6 +66,9 @@ class Pendiente(Base):
     cantidad = Column(Float, nullable=False)
     motivo = Column(String, nullable=False)
     fecha = Column(Date, nullable=False)
+
+    producto = relationship('Producto')
+    ubicacion = relationship('Ubicacion')
     
 # Tabla NotasPedido (para gestionar las notas de pedido)
 class NotasPedido(Base):
@@ -80,8 +88,18 @@ class Usuario(Base):
     id_usuario = Column(Integer, primary_key=True, autoincrement=True)
     nombre = Column(String, nullable=False)
     correo = Column(String, nullable=False, unique=True)
-    contraseña = Column(String, nullable=False)
-    rol = Column(String, nullable=False)    
+    contraseña = Column(String, nullable=False)  # Almacena la contraseña encriptada
+    rol = Column(String, nullable=False)
+
+    def set_password(self, password: str):
+        """Encripta y guarda la contraseña."""
+        hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+        self.contraseña = hashed_password.decode('utf-8')
+
+    def check_password(self, password: str) -> bool:
+        """Verifica si la contraseña es correcta."""
+        return bcrypt.checkpw(password.encode('utf-8'), self.contraseña.encode('utf-8'))
+
 
 # Conectar con la base de datos
 db_path = './data/stock_management.db'
@@ -102,3 +120,4 @@ def get_db():
         yield db
     finally:
         db.close()
+

@@ -1,10 +1,12 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QFormLayout, QLineEdit, QTabWidget, QDialog, QLabel, QFileDialog
 from modules.database_operations import agregar_producto, obtener_productos, editar_producto, eliminar_producto
 from modules.database import get_db
+from modules.ui_styles import aplicar_estilos_especiales
 
 class AdminProductosView(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent  # Referencia al contenedor principal
         self.initUI()
 
     def initUI(self):
@@ -12,13 +14,22 @@ class AdminProductosView(QWidget):
         layout = QVBoxLayout()
 
         # Crear las pestañas
-        tabs = QTabWidget()
-        tabs.addTab(self.tabla_productos_tab(), "Tabla Actual")
-        tabs.addTab(self.clasificaciones_tab(), "Clasificaciones")
-        tabs.addTab(self.imagenes_tab(), "Imágenes de Productos")
+        self.tabs = QTabWidget()
+        self.tabs.addTab(self.tabla_productos_tab(), "Tabla Actual")
+        self.tabs.addTab(self.clasificaciones_tab(), "Clasificaciones")
+        self.tabs.addTab(self.imagenes_tab(), "Imágenes de Productos")
 
-        # Agregar pestañas al layout principal
-        layout.addWidget(tabs)
+        # Agregar las pestañas al layout principal
+        layout.addWidget(self.tabs)
+
+        # Barra inferior personalizada
+        botones = [
+            {"texto": "Agregar Producto", "color": "grass", "funcion": self.abrir_agregar_producto},
+            {"texto": "Cargar Imágenes", "color": "alge", "funcion": self.cargar_imagen}
+        ]
+        bottom_bar = self.parent.crear_barra_botones_inferiores(botones)
+        layout.addLayout(bottom_bar)
+
         self.setLayout(layout)
 
     # Pestaña 1: Tabla Actual de Productos
@@ -34,11 +45,6 @@ class AdminProductosView(QWidget):
         # Cargar productos en la tabla
         self.cargar_productos()
 
-        # Botones para CRUD
-        btn_agregar = QPushButton("Agregar Producto")
-        btn_agregar.clicked.connect(self.abrir_agregar_producto)
-
-        layout.addWidget(btn_agregar)
         widget.setLayout(layout)
         return widget
 
@@ -111,11 +117,6 @@ class AdminProductosView(QWidget):
         # Aquí se gestionan las imágenes de los productos
         layout.addWidget(QLabel("Gestión de Imágenes de Productos"))
 
-        # Botón para cargar imagen
-        btn_cargar_imagen = QPushButton("Cargar Imagen")
-        btn_cargar_imagen.clicked.connect(self.cargar_imagen)
-
-        layout.addWidget(btn_cargar_imagen)
         widget.setLayout(layout)
         return widget
 
@@ -169,4 +170,3 @@ class ProductoDialog(QDialog):
             "descripcion": self.descripcion_input.text(),
             "categoria": self.categoria_input.text()
         }
-

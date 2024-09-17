@@ -27,7 +27,17 @@ class GestionStockView(QWidget):
 
         # Agregar pestañas al layout principal
         main_layout.addWidget(self.tabs)
-        #main_layout.addLayout(self.parent.crear_barra_botones_inferiores())  # Barra de botones inferior reutilizable
+
+        # Barra inferior personalizada según la vista
+        botones = [
+            {"texto": "Exportar a Excel", "color": "alge", "funcion": self.exportar_excel},
+            {"texto": "Exportar a CSV", "color": "alge", "funcion": self.exportar_csv},
+            {"texto": "Generar PDF", "color": "alge", "funcion": self.generar_pdf},
+            {"texto": "Imprimir Pallet", "color": "alge", "funcion": self.imprimir_pallet}
+        ]
+        bottom_bar = self.parent.crear_barra_botones_inferiores(botones)
+        main_layout.addLayout(bottom_bar)
+
         self.setLayout(main_layout)
 
     # Pestaña 1: Consolidado
@@ -49,24 +59,6 @@ class GestionStockView(QWidget):
         self.consolidado_table = QTableWidget(0, 5)
         self.consolidado_table.setHorizontalHeaderLabels(["Código", "Descripción", "Ubicación", "Cantidad", "Fecha"])
         layout.addWidget(self.consolidado_table)
-
-        # Botones de exportar e imprimir
-        export_layout = QHBoxLayout()
-        export_excel_button = QPushButton("Exportar a Excel")
-        export_csv_button = QPushButton("Exportar a CSV")
-        generar_pdf_button = QPushButton("Generar PDF")
-        imprimir_pallet_button = QPushButton("Imprimir Pallet")
-        export_layout.addWidget(export_excel_button)
-        export_layout.addWidget(export_csv_button)
-        export_layout.addWidget(generar_pdf_button)
-        export_layout.addWidget(imprimir_pallet_button)
-
-        # Aplicar estilos a los botones
-        botones = [export_excel_button, export_csv_button, generar_pdf_button, imprimir_pallet_button]
-        colores = ["alge", "alge", "alge", "alge"]
-        aplicar_estilos_especiales(botones, colores)
-
-        layout.addLayout(export_layout)
 
         consolidado_widget.setLayout(layout)
         return consolidado_widget
@@ -156,3 +148,16 @@ class GestionStockView(QWidget):
     def on_tab_changed(self, index):
         if index == 0:  # Pestaña de consolidado
             self.buscar_consolidado()
+
+    # Funciones adicionales
+    def exportar_excel(self):
+        print("Exportando a Excel...")
+
+    def exportar_csv(self):
+        print("Exportando a CSV...")
+
+    def generar_pdf(self):
+        print("Generando PDF...")
+
+    def imprimir_pallet(self):
+        print("Imprimiendo pallet...")
