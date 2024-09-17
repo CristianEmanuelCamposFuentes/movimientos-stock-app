@@ -1,12 +1,11 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QVBoxLayout, QPushButton, QComboBox, QMessageBox
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QVBoxLayout, QPushButton, QMessageBox
 from PyQt5.QtGui import QColor, QPalette
 from datetime import datetime
 import sqlite3
 
 # Importar los estilos globales
-from modules.ui_styles import aplicar_estilo_global
-
+from modules.ui_styles import aplicar_estilos_especiales, aplicar_estilo_global
 
 class Form(QWidget):
     def __init__(self):
@@ -25,6 +24,9 @@ class Form(QWidget):
         self.egreso_button = QPushButton("Ingresar Egresos")
         self.ingreso_button.clicked.connect(lambda: self.desplegar_formulario("Ingreso"))
         self.egreso_button.clicked.connect(lambda: self.desplegar_formulario("Egreso"))
+
+        # Aplicar estilos a los botones
+        aplicar_estilos_especiales([self.ingreso_button, self.egreso_button], ["green", "red"])
 
         layout.addWidget(self.ingreso_button)
         layout.addWidget(self.egreso_button)
@@ -68,8 +70,11 @@ class Form(QWidget):
         # Botón para registrar el movimiento
         self.registrar_button = QPushButton("Registrar Movimiento")
         self.registrar_button.clicked.connect(self.registrar_movimiento)
+        aplicar_estilos_especiales([self.registrar_button], ["blue"])  # Aplicar estilo al botón de registrar
+
         layout.addWidget(self.registrar_button)
 
+        # Establecer layout
         self.setLayout(layout)
 
     def habilitar_formulario(self, habilitar):
@@ -82,10 +87,7 @@ class Form(QWidget):
         for widget in widgets:
             widget.setEnabled(habilitar)
             pal = widget.palette()
-            if habilitar:
-                pal.setColor(QPalette.Base, QColor(255, 255, 255))  # Fondo blanco si está habilitado
-            else:
-                pal.setColor(QPalette.Base, QColor(200, 200, 200))  # Fondo gris si está deshabilitado
+            pal.setColor(QPalette.Base, QColor(255, 255, 255) if habilitar else QColor(200, 200, 200))  # Fondo blanco/gris
             widget.setPalette(pal)
 
     def desplegar_formulario(self, tipo_movimiento):
@@ -94,32 +96,29 @@ class Form(QWidget):
         self.tipo_movimiento = tipo_movimiento
 
     def registrar_movimiento(self):
-        # Aquí agregamos la lógica para procesar el movimiento
-        ubicacion = self.ubicacion_input.text()
-        codigo = self.codigo_input.text()
-        descripcion = self.descripcion_input.text()
-        cantidad = self.cantidad_input.text()
-        fecha = self.fecha_input.text()
-        nota_devolucion = self.nota_devolucion_input.text()
-        tipo_movimiento = self.tipo_movimiento  # Ya está predefinido
-
-        observaciones = self.observaciones_input.text()
+        """Lógica para registrar el movimiento en la base de datos"""
+        ubicacion = self.ubicacion_input.text().strip()
+        codigo = self.codigo_input.text().strip()
+        descripcion = self.descripcion_input.text().strip()
+        cantidad = self.cantidad_input.text().strip()
+        fecha = self.fecha_input.text().strip()
+        nota_devolucion = self.nota_devolucion_input.text().strip()
+        observaciones = self.observaciones_input.text().strip()
 
         # Validar los campos
         if not ubicacion or not codigo or not cantidad:
             QMessageBox.warning(self, "Error", "Por favor, complete todos los campos obligatorios.")
             return
 
-        # Aquí podrías insertar los datos en la base de datos SQLite
         try:
             cantidad = float(cantidad)
-            self.insertar_en_base_datos(ubicacion, codigo, descripcion, cantidad, fecha, nota_devolucion, tipo_movimiento, observaciones)
+            self.insertar_en_base_datos(ubicacion, codigo, descripcion, cantidad, fecha, nota_devolucion, self.tipo_movimiento, observaciones)
             QMessageBox.information(self, "Éxito", "Movimiento registrado correctamente.")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"No se pudo registrar el movimiento: {str(e)}")
 
     def insertar_en_base_datos(self, ubicacion, codigo, descripcion, cantidad, fecha, nota_devolucion, tipo_movimiento, observaciones):
-        # Conectar con SQLite e insertar el movimiento
+        """Insertar el movimiento en la base de datos SQLite"""
         conexion = sqlite3.connect('data/stock_management.db')
         cursor = conexion.cursor()
 
@@ -141,6 +140,3 @@ if __name__ == "__main__":
     ventana = Form()
     ventana.show()
     sys.exit(app.exec_())
-
-
-

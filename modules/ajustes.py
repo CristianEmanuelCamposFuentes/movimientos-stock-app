@@ -5,14 +5,16 @@ from modules.database import get_db, Stock, Movimiento
 from datetime import datetime
 from modules.ui_styles import aplicar_estilos_especiales
 
+
 class AjustesView(QWidget):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.parent = parent  # Referencia a la ventana principal
         self.initUI()
 
     def initUI(self):
         self.setWindowTitle("Ajustes de Stock")
-        
+
         # Layout principal
         main_layout = QVBoxLayout()
 
@@ -32,20 +34,20 @@ class AjustesView(QWidget):
         self.stock_table.setHorizontalHeaderLabels(["Ubicación", "Código", "Descripción", "Cantidad", "Fecha"])
         self.cargar_stock()
 
-        # Botones adicionales
-        botones_layout = QHBoxLayout()
-        btn_guardar_ajustes = QPushButton("Guardar Ajustes")
-        btn_guardar_ajustes.clicked.connect(self.guardar_ajustes)
-        
-        botones_layout.addWidget(btn_guardar_ajustes)
-
-        # Agregar todo al layout principal
+        # Agregar todos los layouts al layout principal
         main_layout.addLayout(search_layout)
         main_layout.addWidget(self.stock_table)
-        main_layout.addLayout(botones_layout)
 
-        self.setLayout(main_layout) 
-        
+                # Crear la barra de botones inferior
+        if self.parent:  # Verificar si el padre está disponible
+            botones = [
+                {"texto": "Cargar CSV", "color": "snow", "funcion": self.parent.cargar_csv_stock},
+                {"texto": "Backup Stock", "color": "snow", "funcion": self.parent.hacer_backup_stock}
+            ]
+            bottom_bar = self.parent.crear_barra_botones_inferiores(botones)
+            main_layout.addLayout(bottom_bar)
+
+        self.setLayout(main_layout)
 
     def cargar_stock(self):
         """Cargar los datos del stock en la tabla para ajustes"""
