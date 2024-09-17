@@ -2,27 +2,40 @@ from sqlalchemy.orm import Session
 from modules.database import Movimiento, get_db
 from PyQt5.QtWidgets import QLabel, QLineEdit, QFormLayout, QHBoxLayout, QPushButton
 from modules.ui_styles import aplicar_estilos_especiales
+import logging
+from contextlib import contextmanager
 
+# Configuración del logger
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+@contextmanager
+def obtener_sesion_bd():
+    """Manejador de contexto para la sesión de base de datos."""
+    db = next(get_db())
+    try:
+        yield db
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        logging.error(f"Error en la base de datos: {e}")
+        raise
+    finally:
+        db.close()
+        
 def registrar_movimiento(ubicacion, codigo, cantidad, fecha, tipo_movimiento, nota_devolucion, observaciones):
     """Registra cualquier tipo de movimiento en la base de datos."""
-    with next(get_db()) as db:
-        try:
-            nuevo_movimiento = Movimiento(
-                ubicacion=ubicacion.upper(),  # Convertir a mayúsculas
-                codigo=codigo.upper(),        # Convertir a mayúsculas
-                cantidad=cantidad,
-                fecha=fecha,
-                tipo_movimiento=tipo_movimiento,  # Tipo de movimiento: Ingreso, Egreso, Ajuste, Movimiento
-                nota_devolucion=nota_devolucion,
-                observaciones=observaciones
-            )
-            db.add(nuevo_movimiento)
-            db.commit()
-            print(f"Movimiento de {tipo_movimiento} registrado exitosamente")
-        except Exception as e:
-            db.rollback()
-            print(f"Error al registrar el movimiento: {e}")
-
+    with obtener_sesion_bd() as db:
+        nuevo_movimiento = Movimiento(
+            ubicacion=ubicacion.upper(),  
+            codigo=codigo.upper(),
+            cantidad=cantidad,
+            fecha=fecha,
+            tipo_movimiento=tipo_movimiento,
+            nota_devolucion=nota_devolucion,
+            observaciones=observaciones
+        )
+        db.add(nuevo_movimiento)
+        logging.info(f"Movimiento de {tipo_movimiento} registrado exitosamente.")
 def cargar_ingreso(ubicacion, codigo, cantidad, fecha, nota_devolucion, observaciones):
     """Función específica para registrar un Ingreso."""
     registrar_movimiento(
@@ -90,14 +103,15 @@ def crear_campo_formulario(label_text, placeholder_text):
     # Retornamos la etiqueta y el campo como un tuple
     return label, input_field
 
-def crear_barra_botones(personalizaciones):
+def crear_barra_botones(personalizaciones, estilos_adicionales=None):
     """
     Función que crea una barra de botones según las personalizaciones definidas.
     :param personalizaciones: Lista de diccionarios con las propiedades de cada botón:
         [
-            {"texto": "Botón 1", "color": "green", "funcion": funcion_boton1},
+            {"texto": "Botón 1", "color": "green", "funcion": funcion_boton1, "estilo": "font-size:14px;"},
             {"texto": "Botón 2", "color": "blue", "funcion": funcion_boton2},
         ]
+    :param estilos_adicionales: Un diccionario con estilos adicionales (opcional).
     :return: Un layout (QHBoxLayout) con los botones creados.
     """
     layout = QHBoxLayout()
@@ -108,14 +122,20 @@ def crear_barra_botones(personalizaciones):
     for personalizacion in personalizaciones:
         boton = QPushButton(personalizacion["texto"])
         boton.clicked.connect(personalizacion["funcion"])  # Conectar el evento de clic a la función
-        botones.append(boton)  # Añadir el botón a la lista para aplicar estilos
-        colores.append(personalizacion["color"])  # Añadir el color correspondiente
+        
+        # Aplicar estilos individuales si se proporcionan
+        if "estilo" in personalizacion:
+            boton.setStyleSheet(personalizacion["estilo"])
+        
+        botones.append(boton)
+        colores.append(personalizacion["color"])
     
-    aplicar_estilos_especiales(botones, colores)  # Aplicar los estilos personalizados a los botones
+    aplicar_estilos_especiales(botones, colores)
     
     # Añadir los botones al layout
     for boton in botones:
         layout.addWidget(boton)
     
     return layout
+
 
