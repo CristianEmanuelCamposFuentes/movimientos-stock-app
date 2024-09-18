@@ -53,32 +53,40 @@ class RegistrosMovimientosView(QWidget):
 
     # Función para cargar los registros históricos
     def cargar_registros_historicos(self):
-        movimientos = obtener_movimientos_historicos()  # Función para obtener los movimientos históricos
-        self.historico_table.setRowCount(0)
-        for i, movimiento in enumerate(movimientos):
-            self.historico_table.insertRow(i)
-            self.historico_table.setItem(i, 0, QTableWidgetItem(movimiento["ubicacion"]))
-            self.historico_table.setItem(i, 1, QTableWidgetItem(movimiento["codigo"]))
-            self.historico_table.setItem(i, 2, QTableWidgetItem(str(movimiento["cantidad"])))
-            self.historico_table.setItem(i, 3, QTableWidgetItem(movimiento["fecha"].strftime("%d/%m/%Y")))
-            self.historico_table.setItem(i, 4, QTableWidgetItem(movimiento["nota_devolucion"]))
-            self.historico_table.setItem(i, 5, QTableWidgetItem(movimiento["observaciones"]))
-
+        db = next(get_db())  # Obtiene la sesión de la base de datos
+        try:
+            movimientos = obtener_movimientos_historicos(db)  # Pasa la sesión como argumento
+            self.tabla_registros.setRowCount(len(movimientos))
+            for row, mov in enumerate(movimientos):
+                self.tabla_registros.setItem(row, 0, QTableWidgetItem(mov['ubicacion']))
+                self.tabla_registros.setItem(row, 1, QTableWidgetItem(mov['codigo']))
+                self.tabla_registros.setItem(row, 2, QTableWidgetItem(str(mov['cantidad'])))
+                self.tabla_registros.setItem(row, 3, QTableWidgetItem(mov['fecha'].strftime('%d/%m/%Y')))
+                self.tabla_registros.setItem(row, 4, QTableWidgetItem(mov['nota_devolucion']))
+                self.tabla_registros.setItem(row, 5, QTableWidgetItem(mov['observaciones']))
+        except Exception as e:
+            print(f"Error al cargar registros históricos: {e}")
+        finally:
+            db.close()  # Asegúrate de cerrar la sesión
     # Función para exportar a PDF
     def exportar_pdf(self):
-        movimientos = obtener_movimientos_historicos()  # Obtenemos los movimientos históricos
+        db = next(get_db())  # Obtener la sesión de la base de datos
+        movimientos = obtener_movimientos_historicos(db)  # Pasar la sesión como argumento
         ruta_pdf, _ = QFileDialog.getSaveFileName(self, "Guardar PDF", "", "PDF Files (*.pdf)")
         if ruta_pdf:
             generar_pdf(movimientos, ruta_pdf)  # Función simulada para generar el PDF
             QMessageBox.information(self, "Éxito", f"PDF generado en {ruta_pdf}")
-
+        db.close()  # Cerrar la sesión 
+     
     # Función para exportar a CSV
     def exportar_csv(self):
-        movimientos = obtener_movimientos_historicos()  # Obtenemos los movimientos históricos
+        db = next(get_db())  # Obtener la sesión de la base de datos
+        movimientos = obtener_movimientos_historicos(db)  # Pasar la sesión como argumento
         ruta_csv, _ = QFileDialog.getSaveFileName(self, "Guardar CSV", "", "CSV Files (*.csv)")
         if ruta_csv:
             exportar_csv(movimientos, ruta_csv)  # Usamos la función de exportar_csv
             QMessageBox.information(self, "Éxito", f"CSV generado en {ruta_csv}")
+        db.close()  # Cerrar la sesión
 
     # Función para filtrar registros (Placeholder)
     def filtrar_registros(self):
@@ -111,7 +119,8 @@ class RegistrosMovimientosView(QWidget):
 
     # Función para cargar los pendientes
     def cargar_pendientes(self):
-        pendientes = obtener_movimientos_pendientes()  # Función simulada para obtener los movimientos pendientes
+        db = next(get_db())  # Obtener la sesión de la base de datos
+        pendientes = obtener_movimientos_pendientes(db)  # Pasar la sesión como argumento
         self.pendientes_table.setRowCount(0)
         for i, pendiente in enumerate(pendientes):
             self.pendientes_table.insertRow(i)
@@ -126,6 +135,9 @@ class RegistrosMovimientosView(QWidget):
             acciones_widget = QWidget()
             acciones_widget.setLayout(acciones_layout)
             self.pendientes_table.setCellWidget(i, 5, acciones_widget)
+        
+        db.close()  # Cerrar la sesión
+
 
     # Crear los botones de acción para cada pendiente
     def crear_botones_accion_pendiente(self, pendiente):

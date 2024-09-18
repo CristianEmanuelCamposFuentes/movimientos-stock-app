@@ -11,6 +11,7 @@ from PyQt5.QtGui import QIcon
 import datetime , csv
 from modules.database import get_db, Stock, Movimiento, Producto
 from sqlalchemy.orm import Session
+from modules.database_operations import obtener_stock, exportar_csv  # Asegúrate de tener esta función importada
 
 class MainWindow(QWidget):
     def __init__(self, usuario):
@@ -30,7 +31,7 @@ class MainWindow(QWidget):
         self.notas_pedido_view = NotasPedidoView(parent=self)
         self.admin_productos_view = AdminProductosView(parent=self)
         self.registros_movimientos_view = RegistrosMovimientosView(parent=self)
-        self.gestion_usuarios_view = GestionUsuariosView(self.usuario, parent=self)
+        self.gestion_usuarios_view = GestionUsuariosView(parent=self)
 
         # Layout principal basado en QGridLayout
         self.grid_layout = QGridLayout()
@@ -150,7 +151,7 @@ class MainWindow(QWidget):
         finally:
             db.close()   
 
-    def cargar_datos_csv(csv_file, backup_file):
+    def cargar_datos_csv(self,csv_file, backup_file):
         """Carga datos desde un archivo CSV a la base de datos y realiza un backup."""
         db = next(get_db())
         try:
@@ -202,10 +203,10 @@ class MainWindow(QWidget):
         finally:
             db.close()                         
     
-    def obtener_stock(session: Session):
+    def obtener_stock(self):
         """Obtiene todos los registros de stock actual de la base de datos."""
         try:
-            stock = session.query(Stock).all()
+            stock = self.query(Stock).all()
             return stock
         except Exception as e:
             print(f"Error al obtener stock: {e}")

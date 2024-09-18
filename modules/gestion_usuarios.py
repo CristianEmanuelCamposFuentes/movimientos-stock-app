@@ -6,7 +6,8 @@ from modules.ui_styles import aplicar_estilos_especiales
 class GestionUsuariosView(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.parent = parent  # Referencia a la ventana principal
+        self.parent = parent
+        self.usuario = parent.usuario if parent else None  # Obtener usuario desde el parent
         self.initUI()
 
     def initUI(self):
