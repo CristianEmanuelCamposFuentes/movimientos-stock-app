@@ -37,7 +37,9 @@ class MainWindow(QWidget):
         self.grid_layout = QGridLayout()
 
         # Crear el layout de navegación
-        nav_layout = self.crear_barra_navegacion()
+        nav_widget = QWidget()  # Crear un widget para contener el layout de navegación
+        nav_layout = QHBoxLayout(nav_widget)
+        self.crear_barra_navegacion(nav_layout)
 
         # Crear el contenido principal
         self.contenido_principal = QStackedWidget()
@@ -53,7 +55,7 @@ class MainWindow(QWidget):
         self.contenido_principal.addWidget(self.gestion_usuarios_view)
 
         # Añadir navbar, contenido principal y bottom-bar al grid layout
-        self.grid_layout.addLayout(nav_layout, 0, 0, 1, 3)  # Navbar en la parte superior
+        self.grid_layout.addLayout(nav_widget, 0, 0, 1, 3)  # Navbar en la parte superior
         self.grid_layout.addWidget(self.contenido_principal, 1, 0, 1, 3)  # Contenido principal
         self.grid_layout.addLayout(self.crear_barra_botones_inferiores([]), 2, 0, 1, 3)  # Barra inferior (personalizable)
 
@@ -62,7 +64,8 @@ class MainWindow(QWidget):
 
     def crear_barra_navegacion(self):
         # Crear la barra de navegación superior con botones para cada vista
-        nav_layout = QHBoxLayout()
+        nav_widget = QWidget() # Crear un widget para la barra de navegación
+        nav_layout = QHBoxLayout(nav_widget) # Aplicar el layout horizontal a la barra de navegación
         
         botones = {
             "Ingresos/Egresos": self.mostrar_ingresos_egresos,
@@ -82,7 +85,7 @@ class MainWindow(QWidget):
 
         nav_layout.addStretch()  # Alinear los botones a la izquierda
         nav_layout.addWidget(QLabel(f"Bienvenido, {self.usuario}"))  # Mostrar nombre de usuario
-        nav_layout.setObjectName("nav-bar")
+        nav_widget.setObjectName("nav-bar")
 
         aplicar_estilos_barra_navegacion(nav_layout)
         return nav_layout

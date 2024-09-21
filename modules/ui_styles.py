@@ -97,11 +97,11 @@ def aplicar_estilos_especiales(botones, colores):
         aplicar_estilo_boton(boton, colores[i])
 
 # Estilos para la barra de navegación superior
-def aplicar_estilos_barra_navegacion(parent_widget):
+def aplicar_estilos_barra_navegacion(nav_widget):
     """
     Aplica los estilos a la barra de navegación contenida en el widget padre (parent_widget).
     """
-    parent_widget.setStyleSheet(f"""
+    nav_widget.setStyleSheet(f"""
         #nav-bar {{
             background-color: {colors['nav-bar-bg']};  /* Fondo de la barra de navegación */
             padding: 10px;
@@ -109,8 +109,8 @@ def aplicar_estilos_barra_navegacion(parent_widget):
         }}
     """)
     # Itera sobre los widgets del layout para aplicar estilos individuales
-    for i in range(parent_widget.layout().count()):
-        widget = parent_widget.layout().itemAt(i).widget()
+    for i in range(nav_widget.layout().count()):
+        widget = nav_widget.layout().itemAt(i).widget()
         if isinstance(widget, QLabel):
             widget.setStyleSheet("""
                 QLabel {
