@@ -36,10 +36,10 @@ class MainWindow(QWidget):
         # Layout principal basado en QGridLayout
         self.grid_layout = QGridLayout()
 
-        # Crear el layout de navegación
-        nav_widget = QWidget()  # Crear un widget para contener el layout de navegación
-        nav_layout = QHBoxLayout(nav_widget)
-        self.crear_barra_navegacion(nav_layout)
+        # Crear el widget para la barra de navegación
+        nav_widget = QWidget()  # Crear un widget para la barra de navegación
+        nav_layout = QHBoxLayout(nav_widget)  # Aplicar el layout horizontal al widget
+        self.crear_barra_navegacion(nav_layout)  # Configurar la barra de navegación
 
         # Crear el contenido principal
         self.contenido_principal = QStackedWidget()
@@ -55,17 +55,15 @@ class MainWindow(QWidget):
         self.contenido_principal.addWidget(self.gestion_usuarios_view)
 
         # Añadir navbar, contenido principal y bottom-bar al grid layout
-        self.grid_layout.addLayout(nav_widget, 0, 0, 1, 3)  # Navbar en la parte superior
+        self.grid_layout.addLayout(nav_layout, 0, 0, 1, 3)  # Navbar en la parte superior
         self.grid_layout.addWidget(self.contenido_principal, 1, 0, 1, 3)  # Contenido principal
         self.grid_layout.addLayout(self.crear_barra_botones_inferiores([]), 2, 0, 1, 3)  # Barra inferior (personalizable)
 
         # Aplicar el layout principal a la ventana
         self.setLayout(self.grid_layout)
 
-    def crear_barra_navegacion(self):
+    def crear_barra_navegacion(self, layout):
         # Crear la barra de navegación superior con botones para cada vista
-        nav_widget = QWidget() # Crear un widget para la barra de navegación
-        nav_layout = QHBoxLayout(nav_widget) # Aplicar el layout horizontal a la barra de navegación
         
         botones = {
             "Ingresos/Egresos": self.mostrar_ingresos_egresos,
@@ -81,14 +79,14 @@ class MainWindow(QWidget):
         for texto, funcion in botones.items():
             boton = QPushButton(texto)
             boton.clicked.connect(funcion)
-            nav_layout.addWidget(boton)
+            layout.addWidget(boton)
 
-        nav_layout.addStretch()  # Alinear los botones a la izquierda
-        nav_layout.addWidget(QLabel(f"Bienvenido, {self.usuario}"))  # Mostrar nombre de usuario
-        nav_widget.setObjectName("nav-bar")
+        layout.addStretch()  # Alinear los botones a la izquierda
+        layout.addWidget(QLabel(f"Bienvenido, {self.usuario}"))  # Mostrar nombre de usuario
+        layout.setObjectName("nav-bar")
 
-        aplicar_estilos_barra_navegacion(nav_layout)
-        return nav_layout
+        aplicar_estilos_barra_navegacion(layout.parentWidget())
+        return layout
 
     def crear_barra_botones_inferiores(self, personalizaciones):
         # Crear la bottom-bar personalizable según la vista
