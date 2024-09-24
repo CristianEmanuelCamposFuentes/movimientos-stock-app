@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QGridLayout, QWidget, QHBoxLayout, QPushButton, QStackedWidget, QLabel, QFileDialog, QMessageBox
+from PyQt6.QtWidgets import QGridLayout, QWidget, QHBoxLayout, QPushButton, QStackedWidget, QLabel, QFileDialog, QMessageBox
 from modules.ingresos_egresos import IngresosEgresosWindow
 from modules.ajustes import AjustesView
 from modules.gestion_stock import GestionStockView
@@ -7,11 +7,12 @@ from modules.admin_productos import AdminProductosView
 from modules.registros_movimientos import RegistrosMovimientosView
 from modules.gestion_usuarios import GestionUsuariosView
 from modules.ui_styles import aplicar_estilos_barra_navegacion, aplicar_estilos_ventana_principal, aplicar_estilos_especiales
-from PyQt5.QtGui import QIcon
-import datetime , csv
+from PyQt6.QtGui import QIcon
+from PyQt6.QtCore import Qt
+import datetime, csv
 from modules.database import get_db, Stock, Movimiento, Producto
 from sqlalchemy.orm import Session
-from modules.database_operations import obtener_stock, exportar_csv  # Asegúrate de tener esta función importada
+from modules.database_operations import obtener_stock, exportar_csv
 
 class MainWindow(QWidget):
     def __init__(self, usuario):
@@ -55,7 +56,7 @@ class MainWindow(QWidget):
         self.contenido_principal.addWidget(self.gestion_usuarios_view)
 
         # Añadir navbar, contenido principal y bottom-bar al grid layout
-        self.grid_layout.addLayout(nav_layout, 0, 0, 1, 3)  # Navbar en la parte superior
+        self.grid_layout.addWidget(nav_widget, 0, 0, 1, 3)  # Navbar en la parte superior
         self.grid_layout.addWidget(self.contenido_principal, 1, 0, 1, 3)  # Contenido principal
         self.grid_layout.addLayout(self.crear_barra_botones_inferiores([]), 2, 0, 1, 3)  # Barra inferior (personalizable)
 
@@ -78,6 +79,7 @@ class MainWindow(QWidget):
         # Añadir los botones a la navbar
         for texto, funcion in botones.items():
             boton = QPushButton(texto)
+            boton.setFixedHeight(40)
             boton.clicked.connect(funcion)
             layout.addWidget(boton)
 
@@ -97,6 +99,7 @@ class MainWindow(QWidget):
 
         for personalizacion in personalizaciones:
             boton = QPushButton(personalizacion["texto"])
+            boton.setFixedHeight(40)
             boton.clicked.connect(personalizacion["funcion"])  # Conectar el evento de clic a la función
             botones.append(boton)  # Añadir el botón a la lista para aplicar estilos
             colores.append(personalizacion["color"])  # Añadir el color correspondiente

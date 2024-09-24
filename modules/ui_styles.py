@@ -1,6 +1,5 @@
-from PyQt5.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget, QPushButton
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import QSize
+from PyQt6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget, QPushButton
+from PyQt6.QtCore import QSize
 
 # Colores principales
 colors = {
@@ -13,9 +12,17 @@ colors = {
     "alge": "#7999a9",
     "flower": "#353866",
     "smoke": "#e4e4e4",
-    "nav-bar-bg": "#2C3E50",  # Fondo de la barra de navegación
-    "menu-bg": "#34495E",     # Fondo del menú lateral
-    "bottom-bar-bg": "#BDC3C7" # Fondo de la barra inferior
+    "nav-bar-bg": "#2C3E50",
+    "menu-bg": "#34495E",
+    "bottom-bar-bg": "#BDC3C7",
+    'background': '#f0f0f0',
+    'button-bg': '#3498db',
+    'button-hover-bg': '#2980b9',
+    'button-text': '#ffffff',
+    'label-text': '#2c3e50',
+    'input-bg': '#ffffff',
+    'input-border': '#bdc3c7',
+    'input-text': '#2c3e50',
 }
 
 # Estilos comunes para todos los botones
@@ -156,8 +163,29 @@ def aplicar_estilos_barra_lateral(menu_layout):
 def aplicar_estilos_ventana_principal(window):
     window.setStyleSheet(f"""
         QWidget {{
-            background-color: {colors['smoke']};  /* Fondo gris claro */
+            background-color: {colors['background']};
             font-family: 'Arial', sans-serif;
+        }}
+        QPushButton {{
+            background-color: {colors['button-bg']};
+            color: {colors['button-text']};
+            border-radius: 5px;
+            padding: 10px;
+        }}
+        QPushButton:hover {{
+            background-color: {colors['button-hover-bg']};
+        }}
+        QLabel {{
+            color: {colors['label-text']};
+            font-size: 16px;
+            font-weight: bold;
+        }}
+        QLineEdit {{
+            background-color: {colors['input-bg']};
+            border: 1px solid {colors['input-border']};
+            padding: 5px;
+            border-radius: 3px;
+            color: {colors['input-text']};
         }}
     """)
 
