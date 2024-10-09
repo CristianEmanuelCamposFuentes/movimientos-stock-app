@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel, QPushButton, QTableWidget, QTableWidgetItem, QTabWidget, QFormLayout
-from PyQt5.QtCore import Qt
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel, QPushButton, QTableWidget, QTableWidgetItem, QTabWidget, QFormLayout
+from PyQt6.QtCore import Qt
 from modules.database_operations import obtener_consolidado_stock, realizar_ajuste_stock, mover_pallet
 from modules.ui_styles import aplicar_estilos_especiales, crear_contenedor_con_estilo
 

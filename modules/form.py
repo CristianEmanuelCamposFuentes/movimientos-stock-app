@@ -1,6 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QVBoxLayout, QPushButton, QMessageBox
-from PyQt5.QtGui import QColor, QPalette
+from PyQt6.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QVBoxLayout, QPushButton, QMessageBox
+from PyQt6.QtGui import QColor, QPalette
 from datetime import datetime
 import sqlite3
 
