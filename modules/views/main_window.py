@@ -1,18 +1,18 @@
 from PyQt6.QtWidgets import QGridLayout, QWidget, QHBoxLayout, QPushButton, QStackedWidget, QLabel, QFileDialog, QMessageBox
 from modules.ingresos_egresos import IngresosEgresosWindow
-from modules.ajustes import AjustesView
+from modules.views.ajustes import AjustesView
 from modules.gestion_stock import GestionStockView
 from modules.notas_pedido import NotasPedidoView
-from modules.admin_productos import AdminProductosView
+from modules.views.admin_productos import AdminProductosView
 from modules.registros_movimientos import RegistrosMovimientosView
 from modules.gestion_usuarios import GestionUsuariosView
-from modules.ui_styles import aplicar_estilos_barra_navegacion, aplicar_estilos_ventana_principal, aplicar_estilos_especiales
+from modules.utils.ui_styles import aplicar_estilos_barra_navegacion, aplicar_estilos_ventana_principal, aplicar_estilos_especiales
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 import datetime, csv
-from modules.database import get_db, Stock, Movimiento, Producto
+from modules.models.database import get_db, Stock, Movimiento, Producto
 from sqlalchemy.orm import Session
-from modules.database_operations import obtener_stock, exportar_csv
+from modules.models.database_operations import obtener_stock, exportar_csv
 
 class MainWindow(QWidget):
     def __init__(self, usuario):

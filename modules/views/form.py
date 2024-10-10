@@ -5,7 +5,7 @@ from datetime import datetime
 import sqlite3
 
 # Importar los estilos globales
-from modules.ui_styles import aplicar_estilos_especiales, aplicar_estilo_global
+from modules.utils.ui_styles import aplicar_estilos_especiales, aplicar_estilo_global
 
 class Form(QWidget):
     def __init__(self):

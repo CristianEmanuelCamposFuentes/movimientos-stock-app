@@ -1,10 +1,10 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QLabel, QMessageBox
 from PyQt5.QtCore import Qt
 from sqlalchemy.orm import Session
-from modules.database import get_db, Stock, Movimiento
+from modules.models.database import get_db, Stock, Movimiento
 from datetime import datetime
-from modules.ui_styles import aplicar_estilos_especiales, colors
-from modules.database_operations import importar_stock_con_backup  # Asegúrate de tener esta función importada
+from modules.utils.ui_styles import aplicar_estilos_especiales, colors
+from modules.models.database_operations import importar_stock_con_backup  # Asegúrate de tener esta función importada
 import os
 
 class AjustesView(QWidget):

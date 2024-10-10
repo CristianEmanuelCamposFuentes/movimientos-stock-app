@@ -1,8 +1,8 @@
 from datetime import datetime
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QFormLayout, QLineEdit, QTabWidget, QFileDialog, QMessageBox
-from modules.database_operations import obtener_movimientos_historicos, obtener_movimientos_pendientes, generar_pdf, exportar_csv
-from modules.ui_styles import aplicar_estilos_especiales
-from modules.database import get_db, Movimiento, Pendiente
+from modules.models.database_operations import obtener_movimientos_historicos, obtener_movimientos_pendientes, generar_pdf, exportar_csv
+from modules.utils.ui_styles import aplicar_estilos_especiales
+from modules.models.database import get_db, Movimiento, Pendiente
 
 
 class RegistrosMovimientosView(QWidget):

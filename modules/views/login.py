@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QMessageBox
 from PyQt6.uic import loadUi
 from modules.main_window import MainWindow  # Importar la ventana principal después del login
-from modules.ui_styles import aplicar_estilos_especiales
+from modules.utils.ui_styles import aplicar_estilos_especiales
 
 class LoginWindow(QWidget):
     def __init__(self):

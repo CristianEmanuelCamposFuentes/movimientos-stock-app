@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QFormLayout, QLineEdit, QPushButton, QLabel
-from modules.ui_functions import crear_campo_formulario, cargar_ingreso, cargar_egreso
-from modules.ui_styles import aplicar_estilos_especiales
+from modules.utils.ui_functions import crear_campo_formulario, cargar_ingreso, cargar_egreso
+from modules.utils.ui_styles import aplicar_estilos_especiales
 
 
 class IngresosEgresosWindow(QWidget):

@@ -1,9 +1,9 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QLabel
 from PyQt6.QtCore import Qt
 from sqlalchemy.orm import Session
-from modules.database import get_db, Stock, Movimiento
+from modules.models.database import get_db, Stock, Movimiento
 from datetime import datetime
-from modules.ui_styles import aplicar_estilos_especiales
+from modules.utils.ui_styles import aplicar_estilos_especiales
 
 
 class AjustesView(QWidget):

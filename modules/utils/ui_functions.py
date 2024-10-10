@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
-from modules.database import Movimiento, get_db
+from modules.models.database import Movimiento, get_db
 from PyQt5.QtWidgets import QLabel, QLineEdit, QFormLayout, QHBoxLayout, QPushButton
-from modules.ui_styles import aplicar_estilos_especiales
+from modules.utils.ui_styles import aplicar_estilos_especiales
 import logging
 from contextlib import contextmanager
 

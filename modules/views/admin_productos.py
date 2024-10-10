@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QFormLayout, QLineEdit, QTabWidget, QDialog, QLabel, QFileDialog
-from modules.database_operations import agregar_producto, obtener_productos, editar_producto, eliminar_producto
-from modules.database import get_db
-from modules.ui_styles import aplicar_estilos_especiales
+from modules.models.database_operations import agregar_producto, obtener_productos, editar_producto, eliminar_producto
+from modules.models.database import get_db
+from modules.utils.ui_styles import aplicar_estilos_especiales
 
 class AdminProductosView(QWidget):
     def __init__(self, parent=None):

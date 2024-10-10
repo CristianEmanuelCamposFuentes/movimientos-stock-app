@@ -1,11 +1,11 @@
 import csv
 import os
 from sqlalchemy.orm import Session
-from modules.database import Stock, Movimiento, NotasPedido, Producto, Pendiente, Usuario, engine
+from modules.models.database import Stock, Movimiento, NotasPedido, Producto, Pendiente, Usuario, engine
 from datetime import datetime
 from fpdf import FPDF
 import bcrypt  # Para la seguridad en contraseñas
-from modules.database import get_db
+from modules.models.database import get_db
 
 # Obtener el consolidado de stock actual
 def obtener_stock(session: Session):
