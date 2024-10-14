@@ -1,0 +1,23 @@
+<RCC>
+  <qresource prefix="Sidebar">
+    <file>../modules/views/main_window/images/cerrar.png</file>
+    <file>../modules/views/main_window/images/icono_app.png</file>
+    <file>../modules/views/main_window/images/icono_admin.png</file>
+    <file>../modules/views/main_window/images/icono_ajustes.png</file>
+    <file>../modules/views/main_window/images/icono_app.png</file>
+    <file>../modules/views/main_window/images/icono_gestion.png</file>
+    <file>../modules/views/main_window/images/icono_ingresos.png</file>
+    <file>../modules/views/main_window/images/icono_nota_pedido.png</file>
+    <file>../modules/views/main_window/images/icono_registros.png</file>
+    <file>../modules/views/main_window/images/icono_usuarios.png</file>
+    <file>../modules/views/main_window/images/menu.png</file>
+  </qresource>
+  <qresource prefix="Users">
+    <file>../modules/views/gestion_usuarios/images/user_1.png</file>
+    <file>../modules/views/gestion_usuarios/images/user_2.png</file>
+    <file>../modules/views/gestion_usuarios/images/user_3.png</file>
+    <file>../modules/views/gestion_usuarios/images/user_4.png</file>
+    <file>../modules/views/gestion_usuarios/images/user_5.png</file>
+    <file>../modules/views/gestion_usuarios/images/user_6.png</file>
+  </qresource>
+</RCC>
