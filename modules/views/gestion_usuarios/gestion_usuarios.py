@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QLineEdit, QLabel, QMessageBox, QInputDialog
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTableWidget, QTableWidgetItem, QLineEdit, QLabel, QMessageBox, QInputDialog
 from modules.models.database_operations import obtener_usuarios, agregar_usuario, editar_usuario, eliminar_usuario
 from modules.models.database import get_db
 from modules.utils.ui_styles import aplicar_estilos_especiales

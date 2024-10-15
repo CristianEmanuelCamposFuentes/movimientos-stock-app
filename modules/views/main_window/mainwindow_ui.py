@@ -24,16 +24,20 @@ class Ui_MainWindow(object):
 "    \n"
 "    color: rgb(255, 255, 255);\n"
 "}\n"
-"\n"
+"QPushButton{\n"
+" border: none;\n"
+"}\n"
 "")
         self.icon_only_widget.setObjectName("icon_only_widget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.icon_only_widget)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setSpacing(10)
         self.verticalLayout.setObjectName("verticalLayout")
         self.label = QtWidgets.QLabel(parent=self.icon_only_widget)
         self.label.setMinimumSize(QtCore.QSize(40, 40))
         self.label.setMaximumSize(QtCore.QSize(40, 40))
-        self.label.setStyleSheet("background-color: rgb(131, 25, 27);")
+        self.label.setStyleSheet("background-color: rgb(131, 25, 27);\n"
+"border-radius: 50%;")
         self.label.setText("")
         self.label.setPixmap(QtGui.QPixmap(":/Users/modules/views/gestion_usuarios/images/user_1.png"))
         self.label.setScaledContents(True)
@@ -50,6 +54,8 @@ class Ui_MainWindow(object):
         icon.addPixmap(QtGui.QPixmap(":/Sidebar/modules/views/main_window/images/icono_ingresos.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.pushButton.setIcon(icon)
         self.pushButton.setIconSize(QtCore.QSize(35, 35))
+        self.pushButton.setCheckable(True)
+        self.pushButton.setAutoExclusive(True)
         self.pushButton.setObjectName("pushButton")
         self.verticalLayout.addWidget(self.pushButton)
         self.pushButton_2 = QtWidgets.QPushButton(parent=self.icon_only_widget)
@@ -61,6 +67,8 @@ class Ui_MainWindow(object):
         icon1.addPixmap(QtGui.QPixmap(":/Sidebar/modules/views/main_window/images/icono_gestion.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.pushButton_2.setIcon(icon1)
         self.pushButton_2.setIconSize(QtCore.QSize(35, 35))
+        self.pushButton_2.setCheckable(True)
+        self.pushButton_2.setAutoExclusive(True)
         self.pushButton_2.setObjectName("pushButton_2")
         self.verticalLayout.addWidget(self.pushButton_2)
         self.pushButton_4 = QtWidgets.QPushButton(parent=self.icon_only_widget)
@@ -72,6 +80,8 @@ class Ui_MainWindow(object):
         icon2.addPixmap(QtGui.QPixmap(":/Sidebar/modules/views/main_window/images/icono_nota_pedido.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.pushButton_4.setIcon(icon2)
         self.pushButton_4.setIconSize(QtCore.QSize(35, 35))
+        self.pushButton_4.setCheckable(True)
+        self.pushButton_4.setAutoExclusive(True)
         self.pushButton_4.setObjectName("pushButton_4")
         self.verticalLayout.addWidget(self.pushButton_4)
         self.pushButton_3 = QtWidgets.QPushButton(parent=self.icon_only_widget)
@@ -83,6 +93,8 @@ class Ui_MainWindow(object):
         icon3.addPixmap(QtGui.QPixmap(":/Sidebar/modules/views/main_window/images/icono_admin.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.pushButton_3.setIcon(icon3)
         self.pushButton_3.setIconSize(QtCore.QSize(35, 35))
+        self.pushButton_3.setCheckable(True)
+        self.pushButton_3.setAutoExclusive(True)
         self.pushButton_3.setObjectName("pushButton_3")
         self.verticalLayout.addWidget(self.pushButton_3)
         self.pushButton_6 = QtWidgets.QPushButton(parent=self.icon_only_widget)
@@ -94,6 +106,8 @@ class Ui_MainWindow(object):
         icon4.addPixmap(QtGui.QPixmap(":/Sidebar/modules/views/main_window/images/icono_registros.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.pushButton_6.setIcon(icon4)
         self.pushButton_6.setIconSize(QtCore.QSize(35, 35))
+        self.pushButton_6.setCheckable(True)
+        self.pushButton_6.setAutoExclusive(True)
         self.pushButton_6.setObjectName("pushButton_6")
         self.verticalLayout.addWidget(self.pushButton_6)
         self.pushButton_5 = QtWidgets.QPushButton(parent=self.icon_only_widget)
@@ -105,6 +119,8 @@ class Ui_MainWindow(object):
         icon5.addPixmap(QtGui.QPixmap(":/Sidebar/modules/views/main_window/images/icono_usuarios.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.pushButton_5.setIcon(icon5)
         self.pushButton_5.setIconSize(QtCore.QSize(35, 35))
+        self.pushButton_5.setCheckable(True)
+        self.pushButton_5.setAutoExclusive(True)
         self.pushButton_5.setObjectName("pushButton_5")
         self.verticalLayout.addWidget(self.pushButton_5)
         spacerItem1 = QtWidgets.QSpacerItem(20, 363, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
@@ -121,7 +137,7 @@ class Ui_MainWindow(object):
         self.pushButton_7.setObjectName("pushButton_7")
         self.verticalLayout.addWidget(self.pushButton_7)
         self.icon_name_widget = QtWidgets.QWidget(parent=self.centralwidget)
-        self.icon_name_widget.setGeometry(QtCore.QRect(120, 10, 159, 778))
+        self.icon_name_widget.setGeometry(QtCore.QRect(88, 10, 191, 778))
         self.icon_name_widget.setStyleSheet("QWidget{\n"
 "    background-color: rgb(170, 30, 25);\n"
 "    color: rgb(255, 255, 255);\n"
@@ -129,10 +145,13 @@ class Ui_MainWindow(object):
 "\n"
 "QPushButton{\n"
 "    text-align: left;\n"
+"    border: none;\n"
+"    padding-left: 5px;\n"
 "}")
         self.icon_name_widget.setObjectName("icon_name_widget")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.icon_name_widget)
         self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_2.setSpacing(10)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
@@ -167,6 +186,8 @@ class Ui_MainWindow(object):
         self.pushButton_13.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.pushButton_13.setIcon(icon)
         self.pushButton_13.setIconSize(QtCore.QSize(25, 25))
+        self.pushButton_13.setCheckable(True)
+        self.pushButton_13.setAutoExclusive(True)
         self.pushButton_13.setObjectName("pushButton_13")
         self.verticalLayout_2.addWidget(self.pushButton_13)
         self.pushButton_12 = QtWidgets.QPushButton(parent=self.icon_name_widget)
@@ -179,6 +200,8 @@ class Ui_MainWindow(object):
         self.pushButton_12.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.pushButton_12.setIcon(icon1)
         self.pushButton_12.setIconSize(QtCore.QSize(25, 25))
+        self.pushButton_12.setCheckable(True)
+        self.pushButton_12.setAutoExclusive(True)
         self.pushButton_12.setObjectName("pushButton_12")
         self.verticalLayout_2.addWidget(self.pushButton_12)
         self.pushButton_8 = QtWidgets.QPushButton(parent=self.icon_name_widget)
@@ -191,6 +214,8 @@ class Ui_MainWindow(object):
         self.pushButton_8.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.pushButton_8.setIcon(icon2)
         self.pushButton_8.setIconSize(QtCore.QSize(25, 25))
+        self.pushButton_8.setCheckable(True)
+        self.pushButton_8.setAutoExclusive(True)
         self.pushButton_8.setObjectName("pushButton_8")
         self.verticalLayout_2.addWidget(self.pushButton_8)
         self.pushButton_9 = QtWidgets.QPushButton(parent=self.icon_name_widget)
@@ -203,6 +228,8 @@ class Ui_MainWindow(object):
         self.pushButton_9.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.pushButton_9.setIcon(icon3)
         self.pushButton_9.setIconSize(QtCore.QSize(25, 25))
+        self.pushButton_9.setCheckable(True)
+        self.pushButton_9.setAutoExclusive(True)
         self.pushButton_9.setObjectName("pushButton_9")
         self.verticalLayout_2.addWidget(self.pushButton_9)
         self.pushButton_10 = QtWidgets.QPushButton(parent=self.icon_name_widget)
@@ -215,6 +242,8 @@ class Ui_MainWindow(object):
         self.pushButton_10.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.pushButton_10.setIcon(icon4)
         self.pushButton_10.setIconSize(QtCore.QSize(25, 25))
+        self.pushButton_10.setCheckable(True)
+        self.pushButton_10.setAutoExclusive(True)
         self.pushButton_10.setObjectName("pushButton_10")
         self.verticalLayout_2.addWidget(self.pushButton_10)
         self.pushButton_11 = QtWidgets.QPushButton(parent=self.icon_name_widget)
@@ -227,6 +256,8 @@ class Ui_MainWindow(object):
         self.pushButton_11.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.pushButton_11.setIcon(icon5)
         self.pushButton_11.setIconSize(QtCore.QSize(25, 25))
+        self.pushButton_11.setCheckable(True)
+        self.pushButton_11.setAutoExclusive(True)
         self.pushButton_11.setObjectName("pushButton_11")
         self.verticalLayout_2.addWidget(self.pushButton_11)
         spacerItem3 = QtWidgets.QSpacerItem(20, 358, QtWidgets.QSizePolicy.Policy.Minimum, QtWidgets.QSizePolicy.Policy.Expanding)
@@ -248,9 +279,10 @@ class Ui_MainWindow(object):
         self.main_menu_widget.setStyleSheet("background-color: rgb(244, 247, 249);")
         self.main_menu_widget.setObjectName("main_menu_widget")
         self.navbar_widget = QtWidgets.QWidget(parent=self.main_menu_widget)
-        self.navbar_widget.setGeometry(QtCore.QRect(10, 10, 761, 91))
+        self.navbar_widget.setGeometry(QtCore.QRect(0, 0, 781, 91))
         self.navbar_widget.setStyleSheet("QWidget{\n"
-"    background-color: rgb(212, 131, 131);\n"
+"    \n"
+"    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0  rgb(212, 131, 131), stop:1 rgb(170, 30, 25));\n"
 "    \n"
 "    color: rgb(255, 255, 255);\n"
 "}")
@@ -268,14 +300,14 @@ class Ui_MainWindow(object):
         self.pushButton_15.setIconSize(QtCore.QSize(36, 36))
         self.pushButton_15.setObjectName("pushButton_15")
         self.pushButton_17 = QtWidgets.QPushButton(parent=self.navbar_widget)
-        self.pushButton_17.setGeometry(QtCore.QRect(670, 30, 75, 40))
+        self.pushButton_17.setGeometry(QtCore.QRect(100, 30, 291, 40))
         self.pushButton_17.setMinimumSize(QtCore.QSize(0, 40))
         self.pushButton_17.setMaximumSize(QtCore.QSize(16777215, 40))
         self.pushButton_17.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.pushButton_17.setStyleSheet("background-color: rgb(131, 25, 27);")
         self.pushButton_17.setObjectName("pushButton_17")
         self.layoutWidget = QtWidgets.QWidget(parent=self.navbar_widget)
-        self.layoutWidget.setGeometry(QtCore.QRect(140, 30, 301, 42))
+        self.layoutWidget.setGeometry(QtCore.QRect(470, 30, 301, 42))
         self.layoutWidget.setObjectName("layoutWidget")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.layoutWidget)
         self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
@@ -283,6 +315,7 @@ class Ui_MainWindow(object):
         self.lineEdit = QtWidgets.QLineEdit(parent=self.layoutWidget)
         self.lineEdit.setMinimumSize(QtCore.QSize(0, 40))
         self.lineEdit.setMaximumSize(QtCore.QSize(16777215, 40))
+        self.lineEdit.setStyleSheet("background-color: rgb(255, 251, 212);")
         self.lineEdit.setObjectName("lineEdit")
         self.horizontalLayout.addWidget(self.lineEdit)
         self.pushButton_18 = QtWidgets.QPushButton(parent=self.layoutWidget)
@@ -300,16 +333,16 @@ class Ui_MainWindow(object):
         self.pushButton_18.setObjectName("pushButton_18")
         self.horizontalLayout.addWidget(self.pushButton_18)
         self.bottombar_widget = QtWidgets.QWidget(parent=self.main_menu_widget)
-        self.bottombar_widget.setGeometry(QtCore.QRect(10, 680, 761, 81))
-        self.bottombar_widget.setStyleSheet("background-color: rgb(212, 131, 131);\n"
+        self.bottombar_widget.setGeometry(QtCore.QRect(0, 720, 781, 51))
+        self.bottombar_widget.setStyleSheet("background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0  rgb(212, 131, 131), stop:1 rgb(170, 30, 25));\n"
 "color: rgb(51, 51, 51);")
         self.bottombar_widget.setObjectName("bottombar_widget")
-        self.main_widget = QtWidgets.QStackedWidget(parent=self.main_menu_widget)
-        self.main_widget.setGeometry(QtCore.QRect(9, 119, 761, 551))
+        self.main_widget = QtWidgets.QTabWidget(parent=self.main_menu_widget)
+        self.main_widget.setGeometry(QtCore.QRect(9, 109, 761, 601))
         self.main_widget.setObjectName("main_widget")
-        self.main_content_stackedWidgetPage1 = QtWidgets.QWidget()
-        self.main_content_stackedWidgetPage1.setObjectName("main_content_stackedWidgetPage1")
-        self.main_widget.addWidget(self.main_content_stackedWidgetPage1)
+        self.main_widgetPage1 = QtWidgets.QWidget()
+        self.main_widgetPage1.setObjectName("main_widgetPage1")
+        self.main_widget.addTab(self.main_widgetPage1, "")
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -318,7 +351,8 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.label_3.setText(_translate("MainWindow", "Menu"))
+        self.label_3.setText(_translate("MainWindow", "<html><head/><body><p align=\"center\">Menu</p></body></html>"))
+        self.pushButton_13.setWhatsThis(_translate("MainWindow", "<html><head/><body><p><br/></p></body></html>"))
         self.pushButton_13.setText(_translate("MainWindow", "Ingresos / Egresos"))
         self.pushButton_12.setText(_translate("MainWindow", "Gestión de Stock"))
         self.pushButton_8.setText(_translate("MainWindow", "Notas de Pedido"))
@@ -326,5 +360,5 @@ class Ui_MainWindow(object):
         self.pushButton_10.setText(_translate("MainWindow", "Movimientos"))
         self.pushButton_11.setText(_translate("MainWindow", "Usuarios"))
         self.pushButton_14.setText(_translate("MainWindow", "Salir"))
-        self.pushButton_17.setText(_translate("MainWindow", "PushButton"))
+        self.pushButton_17.setText(_translate("MainWindow", "Esto va a ser una etiqueta con el titulo de cada VISTA"))
         self.pushButton_18.setText(_translate("MainWindow", "Buscar"))

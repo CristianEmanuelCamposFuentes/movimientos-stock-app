@@ -1,4 +1,4 @@
-from Pyqt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QLabel, QFormLayout, QTableWidget, QTableWidgetItem, QTabWidget, QComboBox, QTextEdit
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QLabel, QFormLayout, QTableWidget, QTableWidgetItem, QTabWidget, QComboBox, QTextEdit
 from modules.models.database_operations import generar_nota_pedido, cargar_nota_pedido, obtener_registros_notas
 from modules.models.database import get_db, Movimiento, Stock, Producto
 from datetime import datetime

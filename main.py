@@ -1,9 +1,9 @@
 from PyQt6.QtWidgets import QApplication
-from modules.login import LoginWindow  # Importa la ventana de Login
+from modules.views.login.login import LoginWindow  # Importa la ventana de Login
 import os
 from sqlalchemy import create_engine
-from modules.ui_styles import aplicar_estilos_ventana_principal  # Importa la función de estilos globales
-from modules.database import crear_tablas
+from modules.utils.ui_styles import aplicar_estilos_ventana_principal  # Importa la función de estilos globales
+from modules.models.database import crear_tablas
 
 def setup_database():
     """Configurar la base de datos y las tablas."""
