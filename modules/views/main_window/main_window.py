@@ -12,17 +12,19 @@ from PyQt6.QtCore import Qt
 import datetime, csv
 from modules.models.database import get_db, Stock, Movimiento, Producto
 from modules.models.database_operations import obtener_stock, exportar_csv
-
+from PyQt6.uic import loadUi
 class MainWindow(QWidget):
     def __init__(self, usuario):
         super().__init__()
         self.usuario = usuario
+        loadUi("modules\\views\main_window\mainwindow.ui", self)
         self.initUI()
-        self.setWindowIcon(QIcon("img/icono_app.png"))
+
 
     def initUI(self):
         self.setWindowTitle("Gestión de Movimientos de Stock")
-        self.setGeometry(100, 100, 1200, 800)
+        self.setWindowIcon(QIcon("modules\\views\main_window\icon.png"))
+        # self.crear_eventos()
 
         # Inicialización de las vistas con `parent`
         self.ingresos_egresos_view = IngresosEgresosWindow(self.usuario, self)
@@ -33,61 +35,64 @@ class MainWindow(QWidget):
         self.registros_movimientos_view = RegistrosMovimientosView(parent=self)
         self.gestion_usuarios_view = GestionUsuariosView(parent=self)
 
-        # Layout principal basado en QGridLayout
-        self.grid_layout = QGridLayout()
+        # # Layout principal basado en QGridLayout
+        # self.grid_layout = QGridLayout()
 
-        # Crear el widget para la barra de navegación
-        nav_widget = QWidget()  # Crear un widget para la barra de navegación
-        nav_layout = QHBoxLayout(nav_widget)  # Aplicar el layout horizontal al widget
-        self.crear_barra_navegacion(nav_layout)  # Configurar la barra de navegación
+        # # Crear el widget para la barra de navegación
+        # nav_widget = QWidget()  # Crear un widget para la barra de navegación
+        # nav_layout = QHBoxLayout(nav_widget)  # Aplicar el layout horizontal al widget
+        # self.crear_barra_navegacion(nav_layout)  # Configurar la barra de navegación
+        
+        # Obtenemos el QStackedWidget desde el archivo .ui
+        self.stack = self.findChild(QStackedWidget, "main_widget")
 
-        # Crear el contenido principal
-        self.contenido_principal = QStackedWidget()
-        self.contenido_principal.setObjectName("main-content")
+        # # Crear el contenido principal
+        # self.contenido_principal = QStackedWidget()
+        # self.contenido_principal.setObjectName("main-content")
 
-        # Añadir las vistas al QStackedWidget
-        self.contenido_principal.addWidget(self.ingresos_egresos_view)
-        self.contenido_principal.addWidget(self.ajustes_view)
-        self.contenido_principal.addWidget(self.gestion_stock_view)
-        self.contenido_principal.addWidget(self.notas_pedido_view)
-        self.contenido_principal.addWidget(self.admin_productos_view)
-        self.contenido_principal.addWidget(self.registros_movimientos_view)
-        self.contenido_principal.addWidget(self.gestion_usuarios_view)
+        # # Añadir las vistas al QStackedWidget
+        # self.contenido_principal.addWidget(self.ingresos_egresos_view)
+        # self.contenido_principal.addWidget(self.ajustes_view)
+        # self.contenido_principal.addWidget(self.gestion_stock_view)
+        # self.contenido_principal.addWidget(self.notas_pedido_view)
+        # self.contenido_principal.addWidget(self.admin_productos_view)
+        # self.contenido_principal.addWidget(self.registros_movimientos_view)
+        # self.contenido_principal.addWidget(self.gestion_usuarios_view)
 
         # Añadir navbar, contenido principal y bottom-bar al grid layout
-        self.grid_layout.addWidget(nav_widget, 0, 0, 1, 3)  # Navbar en la parte superior
-        self.grid_layout.addWidget(self.contenido_principal, 1, 0, 1, 3)  # Contenido principal
-        self.grid_layout.addLayout(self.crear_barra_botones_inferiores([]), 2, 0, 1, 3)  # Barra inferior (personalizable)
+        #self.grid_layout.addWidget(nav_widget, 0, 0, 1, 3)  # Navbar en la parte superior
+        #self.grid_layout.addWidget(self.contenido_principal, 1, 0, 1, 3)  # Contenido principal
+        #self.grid_layout.addLayout(self.crear_barra_botones_inferiores([]), 2, 0, 1, 3)  # Barra inferior (personalizable)
 
         # Aplicar el layout principal a la ventana
         self.setLayout(self.grid_layout)
 
-    def crear_barra_navegacion(self, layout):
-        # Crear la barra de navegación superior con botones para cada vista
+    # def crear_barra_navegacion(self, layout):
+    #     # Crear la barra de navegación superior con botones para cada vista
         
-        botones = {
-            "Ingresos/Egresos": self.mostrar_ingresos_egresos,
-            "Gestión de Stock": self.mostrar_gestion_stock,
-            "Notas de Pedido": self.mostrar_notas_pedido,
-            "Administrar Productos": self.mostrar_admin_productos,
-            "Registros de Movimientos": self.mostrar_registros_movimientos,
-            "Gestión de Usuarios": self.mostrar_gestion_usuarios,
-            "Ajustes de Stock": self.mostrar_ajustes
-        }
+    #     botones = {
+    #         "Ingresos/Egresos": self.mostrar_ingresos_egresos,
+    #         "Gestión de Stock": self.mostrar_gestion_stock,
+    #         "Notas de Pedido": self.mostrar_notas_pedido,
+    #         "Administrar Productos": self.mostrar_admin_productos,
+    #         "Registros de Movimientos": self.mostrar_registros_movimientos,
+    #         "Gestión de Usuarios": self.mostrar_gestion_usuarios,
+    #         "Ajustes de Stock": self.mostrar_ajustes
+    #     }
 
-        # Añadir los botones a la navbar
-        for texto, funcion in botones.items():
-            boton = QPushButton(texto)
-            boton.setFixedHeight(40)
-            boton.clicked.connect(funcion)
-            layout.addWidget(boton)
+    #     # Añadir los botones a la navbar
+    #     for texto, funcion in botones.items():
+    #         boton = QPushButton(texto)
+    #         boton.setFixedHeight(40)
+    #         boton.clicked.connect(funcion)
+    #         layout.addWidget(boton)
 
-        layout.addStretch()  # Alinear los botones a la izquierda
-        layout.addWidget(QLabel(f"Bienvenido, {self.usuario}"))  # Mostrar nombre de usuario
-        layout.setObjectName("nav-bar")
+    #     layout.addStretch()  # Alinear los botones a la izquierda
+    #     layout.addWidget(QLabel(f"Bienvenido, {self.usuario}"))  # Mostrar nombre de usuario
+    #     layout.setObjectName("nav-bar")
 
-        aplicar_estilos_barra_navegacion(layout.parentWidget())
-        return layout
+    #     aplicar_estilos_barra_navegacion(layout.parentWidget())
+    #     return layout
 
     def crear_barra_botones_inferiores(self, personalizaciones):
         # Crear la bottom-bar personalizable según la vista
@@ -138,7 +143,75 @@ class MainWindow(QWidget):
         # Asegurarse de actualizar el título, si existe
         if hasattr(self, "titulo_seccion"):
             self.titulo_seccion.setText(titulo)
+            
+    def crear_eventos(self):
+        self.findChild(QPushButton, "pushButton_9").clicked.connect(lambda: self.cambiar_pestana(0))  # Ingresos/Egresos
+        self.findChild(QPushButton, "pushButton_10").clicked.connect(lambda: self.cambiar_pestana(1))  # Gestión de Stock
+        self.findChild(QPushButton, "pushButton_11").clicked.connect(lambda: self.cambiar_pestana(2))  # Notas de Pedido
+        self.findChild(QPushButton, "pushButton_12").clicked.connect(lambda: self.cambiar_pestana(3))  # Productos
+        self.findChild(QPushButton, "pushButton_13").clicked.connect(lambda: self.cambiar_pestana(4))  # Movimientos
+        self.findChild(QPushButton, "pushButton_14").clicked.connect(lambda: self.cambiar_pestana(5))  # Usuarios
+        self.findChild(QPushButton, "pushButton_15").clicked.connect(lambda: self.cambiar_pestana(6))  # Ajustes
 
+    def cambiar_pestana(self, indice):
+        """
+        Cambia la pestaña activa en el QTabWidget 'main_widget' según el índice dado.
+        """
+        self.main_widget.setCurrentIndex(indice)
+        
+            # Limpiar la barra inferior
+        bottom_layout = self.findChild(QHBoxLayout, "bottom_bar_layout")
+        while bottom_layout.count():
+            item = bottom_layout.takeAt(0)
+            widget = item.widget()
+            if widget is not None:
+                widget.deleteLater()
+
+        # Actualizar los botones según la vista seleccionada
+        if indice == 0:  # Ingresos/Egresos
+            botones_personalizados = [
+                {"texto": "Guardar Ingreso", "funcion": self.guardar_ingreso, "color": "green"},
+                {"texto": "Cancelar", "funcion": self.cancelar_ingreso, "color": "red"}
+            ]
+        elif indice == 1:  # Gestión de Stock
+            botones_personalizados = [
+                {"texto": "Exportar CSV", "funcion": self.hacer_backup_stock, "color": "blue"}
+            ]
+        # ... Agrega botones para cada pestaña según sea necesario.
+
+        # Añadir los botones personalizados a la barra inferior
+        barra_inferior = self.crear_barra_botones_inferiores(botones_personalizados)
+        bottom_layout.addLayout(barra_inferior)
+        
+    def actualizar_barra_inferior(self, personalizaciones):
+        """
+        Actualiza los botones de la barra inferior en función de la vista seleccionada.
+        """
+        # Limpiar el layout actual
+        for i in reversed(range(self.bottombar_widget.layout().count())):
+            widget_to_remove = self.bottombar_widget.layout().itemAt(i).widget()
+            if widget_to_remove is not None:
+                widget_to_remove.deleteLater()
+        
+        # Crear nuevos botones basados en las personalizaciones de la vista actual
+        layout = QHBoxLayout(self.bottombar_widget)
+        botones = []
+        colores = []
+        
+        for personalizacion in personalizaciones:
+            boton = QPushButton(personalizacion["texto"])
+            boton.setFixedHeight(40)
+            boton.clicked.connect(personalizacion["funcion"])
+            botones.append(boton)
+            colores.append(personalizacion["color"])
+        
+        aplicar_estilos_especiales(botones, colores)
+        
+        for boton in botones:
+            layout.addWidget(boton)
+
+        self.bottombar_widget.setLayout(layout)
+    
     
                 
     # Función para hacer un backup del stock actual
