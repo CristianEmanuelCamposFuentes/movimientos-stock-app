@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QLabel, QMessageBox
-from PyQt5.QtCore import Qt
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QLabel, QMessageBox
+from PyQt6.QtCore import Qt
 from sqlalchemy.orm import Session
 from modules.models.database import get_db, Stock, Movimiento
 from datetime import datetime
