@@ -49,49 +49,52 @@ QPushButton:pressed {
 # Estilos personalizados para cada botón
 button_styles = {
     # Botones específicos
-    "green": """
-    QPushButton#btn-cargar-ingreso {
-        background-color: #3dd28d;
-        color: white;
-    }
-    QPushButton#btn-cargar-ingreso:hover {
-        background-color: #35b880;
-    }
-    QPushButton#btn-cargar-ingreso:pressed {
+    "green": f"""
+    QPushButton#btn-cargar-ingreso {{
+        background-color: {colors['grass']};
+        color: {colors['snow']};
+    }}
+    QPushButton#btn-cargar-ingreso:hover {{
+        background-color: #35b880;  # Puedes agregar más colores aquí o en el diccionario si son recurrentes
+    }}
+    QPushButton#btn-cargar-ingreso:pressed {{
         background-color: #2cae74;
-    }
+    }}
     """,
-    "red": """
-    QPushButton#btn-cargar-egreso {
-        background-color: #F32C52;
-        color: white;
-    }
-    QPushButton#btn-cargar-egreso:hover {
-        background-color: #db2848;
-    }
-    QPushButton#btn-cargar-egreso:pressed {
+    
+    "red": f"""
+    QPushButton#btn-cargar-egreso {{
+        background-color: {colors['salmon']};
+        color: {colors['snow']};
+    }}
+    QPushButton#btn-cargar-egreso:hover {{
+        background-color: #db2848;  # Puedes mover este al diccionario si lo reutilizas
+    }}
+    QPushButton#btn-cargar-egreso:pressed {{
         background-color: #c4243d;
-    }
+    }}
     """,
-    "blue": """
-    QPushButton#btn-ver-consolidado, QPushButton#btn-mover-pallet {
-        background-color: #416dea;
-        color: white;
-    }
-    QPushButton#btn-ver-consolidado:hover, QPushButton#btn-mover-pallet:hover {
-        background-color: #3b62d2;
-    }
-    QPushButton#btn-ver-consolidado:pressed, QPushButton#btn-mover-pallet:pressed {
+    
+    "blue": f"""
+    QPushButton#btn-ver-consolidado, QPushButton#btn-mover-pallet {{
+        background-color: {colors['ocean']};
+        color: {colors['snow']};
+    }}
+    QPushButton#btn-ver-consolidado:hover, QPushButton#btn-mover-pallet:hover {{
+        background-color: #3b62d2;  # Igual que antes, considera mover al diccionario si es recurrente
+    }}
+    QPushButton#btn-ver-consolidado:pressed, QPushButton#btn-mover-pallet:pressed {{
         background-color: #3356bb;
-    }
+    }}
     """
 }
+
 
 # Función para aplicar el estilo a un botón según el tipo
 def aplicar_estilo_boton(boton, tipo):
     estilo = button_common_style + button_styles.get(tipo, "")
     boton.setStyleSheet(estilo)
-    boton.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+    boton.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
 # Aplicar estilos a un conjunto de botones
 def aplicar_estilos_a_botones(botones, tipos):
@@ -168,6 +171,7 @@ def aplicar_estilos_ventana_principal(window):
         }}
         QPushButton {{
             background-color: {colors['button-bg']};
+            max-height: 25px;
             color: {colors['button-text']};
             border-radius: 5px;
             padding: 10px;
