@@ -1,18 +1,15 @@
 from PyQt6.QtWidgets import QWidget, QMessageBox
 from PyQt6.uic import loadUi
 from modules.views.main_window.main_window import MainWindow  # Importar la ventana principal después del login
-from modules.utils.ui_styles import aplicar_estilos_especiales
+from modules.utils.ui_styles import aplicar_estilos_especiales, aplicar_estilos_ventana_principal
 
 class LoginWindow(QWidget):
     def __init__(self):
         super().__init__()
-        loadUi("ruta/al/archivo/login.ui", self)  # Cargar el archivo .ui
+        loadUi("modules\\views\login\login.ui", self)  # Cargar el archivo .ui
 
         # Conectar el botón de login a la función de validación
         self.btn_login.clicked.connect(self.validar_login)
-
-        # Aplicar estilos al botón
-        aplicar_estilos_especiales([self.btn_login], ["green"])
 
     def validar_login(self):
         """Valida las credenciales de login."""
