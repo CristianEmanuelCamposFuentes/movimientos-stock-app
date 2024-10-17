@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="Sidebar">
+    <file>../modules/views/main_window/images/menu-abierto.png</file>
     <file>../modules/views/main_window/images/cerrar.png</file>
     <file>../modules/views/main_window/images/icono_app.png</file>
     <file>../modules/views/main_window/images/icono_admin.png</file>

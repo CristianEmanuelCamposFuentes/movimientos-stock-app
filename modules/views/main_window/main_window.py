@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QGridLayout, QWidget, QHBoxLayout, QPushButton, QStackedWidget, QLabel, QFileDialog, QMessageBox
+from PyQt6.QtWidgets import QMainWindow, QGridLayout, QWidget, QHBoxLayout, QPushButton, QStackedWidget, QLabel, QFileDialog, QMessageBox
 from modules.views.ingresos_egresos.ingresos_egresos import IngresosEgresosWindow
 from modules.views.ajustes.ajustes import AjustesView
 from modules.views.gestion_stock.gestion_stock import GestionStockView
@@ -13,7 +13,7 @@ import datetime, csv
 from modules.models.database import get_db, Stock, Movimiento, Producto
 from modules.models.database_operations import obtener_stock, exportar_csv
 from PyQt6.uic import loadUi
-class MainWindow(QWidget):
+class MainWindow(QMainWindow):
     def __init__(self, usuario):
         super().__init__()
         self.usuario = usuario
