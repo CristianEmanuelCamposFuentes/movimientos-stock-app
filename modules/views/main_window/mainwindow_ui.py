@@ -405,6 +405,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_5.addWidget(self.main_widget)
         self.bottombar_widget = QtWidgets.QWidget(parent=self.main_menu_widget)
         self.bottombar_widget.setMinimumSize(QtCore.QSize(0, 60))
+        self.bottombar_widget.setMaximumSize(QtCore.QSize(16777215, 60))
         self.bottombar_widget.setStyleSheet("QWidget{\n"
 "    background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0  rgb(212, 131, 131), stop:1 rgb(225, 186, 187));\n"
 "    \n"
