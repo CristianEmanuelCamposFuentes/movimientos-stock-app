@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QMainWindow, QGridLayout, QWidget, QHBoxLayout, QPushButton, QStackedWidget, QLabel, QFileDialog, QMessageBox
+from PyQt6.QtWidgets import QMainWindow,QHBoxLayout, QPushButton, QStackedWidget, QFileDialog, QMessageBox
 from modules.views.ingresos_egresos.ingresos_egresos import IngresosEgresosWindow
 from modules.views.ajustes.ajustes import AjustesView
 from modules.views.gestion_stock.gestion_stock import GestionStockView
@@ -8,7 +8,6 @@ from modules.views.registros_movimientos.registros_movimientos import RegistrosM
 from modules.views.gestion_usuarios.gestion_usuarios import GestionUsuariosView
 from modules.utils.ui_styles import aplicar_estilos_barra_navegacion, aplicar_estilos_ventana_principal, aplicar_estilos_especiales
 from PyQt6.QtGui import QIcon
-from PyQt6.QtCore import Qt
 import datetime, csv
 from modules.models.database import get_db, Stock, Movimiento, Producto
 from modules.models.database_operations import obtener_stock, exportar_csv
@@ -50,14 +49,14 @@ class MainWindow(QMainWindow):
         # self.contenido_principal = QStackedWidget()
         # self.contenido_principal.setObjectName("main-content")
 
-        # # Añadir las vistas al QStackedWidget
-        # self.contenido_principal.addWidget(self.ingresos_egresos_view)
-        # self.contenido_principal.addWidget(self.ajustes_view)
-        # self.contenido_principal.addWidget(self.gestion_stock_view)
-        # self.contenido_principal.addWidget(self.notas_pedido_view)
-        # self.contenido_principal.addWidget(self.admin_productos_view)
-        # self.contenido_principal.addWidget(self.registros_movimientos_view)
-        # self.contenido_principal.addWidget(self.gestion_usuarios_view)
+        # Añadir las vistas al QStackedWidget
+        self.stack.addWidget(self.ingresos_egresos_view)
+        self.stack.addWidget(self.gestion_stock_view)
+        self.stack.addWidget(self.notas_pedido_view)
+        self.stack.addWidget(self.admin_productos_view)
+        self.stack.addWidget(self.registros_movimientos_view)
+        self.stack.addWidget(self.gestion_usuarios_view)
+        self.stack.addWidget(self.ajustes_view)
 
         # Añadir navbar, contenido principal y bottom-bar al grid layout
         #self.grid_layout.addWidget(nav_widget, 0, 0, 1, 3)  # Navbar en la parte superior
@@ -65,7 +64,9 @@ class MainWindow(QMainWindow):
         #self.grid_layout.addLayout(self.crear_barra_botones_inferiores([]), 2, 0, 1, 3)  # Barra inferior (personalizable)
 
         # Aplicar el layout principal a la ventana
-        self.setLayout(self.grid_layout)
+            # Configurar los eventos de los botones
+        self.crear_eventos()
+        self.stack.setCurrentIndex(0) # Ingresos/Egresos será la vista por defecto al arrancar
 
     # def crear_barra_navegacion(self, layout):
     #     # Crear la barra de navegación superior con botones para cada vista
@@ -145,22 +146,22 @@ class MainWindow(QMainWindow):
             self.titulo_seccion.setText(titulo)
             
     def crear_eventos(self):
-        self.findChild(QPushButton, "pushButton_9").clicked.connect(lambda: self.cambiar_pestana(0))  # Ingresos/Egresos
-        self.findChild(QPushButton, "pushButton_10").clicked.connect(lambda: self.cambiar_pestana(1))  # Gestión de Stock
-        self.findChild(QPushButton, "pushButton_11").clicked.connect(lambda: self.cambiar_pestana(2))  # Notas de Pedido
-        self.findChild(QPushButton, "pushButton_12").clicked.connect(lambda: self.cambiar_pestana(3))  # Productos
-        self.findChild(QPushButton, "pushButton_13").clicked.connect(lambda: self.cambiar_pestana(4))  # Movimientos
-        self.findChild(QPushButton, "pushButton_14").clicked.connect(lambda: self.cambiar_pestana(5))  # Usuarios
-        self.findChild(QPushButton, "pushButton_15").clicked.connect(lambda: self.cambiar_pestana(6))  # Ajustes
+        self.findChild(QPushButton, "ingresos_egresos_2").clicked.connect(lambda: self.cambiar_pestana(0))  # Ingresos/Egresos
+        self.findChild(QPushButton, "gestion_stock_2").clicked.connect(lambda: self.cambiar_pestana(1))  # Gestión de Stock
+        self.findChild(QPushButton, "notas_pedido_2").clicked.connect(lambda: self.cambiar_pestana(2))  # Notas de Pedido
+        self.findChild(QPushButton, "productos_2").clicked.connect(lambda: self.cambiar_pestana(3))  # Productos
+        self.findChild(QPushButton, "movimientos_2").clicked.connect(lambda: self.cambiar_pestana(4))  # Movimientos
+        self.findChild(QPushButton, "usuarios_2").clicked.connect(lambda: self.cambiar_pestana(5))  # Usuarios
+
 
     def cambiar_pestana(self, indice):
         """
         Cambia la pestaña activa en el QTabWidget 'main_widget' según el índice dado.
         """
-        self.main_widget.setCurrentIndex(indice)
+        self.stack.setCurrentIndex(indice)
         
             # Limpiar la barra inferior
-        bottom_layout = self.findChild(QHBoxLayout, "bottom_bar_layout")
+        bottom_layout = self.findChild(QHBoxLayout, "bottombar_layout")
         while bottom_layout.count():
             item = bottom_layout.takeAt(0)
             widget = item.widget()
@@ -168,6 +169,7 @@ class MainWindow(QMainWindow):
                 widget.deleteLater()
 
         # Actualizar los botones según la vista seleccionada
+        botones_personalizados = []
         if indice == 0:  # Ingresos/Egresos
             botones_personalizados = [
                 {"texto": "Guardar Ingreso", "funcion": self.guardar_ingreso, "color": "green"},
