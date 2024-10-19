@@ -1,7 +1,6 @@
 from PyQt6.QtWidgets import QLabel, QSizePolicy, QVBoxLayout, QWidget, QPushButton
 from PyQt6.QtCore import QSize
 
-# Colores principales
 colors = {
     "dark": "#161616",
     "ocean": "#416dea",
@@ -14,6 +13,9 @@ colors = {
     "smoke": "#e4e4e4",
     "nav-bar-bg": "#2C3E50",
     "menu-bg": "#34495E",
+    "menu-bg-checked": "#FFFFFF",  # Color del botón seleccionado
+    "menu-checked-text": "#d30000",  # Texto del botón seleccionado
+    "menu-bg-hover": "rgb(194, 70, 49)",  # Color del botón hover en el menú
     "bottom-bar-bg": "#BDC3C7",
     'background': '#f0f0f0',
     'button-bg': '#3498db',
@@ -23,6 +25,10 @@ colors = {
     'input-bg': '#ffffff',
     'input-border': '#bdc3c7',
     'input-text': '#2c3e50',
+    'navbar-gradient-start': 'rgb(212, 131, 131)',
+    'navbar-gradient-end': 'rgb(225, 186, 187)',
+    'search-button-bg': 'rgb(131, 25, 27)',
+    'search-input-bg': 'rgb(255, 251, 212)'
 }
 
 # Estilos comunes para todos los botones
@@ -46,53 +52,52 @@ QPushButton:pressed {
 }
 """
 
-# Estilos personalizados para cada botón
+# Estilos personalizados para cada botón según el color
 button_styles = {
-    # Botones específicos
     "green": f"""
-    QPushButton#btn-cargar-ingreso {{
+    QPushButton {{
         background-color: {colors['grass']};
         color: {colors['snow']};
     }}
-    QPushButton#btn-cargar-ingreso:hover {{
-        background-color: #35b880;  # Puedes agregar más colores aquí o en el diccionario si son recurrentes
+    QPushButton:hover {{
+        background-color: #35b880;
     }}
-    QPushButton#btn-cargar-ingreso:pressed {{
+    QPushButton:pressed {{
         background-color: #2cae74;
     }}
     """,
     
     "red": f"""
-    QPushButton#btn-cargar-egreso {{
+    QPushButton {{
         background-color: {colors['salmon']};
         color: {colors['snow']};
     }}
-    QPushButton#btn-cargar-egreso:hover {{
-        background-color: #db2848;  # Puedes mover este al diccionario si lo reutilizas
+    QPushButton:hover {{
+        background-color: #db2848;
     }}
-    QPushButton#btn-cargar-egreso:pressed {{
+    QPushButton:pressed {{
         background-color: #c4243d;
     }}
     """,
     
     "blue": f"""
-    QPushButton#btn-ver-consolidado, QPushButton#btn-mover-pallet {{
+    QPushButton {{
         background-color: {colors['ocean']};
         color: {colors['snow']};
     }}
-    QPushButton#btn-ver-consolidado:hover, QPushButton#btn-mover-pallet:hover {{
-        background-color: #3b62d2;  # Igual que antes, considera mover al diccionario si es recurrente
+    QPushButton:hover {{
+        background-color: #3b62d2;
     }}
-    QPushButton#btn-ver-consolidado:pressed, QPushButton#btn-mover-pallet:pressed {{
+    QPushButton:pressed {{
         background-color: #3356bb;
     }}
     """
 }
 
-
-# Función para aplicar el estilo a un botón según el tipo
-def aplicar_estilo_boton(boton, tipo):
-    estilo = button_common_style + button_styles.get(tipo, "")
+# Función para aplicar los estilos de color a un botón según el color especificado
+def aplicar_estilo_boton(boton, color):
+    estilo = button_styles.get(color, "")  # Obtiene el estilo según el color
+    print(f"Aplicando estilo para {color}: {estilo}")
     boton.setStyleSheet(estilo)
     boton.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Expanding)
 
@@ -106,30 +111,38 @@ def aplicar_estilos_especiales(botones, colores):
     for i, boton in enumerate(botones):
         aplicar_estilo_boton(boton, colores[i])
 
-# Estilos para la barra de navegación superior
+# # Estilos para la barra de navegación superior
+# def aplicar_estilos_barra_navegacion(nav_widget):
+#     """
+#     Aplica los estilos a la barra de navegación contenida en el widget padre (parent_widget).
+#     """
+#     nav_widget.setStyleSheet(f"""
+#         #nav-bar {{
+#             background-color: {colors['nav-bar-bg']};  /* Fondo de la barra de navegación */
+#             padding: 10px;
+#             border-bottom: 2px solid {colors['smoke']};
+#         }}
+#     """)
+#     # Itera sobre los widgets del layout para aplicar estilos individuales
+#     for i in range(nav_widget.layout().count()):
+#         widget = nav_widget.layout().itemAt(i).widget()
+#         if isinstance(widget, QLabel):
+#             widget.setStyleSheet("""
+#                 QLabel {
+#                     font-size: 16px;
+#                     font-weight: bold;
+#                     color: #FFF;
+#                     text-align: center;
+#                 }
+#             """)
 def aplicar_estilos_barra_navegacion(nav_widget):
-    """
-    Aplica los estilos a la barra de navegación contenida en el widget padre (parent_widget).
-    """
     nav_widget.setStyleSheet(f"""
-        #nav-bar {{
-            background-color: {colors['nav-bar-bg']};  /* Fondo de la barra de navegación */
-            padding: 10px;
-            border-bottom: 2px solid {colors['smoke']};
+        QWidget {{
+            background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 {colors['navbar-gradient-start']}, stop:1 {colors['navbar-gradient-end']});
+            color: {colors['snow']};
         }}
     """)
-    # Itera sobre los widgets del layout para aplicar estilos individuales
-    for i in range(nav_widget.layout().count()):
-        widget = nav_widget.layout().itemAt(i).widget()
-        if isinstance(widget, QLabel):
-            widget.setStyleSheet("""
-                QLabel {
-                    font-size: 16px;
-                    font-weight: bold;
-                    color: #FFF;
-                    text-align: center;
-                }
-            """)
+
 
 
 # Estilos para la barra lateral
@@ -193,15 +206,25 @@ def aplicar_estilos_ventana_principal(window):
         }}
     """)
 
-# Estilos para la barra inferior
+# # Estilos para la barra inferior
+# def aplicar_estilos_barra_inferior(bottom_layout):
+#     bottom_layout.parentWidget().setStyleSheet(f"""
+#         .bottom-bar {{
+#             background-color: {colors['bottom-bar-bg']};
+#             padding: 10px;
+#             border-top: 2px solid {colors['smoke']};
+#         }}
+#     """)
+
 def aplicar_estilos_barra_inferior(bottom_layout):
     bottom_layout.parentWidget().setStyleSheet(f"""
-        .bottom-bar {{
-            background-color: {colors['bottom-bar-bg']};
-            padding: 10px;
-            border-top: 2px solid {colors['smoke']};
+        QWidget {{
+            background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 {colors['navbar-gradient-start']}, stop:1 {colors['navbar-gradient-end']});
+            color: {colors['snow']};
+            border-radius: 5px;
         }}
     """)
+
 
 # Crear contenedores con estilo
 def crear_contenedor_con_estilo():
@@ -210,3 +233,18 @@ def crear_contenedor_con_estilo():
     layout.setSpacing(15)
     return layout
 
+def aplicar_estilos_search_button(search_button):
+    search_button.setStyleSheet(f"""
+        QPushButton {{
+            background-color: {colors['search-button-bg']};
+            font: 700 italic 10pt "Segoe UI";
+            border-radius: 8px;
+        }}
+    """)
+
+def aplicar_estilos_search_input(search_input):
+    search_input.setStyleSheet(f"""
+        QLineEdit {{
+            background-color: {colors['search-input-bg']};
+        }}
+    """)
