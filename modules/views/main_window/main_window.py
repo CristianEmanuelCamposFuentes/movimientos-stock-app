@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QMainWindow,QHBoxLayout, QPushButton, QStackedWidget, QFileDialog, QMessageBox
+from PyQt6.QtWidgets import QMainWindow,QHBoxLayout, QPushButton, QStackedWidget, QFileDialog, QMessageBox, QWidget
 from modules.views.ingresos_egresos.ingresos_egresos import IngresosEgresosWindow
 from modules.views.ajustes.ajustes import AjustesView
 from modules.views.gestion_stock.gestion_stock import GestionStockView
@@ -156,12 +156,19 @@ class MainWindow(QMainWindow):
 
     def cambiar_pestana(self, indice):
         """
-        Cambia la pestaña activa en el QTabWidget 'main_widget' según el índice dado.
+        Cambia la pestaña activa en el QStackedWidget 'main_widget' según el índice dado.
         """
-        self.stack.setCurrentIndex(indice)
-        
-            # Limpiar la barra inferior
-        bottom_layout = self.findChild(QHBoxLayout, "bottombar_layout")
+        self.main_widget.setCurrentIndex(indice)
+
+        # Obtener el layout de la barra inferior correctamente
+        bottom_widget = self.findChild(QWidget, "bottombar_widget")
+        bottom_layout = bottom_widget.layout() if bottom_widget else None
+
+        if bottom_layout is None:
+            print("Error: No se encontró el layout 'bottombar_layout'.")
+            return
+
+        # Limpiar la barra inferior
         while bottom_layout.count():
             item = bottom_layout.takeAt(0)
             widget = item.widget()
@@ -169,7 +176,6 @@ class MainWindow(QMainWindow):
                 widget.deleteLater()
 
         # Actualizar los botones según la vista seleccionada
-        botones_personalizados = []
         if indice == 0:  # Ingresos/Egresos
             botones_personalizados = [
                 {"texto": "Guardar Ingreso", "funcion": self.guardar_ingreso, "color": "green"},
@@ -179,40 +185,44 @@ class MainWindow(QMainWindow):
             botones_personalizados = [
                 {"texto": "Exportar CSV", "funcion": self.hacer_backup_stock, "color": "blue"}
             ]
-        # ... Agrega botones para cada pestaña según sea necesario.
-
         # Añadir los botones personalizados a la barra inferior
         barra_inferior = self.crear_barra_botones_inferiores(botones_personalizados)
         bottom_layout.addLayout(barra_inferior)
+
+
         
     def actualizar_barra_inferior(self, personalizaciones):
         """
         Actualiza los botones de la barra inferior en función de la vista seleccionada.
         """
-        # Limpiar el layout actual
-        for i in reversed(range(self.bottombar_widget.layout().count())):
-            widget_to_remove = self.bottombar_widget.layout().itemAt(i).widget()
-            if widget_to_remove is not None:
-                widget_to_remove.deleteLater()
-        
-        # Crear nuevos botones basados en las personalizaciones de la vista actual
-        layout = QHBoxLayout(self.bottombar_widget)
+        # Obtener el layout existente del widget "bottombar_widget"
+        bottom_layout = self.bottombar_widget.layout()
+
+        # Limpiar los widgets actuales
+        while bottom_layout.count():
+            item = bottom_layout.takeAt(0)
+            widget = item.widget()
+            if widget:
+                widget.deleteLater()
+
+        # Crear y agregar los nuevos botones personalizados
         botones = []
         colores = []
-        
+
         for personalizacion in personalizaciones:
             boton = QPushButton(personalizacion["texto"])
             boton.setFixedHeight(40)
             boton.clicked.connect(personalizacion["funcion"])
             botones.append(boton)
             colores.append(personalizacion["color"])
-        
-        aplicar_estilos_especiales(botones, colores)
-        
-        for boton in botones:
-            layout.addWidget(boton)
 
-        self.bottombar_widget.setLayout(layout)
+        aplicar_estilos_especiales(botones, colores)
+
+        for boton in botones:
+            bottom_layout.addWidget(boton)
+
+        # Establecer el layout en el widget (esto se asegura de que use el layout existente)
+        self.bottombar_widget.setLayout(bottom_layout)
     
     
                 

@@ -59,15 +59,16 @@ class IngresosEgresosWindow(QWidget):
         self.actualizar_barra_inferior()
         
     def actualizar_barra_inferior(self):
-            """Función para actualizar la barra inferior con los botones de Ingresos/Egresos."""
-            botones_personalizados = [
-                {"texto": "Cargar Ingreso", "funcion": self.cargar_ingreso, "color": "green"},
-                {"texto": "Cargar Egreso", "funcion": self.cargar_egreso, "color": "red"},
-                {"texto": "Ver Consolidado", "funcion": self.ver_consolidado, "color": "blue"},
-                {"texto": "Mover Pallet", "funcion": self.mover_pallet, "color": "blue"}
-            ]
-            # Llamar a la función para actualizar la barra inferior con estos botones
-            self.parent.actualizar_barra_inferior(botones_personalizados)
+        """Función para actualizar la barra inferior con los botones de Ingresos/Egresos."""
+        botones_personalizados = [
+            {"texto": "Cargar Ingreso", "funcion": self.cargar_ingreso, "color": "green"},
+            {"texto": "Cargar Egreso", "funcion": self.cargar_egreso, "color": "red"},
+            {"texto": "Ver Consolidado", "funcion": self.ver_consolidado, "color": "blue"},
+            {"texto": "Mover Pallet", "funcion": self.mover_pallet, "color": "blue"}
+        ]
+        # Llamar a la función para actualizar la barra inferior con estos botones
+        self.parent.actualizar_barra_inferior(botones_personalizados)
+
 
 
     # Funciones para los botones
