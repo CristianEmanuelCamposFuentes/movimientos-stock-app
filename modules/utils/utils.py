@@ -1,5 +1,5 @@
 import pandas as pd
-from PyQt5.QtWidgets import QMessageBox
+from PyQt6.QtWidgets import QMessageBox
 
 def read_csv(file_path):
     """
