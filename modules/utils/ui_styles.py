@@ -40,7 +40,7 @@ QPushButton {
     padding: 12px;
     text-align: center;
     color: #FFF;
-    text-transform: capitalize;
+    background-color: {color};
 }
 
 QPushButton:hover {
