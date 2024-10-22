@@ -19,18 +19,16 @@ class AdminProductosView(QWidget):
         self.tabs.addTab(self.clasificaciones_tab(), "Clasificaciones")
         self.tabs.addTab(self.imagenes_tab(), "Imágenes de Productos")
 
+        # Conectar la actualización de la barra inferior cuando cambie la pestaña
+        self.tabs.currentChanged.connect(self.on_tab_changed)
+
         # Agregar las pestañas al layout principal
         layout.addWidget(self.tabs)
 
-        # Barra inferior personalizada
-        botones = [
-            {"texto": "Agregar Producto", "color": "grass", "funcion": self.abrir_agregar_producto},
-            {"texto": "Cargar Imágenes", "color": "alge", "funcion": self.cargar_imagen}
-        ]
-        bottom_bar = self.parent.crear_barra_botones_inferiores(botones)
-        layout.addLayout(bottom_bar)
-
         self.setLayout(layout)
+
+        # Inicialmente, actualizar la barra inferior para la primera pestaña
+        self.on_tab_changed(0)
 
     # Pestaña 1: Tabla Actual de Productos
     def tabla_productos_tab(self):
@@ -77,7 +75,7 @@ class AdminProductosView(QWidget):
     # Función para abrir el diálogo de agregar producto
     def abrir_agregar_producto(self):
         dialog = ProductoDialog()
-        if dialog.exec_():
+        if dialog.exec():
             nuevo_producto = dialog.get_data()
             db = next(get_db())  # Obtener la sesión de la base de datos
             agregar_producto(db, nuevo_producto["codigo"], nuevo_producto["descripcion"], nuevo_producto["categoria"])
@@ -86,7 +84,7 @@ class AdminProductosView(QWidget):
     # Función para abrir el diálogo de editar producto
     def abrir_editar_producto(self, producto):
         dialog = ProductoDialog(producto)
-        if dialog.exec_():
+        if dialog.exec():
             producto_actualizado = dialog.get_data()
             db = next(get_db())  # Obtener la sesión de la base de datos
             editar_producto(db, producto.id_producto, producto_actualizado)
@@ -125,6 +123,29 @@ class AdminProductosView(QWidget):
         imagen_path, _ = QFileDialog.getOpenFileName(self, "Seleccionar Imagen", "", "Imágenes (*.png *.jpg *.jpeg)")
         if imagen_path:
             print(f"Imagen seleccionada: {imagen_path}")
+
+    # Evento que se llama cuando se cambia de pestaña
+    def on_tab_changed(self, index):
+        if index == 0:  # Pestaña Tabla Actual
+            botones_personalizados = [
+                {"texto": "Agregar Producto", "funcion": self.abrir_agregar_producto, "color": "grass"},
+                {"texto": "Cargar Imágenes", "funcion": self.cargar_imagen, "color": "alge"}
+            ]
+        elif index == 1:  # Pestaña Clasificaciones
+            botones_personalizados = [
+                {"texto": "Agregar Clasificación", "funcion": self.agregar_clasificacion, "color": "blue"}
+            ]
+        elif index == 2:  # Pestaña Imágenes
+            botones_personalizados = [
+                {"texto": "Cargar Imágenes", "funcion": self.cargar_imagen, "color": "alge"}
+            ]
+
+        # Actualizar la barra inferior en la ventana principal
+        self.parent.actualizar_barra_inferior(botones_personalizados)
+
+    # Función para agregar clasificaciones de productos
+    def agregar_clasificacion(self):
+        print("Agregar nueva clasificación...")
 
 # Diálogo para agregar/editar producto
 class ProductoDialog(QDialog):
@@ -170,3 +191,4 @@ class ProductoDialog(QDialog):
             "descripcion": self.descripcion_input.text(),
             "categoria": self.categoria_input.text()
         }
+
