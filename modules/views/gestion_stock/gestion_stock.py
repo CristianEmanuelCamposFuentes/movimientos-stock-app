@@ -1,8 +1,7 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel, QPushButton, QTableWidget, QTableWidgetItem, QTabWidget, QFormLayout
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLineEdit, QLabel, QPushButton, QTableWidget, QTableWidgetItem, QTabWidget, QFormLayout, QStackedWidget
 from modules.models.database_operations import obtener_consolidado_stock, realizar_ajuste_stock, mover_pallet
 from modules.utils.ui_styles import aplicar_estilos_especiales, crear_contenedor_con_estilo
-
+from modules.views.ajustes.ajustes import AjustesView  # Importa la vista AjustesView
 
 class GestionStockView(QWidget):
     def __init__(self, parent=None):
@@ -16,19 +15,22 @@ class GestionStockView(QWidget):
         # Crear el contenedor principal con estilo
         main_layout = crear_contenedor_con_estilo()
 
-        # Crear las pestañas
-        self.tabs = QTabWidget()
-        self.tabs.addTab(self.consolidado_tab(), "Consolidado")
-        self.tabs.addTab(self.ajustes_tab(), "Ajustes")
-        self.tabs.addTab(self.mover_pallet_tab(), "Mover Pallet")
+        # Crear el QStackedWidget
+        self.stack = QStackedWidget()
 
-        # Conectar el cambio de pestañas al evento para actualizar la tabla
-        self.tabs.currentChanged.connect(self.on_tab_changed)
+        # Agregar las diferentes vistas al QStackedWidget
+        self.consolidado_page = self.consolidado_tab()
+        self.ajustes_page = AjustesView(self)  # Instanciar la vista de ajustes
+        self.mover_pallet_page = self.mover_pallet_tab()
 
-        # Agregar pestañas al layout principal
-        main_layout.addWidget(self.tabs)
+        self.stack.addWidget(self.consolidado_page)
+        self.stack.addWidget(self.ajustes_page)  # Añadir ajustes como una vista
+        self.stack.addWidget(self.mover_pallet_page)
 
-        # Barra inferior personalizada según la vista
+        # Agregar el QStackedWidget al layout principal
+        main_layout.addWidget(self.stack)
+
+        # Barra inferior personalizada
         botones = [
             {"texto": "Exportar a Excel", "color": "alge", "funcion": self.exportar_excel},
             {"texto": "Exportar a CSV", "color": "alge", "funcion": self.exportar_csv},
@@ -39,6 +41,29 @@ class GestionStockView(QWidget):
         main_layout.addLayout(bottom_bar)
 
         self.setLayout(main_layout)
+
+    # Función para cambiar la vista en el QStackedWidget
+    def cambiar_vista(self, indice):
+        self.stack.setCurrentIndex(indice)
+        self.actualizar_barra_inferior(indice)
+
+    # Función para actualizar la barra inferior según la vista activa
+    def actualizar_barra_inferior(self, indice):
+        if indice == 0:  # Consolidado
+            botones = [
+                {"texto": "Exportar a Excel", "color": "alge", "funcion": self.exportar_excel},
+                {"texto": "Exportar a CSV", "color": "alge", "funcion": self.exportar_csv}
+            ]
+        elif indice == 1:  # Ajustes
+            botones = [
+                {"texto": "Cargar CSV", "color": "snow", "funcion": self.ajustes_page.parent.cargar_csv_stock},
+                {"texto": "Backup Stock", "color": "snow", "funcion": self.ajustes_page.parent.hacer_backup_stock}
+            ]
+        elif indice == 2:  # Mover Pallet
+            botones = [
+                {"texto": "Mover Pallet", "color": "salmon", "funcion": self.mover_pallet}
+            ]
+        self.parent.actualizar_barra_inferior(botones)
 
     # Pestaña 1: Consolidado
     def consolidado_tab(self):
@@ -76,41 +101,7 @@ class GestionStockView(QWidget):
             self.consolidado_table.setItem(i, 3, QTableWidgetItem(str(item.cantidad)))
             self.consolidado_table.setItem(i, 4, QTableWidgetItem(item.fecha.strftime('%d/%m/%Y')))
 
-    # Pestaña 2: Ajustes
-    def ajustes_tab(self):
-        ajustes_widget = QWidget()
-        layout = QVBoxLayout()
-
-        form_layout = QFormLayout()
-        self.codigo_input = QLineEdit()
-        form_layout.addRow("Código del producto:", self.codigo_input)
-
-        self.ubicacion_input = QLineEdit()
-        form_layout.addRow("Ubicación:", self.ubicacion_input)
-
-        self.cantidad_input = QLineEdit()
-        form_layout.addRow("Cantidad ajustada:", self.cantidad_input)
-
-        ajustar_button = QPushButton("Ajustar Stock")
-        ajustar_button.clicked.connect(self.ajustar_stock)
-        
-        # Aplicar estilo especial al botón
-        aplicar_estilos_especiales([ajustar_button], ["grass"])
-
-        layout.addLayout(form_layout)
-        layout.addWidget(ajustar_button)
-
-        ajustes_widget.setLayout(layout)
-        return ajustes_widget
-
-    # Función para realizar ajuste de stock
-    def ajustar_stock(self):
-        codigo = self.codigo_input.text()
-        ubicacion = self.ubicacion_input.text()
-        cantidad = self.cantidad_input.text()
-        realizar_ajuste_stock(ubicacion, codigo, float(cantidad))
-
-    # Pestaña 3: Mover Pallet
+    # Pestaña 2: Mover Pallet (igual que antes)
     def mover_pallet_tab(self):
         mover_pallet_widget = QWidget()
         layout = QVBoxLayout()
@@ -137,17 +128,12 @@ class GestionStockView(QWidget):
         mover_pallet_widget.setLayout(layout)
         return mover_pallet_widget
 
-    # Función para mover pallet
+    # Función para mover pallet (igual que antes)
     def mover_pallet(self):
         codigo_pallet = self.codigo_pallet_input.text()
         ubicacion_actual = self.ubicacion_actual_input.text()
         nueva_ubicacion = self.ubicacion_nueva_input.text()
         mover_pallet(codigo_pallet, ubicacion_actual, nueva_ubicacion, 0)
-
-    # Función para actualizar automáticamente la tabla de consolidado cuando se selecciona la pestaña
-    def on_tab_changed(self, index):
-        if index == 0:  # Pestaña de consolidado
-            self.buscar_consolidado()
 
     # Funciones adicionales
     def exportar_excel(self):
@@ -161,3 +147,5 @@ class GestionStockView(QWidget):
 
     def imprimir_pallet(self):
         print("Imprimiendo pallet...")
+
+
