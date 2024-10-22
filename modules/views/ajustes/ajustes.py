@@ -3,7 +3,6 @@ from PyQt6.QtCore import Qt
 from sqlalchemy.orm import Session
 from modules.models.database import get_db, Stock, Movimiento
 from datetime import datetime
-from modules.utils.ui_styles import aplicar_estilos_especiales
 
 
 class AjustesView(QWidget):
@@ -38,15 +37,7 @@ class AjustesView(QWidget):
         main_layout.addLayout(search_layout)
         main_layout.addWidget(self.stock_table)
 
-                # Crear la barra de botones inferior
-        if self.parent:  # Verificar si el padre está disponible
-            botones = [
-                {"texto": "Cargar CSV", "color": "snow", "funcion": self.parent.cargar_csv_stock},
-                {"texto": "Backup Stock", "color": "snow", "funcion": self.parent.hacer_backup_stock}
-            ]
-            bottom_bar = self.parent.crear_barra_botones_inferiores(botones)
-            main_layout.addLayout(bottom_bar)
-
+        # Asignar el layout final
         self.setLayout(main_layout)
 
     def cargar_stock(self):
