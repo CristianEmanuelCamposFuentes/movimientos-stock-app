@@ -16,13 +16,19 @@ class RegistrosMovimientosView(QWidget):
         layout = QVBoxLayout()
 
         # Crear las pestañas
-        tabs = QTabWidget()
-        tabs.addTab(self.registros_historicos_tab(), "Registros Históricos")
-        tabs.addTab(self.pendientes_tab(), "Pendientes")
+        self.tabs = QTabWidget()
+        self.tabs.addTab(self.registros_historicos_tab(), "Registros Históricos")
+        self.tabs.addTab(self.pendientes_tab(), "Pendientes")
+
+        # Conectar la actualización de la barra inferior cuando cambie la pestaña
+        self.tabs.currentChanged.connect(self.on_tab_changed)
 
         # Agregar pestañas al layout principal
-        layout.addWidget(tabs)
+        layout.addWidget(self.tabs)
         self.setLayout(layout)
+
+        # Inicializar la barra inferior para la primera pestaña
+        self.on_tab_changed(0)
 
     # Pestaña 1: Registros Históricos
     def registros_historicos_tab(self):
@@ -39,15 +45,6 @@ class RegistrosMovimientosView(QWidget):
         # Cargar registros históricos
         self.cargar_registros_historicos()
 
-        # Barra inferior personalizada
-        botones = [
-            {"texto": "Exportar a PDF", "color": "blue", "funcion": self.exportar_pdf},
-            {"texto": "Exportar a CSV", "color": "alge", "funcion": self.exportar_csv},
-            {"texto": "Filtrar", "color": "grass", "funcion": self.filtrar_registros}
-        ]
-        bottom_bar = self.parent.crear_barra_botones_inferiores(botones)
-        layout.addLayout(bottom_bar)
-
         widget.setLayout(layout)
         return widget
 
@@ -56,41 +53,18 @@ class RegistrosMovimientosView(QWidget):
         db = next(get_db())  # Obtiene la sesión de la base de datos
         try:
             movimientos = obtener_movimientos_historicos(db)  # Pasa la sesión como argumento
-            self.tabla_registros.setRowCount(len(movimientos))
+            self.historico_table.setRowCount(len(movimientos))
             for row, mov in enumerate(movimientos):
-                self.tabla_registros.setItem(row, 0, QTableWidgetItem(mov['ubicacion']))
-                self.tabla_registros.setItem(row, 1, QTableWidgetItem(mov['codigo']))
-                self.tabla_registros.setItem(row, 2, QTableWidgetItem(str(mov['cantidad'])))
-                self.tabla_registros.setItem(row, 3, QTableWidgetItem(mov['fecha'].strftime('%d/%m/%Y')))
-                self.tabla_registros.setItem(row, 4, QTableWidgetItem(mov['nota_devolucion']))
-                self.tabla_registros.setItem(row, 5, QTableWidgetItem(mov['observaciones']))
+                self.historico_table.setItem(row, 0, QTableWidgetItem(mov['ubicacion']))
+                self.historico_table.setItem(row, 1, QTableWidgetItem(mov['codigo']))
+                self.historico_table.setItem(row, 2, QTableWidgetItem(str(mov['cantidad'])))
+                self.historico_table.setItem(row, 3, QTableWidgetItem(mov['fecha'].strftime('%d/%m/%Y')))
+                self.historico_table.setItem(row, 4, QTableWidgetItem(mov['nota_devolucion']))
+                self.historico_table.setItem(row, 5, QTableWidgetItem(mov['observaciones']))
         except Exception as e:
             print(f"Error al cargar registros históricos: {e}")
         finally:
             db.close()  # Asegúrate de cerrar la sesión
-    # Función para exportar a PDF
-    def exportar_pdf(self):
-        db = next(get_db())  # Obtener la sesión de la base de datos
-        movimientos = obtener_movimientos_historicos(db)  # Pasar la sesión como argumento
-        ruta_pdf, _ = QFileDialog.getSaveFileName(self, "Guardar PDF", "", "PDF Files (*.pdf)")
-        if ruta_pdf:
-            generar_pdf(movimientos, ruta_pdf)  # Función simulada para generar el PDF
-            QMessageBox.information(self, "Éxito", f"PDF generado en {ruta_pdf}")
-        db.close()  # Cerrar la sesión 
-     
-    # Función para exportar a CSV
-    def exportar_csv(self):
-        db = next(get_db())  # Obtener la sesión de la base de datos
-        movimientos = obtener_movimientos_historicos(db)  # Pasar la sesión como argumento
-        ruta_csv, _ = QFileDialog.getSaveFileName(self, "Guardar CSV", "", "CSV Files (*.csv)")
-        if ruta_csv:
-            exportar_csv(movimientos, ruta_csv)  # Usamos la función de exportar_csv
-            QMessageBox.information(self, "Éxito", f"CSV generado en {ruta_csv}")
-        db.close()  # Cerrar la sesión
-
-    # Función para filtrar registros (Placeholder)
-    def filtrar_registros(self):
-        QMessageBox.information(self, "Filtrar", "Se implementará la funcionalidad de filtrado.")
 
     # Pestaña 2: Pendientes
     def pendientes_tab(self):
@@ -107,37 +81,32 @@ class RegistrosMovimientosView(QWidget):
         # Cargar pendientes
         self.cargar_pendientes()
 
-        # Barra inferior personalizada para la pestaña de Pendientes
-        botones = [
-            {"texto": "Actualizar Pendientes", "color": "blue", "funcion": self.cargar_pendientes}
-        ]
-        bottom_bar = self.parent.crear_barra_botones_inferiores(botones)
-        layout.addLayout(bottom_bar)
-
         widget.setLayout(layout)
         return widget
 
     # Función para cargar los pendientes
     def cargar_pendientes(self):
         db = next(get_db())  # Obtener la sesión de la base de datos
-        pendientes = obtener_movimientos_pendientes(db)  # Pasar la sesión como argumento
-        self.pendientes_table.setRowCount(0)
-        for i, pendiente in enumerate(pendientes):
-            self.pendientes_table.insertRow(i)
-            self.pendientes_table.setItem(i, 0, QTableWidgetItem(pendiente["ubicacion"]))
-            self.pendientes_table.setItem(i, 1, QTableWidgetItem(pendiente["codigo"]))
-            self.pendientes_table.setItem(i, 2, QTableWidgetItem(str(pendiente["cantidad"])))
-            self.pendientes_table.setItem(i, 3, QTableWidgetItem(pendiente["fecha"].strftime("%d/%m/%Y")))
-            self.pendientes_table.setItem(i, 4, QTableWidgetItem(pendiente["motivo"]))
+        try:
+            pendientes = obtener_movimientos_pendientes(db)  # Pasar la sesión como argumento
+            self.pendientes_table.setRowCount(0)
+            for i, pendiente in enumerate(pendientes):
+                self.pendientes_table.insertRow(i)
+                self.pendientes_table.setItem(i, 0, QTableWidgetItem(pendiente["ubicacion"]))
+                self.pendientes_table.setItem(i, 1, QTableWidgetItem(pendiente["codigo"]))
+                self.pendientes_table.setItem(i, 2, QTableWidgetItem(str(pendiente["cantidad"])))
+                self.pendientes_table.setItem(i, 3, QTableWidgetItem(pendiente["fecha"].strftime("%d/%m/%Y")))
+                self.pendientes_table.setItem(i, 4, QTableWidgetItem(pendiente["motivo"]))
 
-            # Botones de acción: Ver Ubicación, Registrar Movimiento, Cancelar
-            acciones_layout = self.crear_botones_accion_pendiente(pendiente)
-            acciones_widget = QWidget()
-            acciones_widget.setLayout(acciones_layout)
-            self.pendientes_table.setCellWidget(i, 5, acciones_widget)
-        
-        db.close()  # Cerrar la sesión
-
+                # Botones de acción: Ver Ubicación, Registrar Movimiento, Cancelar
+                acciones_layout = self.crear_botones_accion_pendiente(pendiente)
+                acciones_widget = QWidget()
+                acciones_widget.setLayout(acciones_layout)
+                self.pendientes_table.setCellWidget(i, 5, acciones_widget)
+        except Exception as e:
+            print(f"Error al cargar los pendientes: {e}")
+        finally:
+            db.close()  # Cerrar la sesión
 
     # Crear los botones de acción para cada pendiente
     def crear_botones_accion_pendiente(self, pendiente):
@@ -211,3 +180,41 @@ class RegistrosMovimientosView(QWidget):
             QMessageBox.critical(self, "Error", f"Error al cancelar pendiente: {e}")
         finally:
             db.close()
+
+    # Evento que se llama cuando se cambia de pestaña
+    def on_tab_changed(self, index):
+        if index == 0:  # Pestaña Registros Históricos
+            botones_personalizados = [
+                {"texto": "Exportar a PDF", "color": "blue", "funcion": self.exportar_pdf},
+                {"texto": "Exportar a CSV", "color": "alge", "funcion": self.exportar_csv},
+                {"texto": "Filtrar", "color": "grass", "funcion": self.filtrar_registros}
+            ]
+        else:  # Pestaña Pendientes
+            botones_personalizados = [
+                {"texto": "Actualizar Pendientes", "color": "blue", "funcion": self.cargar_pendientes}
+            ]
+        self.parent.actualizar_barra_inferior(botones_personalizados)
+
+    # Función para exportar a PDF
+    def exportar_pdf(self):
+        db = next(get_db())  # Obtener la sesión de la base de datos
+        movimientos = obtener_movimientos_historicos(db)  # Pasar la sesión como argumento
+        ruta_pdf, _ = QFileDialog.getSaveFileName(self, "Guardar PDF", "", "PDF Files (*.pdf)")
+        if ruta_pdf:
+            generar_pdf(movimientos, ruta_pdf)  # Función simulada para generar el PDF
+            QMessageBox.information(self, "Éxito", f"PDF generado en {ruta_pdf}")
+        db.close()  # Cerrar la sesión
+
+    # Función para exportar a CSV
+    def exportar_csv(self):
+        db = next(get_db())  # Obtener la sesión de la base de datos
+        movimientos = obtener_movimientos_historicos(db)  # Pasar la sesión como argumento
+        ruta_csv, _ = QFileDialog.getSaveFileName(self, "Guardar CSV", "", "CSV Files (*.csv)")
+        if ruta_csv:
+            exportar_csv(movimientos, ruta_csv)  # Usamos la función de exportar_csv
+            QMessageBox.information(self, "Éxito", f"CSV generado en {ruta_csv}")
+        db.close()  # Cerrar la sesión
+
+    # Función para filtrar registros (Placeholder)
+    def filtrar_registros(self):
+        QMessageBox.information(self, "Filtrar", "Se implementará la funcionalidad de filtrado.")

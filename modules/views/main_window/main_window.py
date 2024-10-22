@@ -23,77 +23,44 @@ class MainWindow(QMainWindow):
     def initUI(self):
         self.setWindowTitle("Gestión de Movimientos de Stock")
         self.setWindowIcon(QIcon("modules\\views\main_window\icon.png"))
-        # self.crear_eventos()
 
-        # Inicialización de las vistas con `parent`
-        self.ingresos_egresos_view = IngresosEgresosWindow(self.usuario, self)
-        self.ajustes_view = AjustesView(parent=self)
-        self.gestion_stock_view = GestionStockView(parent=self)
-        self.notas_pedido_view = NotasPedidoView(parent=self)
-        self.admin_productos_view = AdminProductosView(parent=self)
-        self.registros_movimientos_view = RegistrosMovimientosView(parent=self)
-        self.gestion_usuarios_view = GestionUsuariosView(parent=self)
-
-        # # Layout principal basado en QGridLayout
-        # self.grid_layout = QGridLayout()
-
-        # # Crear el widget para la barra de navegación
-        # nav_widget = QWidget()  # Crear un widget para la barra de navegación
-        # nav_layout = QHBoxLayout(nav_widget)  # Aplicar el layout horizontal al widget
-        # self.crear_barra_navegacion(nav_layout)  # Configurar la barra de navegación
-        
         # Obtenemos el QStackedWidget desde el archivo .ui
         self.stack = self.findChild(QStackedWidget, "main_widget")
-
-        # # Crear el contenido principal
-        # self.contenido_principal = QStackedWidget()
-        # self.contenido_principal.setObjectName("main-content")
-
-        # Añadir las vistas al QStackedWidget
-        self.stack.addWidget(self.ingresos_egresos_view)
-        self.stack.addWidget(self.gestion_stock_view)
-        self.stack.addWidget(self.notas_pedido_view)
-        self.stack.addWidget(self.admin_productos_view)
-        self.stack.addWidget(self.registros_movimientos_view)
-        self.stack.addWidget(self.gestion_usuarios_view)
-        self.stack.addWidget(self.ajustes_view)
-
-        # Añadir navbar, contenido principal y bottom-bar al grid layout
-        #self.grid_layout.addWidget(nav_widget, 0, 0, 1, 3)  # Navbar en la parte superior
-        #self.grid_layout.addWidget(self.contenido_principal, 1, 0, 1, 3)  # Contenido principal
-        #self.grid_layout.addLayout(self.crear_barra_botones_inferiores([]), 2, 0, 1, 3)  # Barra inferior (personalizable)
-
-        # Aplicar el layout principal a la ventana
-            # Configurar los eventos de los botones
-        self.crear_eventos()
-        self.stack.setCurrentIndex(0) # Ingresos/Egresos será la vista por defecto al arrancar
-
-    # def crear_barra_navegacion(self, layout):
-    #     # Crear la barra de navegación superior con botones para cada vista
         
-    #     botones = {
-    #         "Ingresos/Egresos": self.mostrar_ingresos_egresos,
-    #         "Gestión de Stock": self.mostrar_gestion_stock,
-    #         "Notas de Pedido": self.mostrar_notas_pedido,
-    #         "Administrar Productos": self.mostrar_admin_productos,
-    #         "Registros de Movimientos": self.mostrar_registros_movimientos,
-    #         "Gestión de Usuarios": self.mostrar_gestion_usuarios,
-    #         "Ajustes de Stock": self.mostrar_ajustes
-    #     }
+        # Inicialización de las vistas con `parent`
+        self.ingresos_egresos_page = self.stack.findChild(QWidget, "ingresos_egresos_page")
+        self.ajustes_page = self.stack.findChild(QWidget, "ajustes_page")
+        self.gestion_stock_page = self.stack.findChild(QWidget, "gestion_stock_page")
+        self.notas_pedido_page = self.stack.findChild(QWidget, "notas_pedido_page")
+        self.admin_productos_page = self.stack.findChild(QWidget, "admin_productos_page")
+        self.registros_movimientos_page = self.stack.findChild(QWidget, "registros_movimientos_page")
+        self.gestion_usuarios_page = self.stack.findChild(QWidget, "gestion_usuarios_page")
+        
+        # Inicialización de las vistas con `parent`
+        self.ingresos_egresos_view = IngresosEgresosWindow(self.usuario, self)
+        self.ajustes_view = AjustesView(self)
+        self.gestion_stock_view = GestionStockView(self)
+        self.notas_pedido_view = NotasPedidoView(self)
+        self.admin_productos_view = AdminProductosView(self)
+        self.registros_movimientos_view = RegistrosMovimientosView(self)
+        self.gestion_usuarios_view = GestionUsuariosView(self)        
+        
+        # Asignar las vistas personalizadas a las páginas del QStackedWidget
+        self.stack.insertWidget(0, self.ingresos_egresos_view)  # Insertar la vista personalizada
+        self.stack.insertWidget(1, self.ajustes_view)
+        self.stack.insertWidget(2, self.gestion_stock_view)
+        self.stack.insertWidget(3, self.notas_pedido_view)
+        self.stack.insertWidget(4, self.admin_productos_view)
+        self.stack.insertWidget(5, self.registros_movimientos_view)
+        self.stack.insertWidget(6, self.gestion_usuarios_view)
 
-    #     # Añadir los botones a la navbar
-    #     for texto, funcion in botones.items():
-    #         boton = QPushButton(texto)
-    #         boton.setFixedHeight(40)
-    #         boton.clicked.connect(funcion)
-    #         layout.addWidget(boton)
-
-    #     layout.addStretch()  # Alinear los botones a la izquierda
-    #     layout.addWidget(QLabel(f"Bienvenido, {self.usuario}"))  # Mostrar nombre de usuario
-    #     layout.setObjectName("nav-bar")
-
-    #     aplicar_estilos_barra_navegacion(layout.parentWidget())
-    #     return layout
+        # Configurar los eventos de los botones
+        self.crear_eventos()
+        #self.cambiar_pestana(0) # Ingresos/Egresos será la vista por defecto al arrancar
+        
+        # Llamar a la función para actualizar la barra inferior de "Ingresos/Egresos"
+        #self.ingresos_egresos_view.actualizar_barra_inferior()
+        self.stack.setCurrentIndex(0)  # Ingresos/Egresos será la vista por defecto al arrancar
 
     def crear_barra_botones_inferiores(self, personalizaciones):
         # Crear la bottom-bar personalizable según la vista
@@ -140,12 +107,18 @@ class MainWindow(QMainWindow):
 
     # Función para cambiar entre vistas y actualizar el título
     def mostrar_vista(self, vista, titulo):
-        self.contenido_principal.setCurrentWidget(vista)
+        self.stack.setCurrentWidget(vista)
         # Asegurarse de actualizar el título, si existe
         if hasattr(self, "titulo_seccion"):
             self.titulo_seccion.setText(titulo)
             
     def crear_eventos(self):
+        self.findChild(QPushButton, "ingresos_egresos_1").clicked.connect(lambda: self.cambiar_pestana(0))  # Ingresos/Egresos
+        self.findChild(QPushButton, "gestion_stock_1").clicked.connect(lambda: self.cambiar_pestana(1))  # Gestión de Stock
+        self.findChild(QPushButton, "notas_pedido_1").clicked.connect(lambda: self.cambiar_pestana(2))  # Notas de Pedido
+        self.findChild(QPushButton, "productos_1").clicked.connect(lambda: self.cambiar_pestana(3))  # Productos
+        self.findChild(QPushButton, "movimientos_1").clicked.connect(lambda: self.cambiar_pestana(4))  # Movimientos
+        self.findChild(QPushButton, "usuarios_1").clicked.connect(lambda: self.cambiar_pestana(5))  # Usuarios
         self.findChild(QPushButton, "ingresos_egresos_2").clicked.connect(lambda: self.cambiar_pestana(0))  # Ingresos/Egresos
         self.findChild(QPushButton, "gestion_stock_2").clicked.connect(lambda: self.cambiar_pestana(1))  # Gestión de Stock
         self.findChild(QPushButton, "notas_pedido_2").clicked.connect(lambda: self.cambiar_pestana(2))  # Notas de Pedido
@@ -175,22 +148,15 @@ class MainWindow(QMainWindow):
             if widget is not None:
                 widget.deleteLater()
 
-        # Actualizar los botones según la vista seleccionada
-        if indice == 0:  # Ingresos/Egresos
-            botones_personalizados = [
-                {"texto": "Guardar Ingreso", "funcion": self.guardar_ingreso, "color": "green"},
-                {"texto": "Cancelar", "funcion": self.cancelar_ingreso, "color": "red"}
-            ]
-        elif indice == 1:  # Gestión de Stock
-            botones_personalizados = [
-                {"texto": "Exportar CSV", "funcion": self.hacer_backup_stock, "color": "blue"}
-            ]
-        # Añadir los botones personalizados a la barra inferior
-        barra_inferior = self.crear_barra_botones_inferiores(botones_personalizados)
-        bottom_layout.addLayout(barra_inferior)
-
-
-        
+        # Llamar a la función `actualizar_barra_inferior` de la vista seleccionada si existe
+        vista = self.main_widget.widget(indice)  # Obtener la vista actual del QStackedWidget
+        print(f"Vista seleccionada: {type(vista)}")
+        # Verificar si la vista tiene la función `actualizar_barra_inferior`
+        if hasattr(vista, 'actualizar_barra_inferior'):
+            vista.actualizar_barra_inferior(indice)  # Llamar a la función para actualizar la barra inferior
+        else:
+            print(f"La vista en el índice {indice} no tiene la función 'actualizar_barra_inferior'.")
+            
     def actualizar_barra_inferior(self, personalizaciones):
         """
         Actualiza los botones de la barra inferior en función de la vista seleccionada.

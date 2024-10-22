@@ -25,19 +25,20 @@ class GestionUsuariosView(QWidget):
         # Cargar usuarios en la tabla
         self.cargar_usuarios()
 
-        # Generar la barra de botones inferior personalizada para esta vista
-        botones = [
-            {"texto": "Agregar Usuario", "color": "green", "funcion": self.agregar_usuario},
-            {"texto": "Editar Usuario", "color": "blue", "funcion": self.editar_usuario},
-            {"texto": "Eliminar Usuario", "color": "red", "funcion": self.eliminar_usuario},
-        ]
-        bottom_bar = self.parent.crear_barra_botones_inferiores(botones)
-
-        # Añadir la barra de botones al layout principal
-        main_layout.addLayout(bottom_bar)
-
         # Aplicar el layout final a la ventana
         self.setLayout(main_layout)
+
+        # Actualizar barra inferior
+        self.actualizar_barra_inferior()
+
+    def actualizar_barra_inferior(self):
+        """Función para actualizar la barra inferior con los botones de Gestión de Usuarios."""
+        botones_personalizados = [
+            {"texto": "Agregar Usuario", "funcion": self.agregar_usuario, "color": "green"},
+            {"texto": "Editar Usuario", "funcion": self.editar_usuario, "color": "blue"},
+            {"texto": "Eliminar Usuario", "funcion": self.eliminar_usuario, "color": "red"}
+        ]
+        self.parent.actualizar_barra_inferior(botones_personalizados)
 
     def cargar_usuarios(self):
         """Cargar los usuarios desde la base de datos y mostrarlos en la tabla."""
