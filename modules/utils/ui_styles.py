@@ -5,7 +5,7 @@ colors = {
     "dark": "#161616",
     "ocean": "#416dea",
     "grass": "#3dd28d",
-    "snow": "#FFFFFF",
+    "snow": "#FFFFFF",  # Blanco puro
     "salmon": "#F32C52",
     "sun": "#feee7d",
     "alge": "#7999a9",
@@ -30,6 +30,8 @@ colors = {
     'search-button-bg': 'rgb(131, 25, 27)',
     'search-input-bg': 'rgb(255, 251, 212)'
 }
+
+
 
 # Estilos comunes para todos los botones
 button_common_style = """
@@ -111,39 +113,19 @@ def aplicar_estilos_especiales(botones, colores):
     for i, boton in enumerate(botones):
         aplicar_estilo_boton(boton, colores[i])
 
-# # Estilos para la barra de navegación superior
-# def aplicar_estilos_barra_navegacion(nav_widget):
-#     """
-#     Aplica los estilos a la barra de navegación contenida en el widget padre (parent_widget).
-#     """
-#     nav_widget.setStyleSheet(f"""
-#         #nav-bar {{
-#             background-color: {colors['nav-bar-bg']};  /* Fondo de la barra de navegación */
-#             padding: 10px;
-#             border-bottom: 2px solid {colors['smoke']};
-#         }}
-#     """)
-#     # Itera sobre los widgets del layout para aplicar estilos individuales
-#     for i in range(nav_widget.layout().count()):
-#         widget = nav_widget.layout().itemAt(i).widget()
-#         if isinstance(widget, QLabel):
-#             widget.setStyleSheet("""
-#                 QLabel {
-#                     font-size: 16px;
-#                     font-weight: bold;
-#                     color: #FFF;
-#                     text-align: center;
-#                 }
-#             """)
 def aplicar_estilos_barra_navegacion(nav_widget):
     nav_widget.setStyleSheet(f"""
         QWidget {{
             background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 {colors['navbar-gradient-start']}, stop:1 {colors['navbar-gradient-end']});
             color: {colors['snow']};
+            border-bottom: 2px solid {colors['dark']}; /* Añadir un borde en la parte inferior */
+        }}
+        QLabel {{
+            font-size: 18px;
+            color: {colors['snow']};
+            font-weight: bold;
         }}
     """)
-
-
 
 # Estilos para la barra lateral
 def aplicar_estilos_barra_lateral(menu_layout):
@@ -154,6 +136,7 @@ def aplicar_estilos_barra_lateral(menu_layout):
             border-right: 2px solid {colors['smoke']};
         }}
     """)
+    
     for boton in menu_layout.children():
         if isinstance(boton, QPushButton):
             boton.setStyleSheet(f"""
@@ -167,13 +150,14 @@ def aplicar_estilos_barra_lateral(menu_layout):
                 font-weight: bold;
             }}
             QPushButton:hover {{
-                background-color: {colors['ocean']};
+                background-color: {colors['menu-bg-hover']};
             }}
             QPushButton:pressed {{
                 background-color: {colors['dark']};
             }}
             """)
-            boton.setIconSize(QSize(24, 24))
+            boton.setIconSize(QSize(24, 24))  # Asegúrate de que los iconos se ajustan correctamente
+
 
 # Aplicar estilos globales a la ventana principal
 def aplicar_estilos_ventana_principal(window):
@@ -206,24 +190,32 @@ def aplicar_estilos_ventana_principal(window):
         }}
     """)
 
-# # Estilos para la barra inferior
-# def aplicar_estilos_barra_inferior(bottom_layout):
-#     bottom_layout.parentWidget().setStyleSheet(f"""
-#         .bottom-bar {{
-#             background-color: {colors['bottom-bar-bg']};
-#             padding: 10px;
-#             border-top: 2px solid {colors['smoke']};
-#         }}
-#     """)
-
 def aplicar_estilos_barra_inferior(bottom_layout):
     bottom_layout.parentWidget().setStyleSheet(f"""
         QWidget {{
             background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 {colors['navbar-gradient-start']}, stop:1 {colors['navbar-gradient-end']});
             color: {colors['snow']};
+            border-top: 2px solid {colors['dark']};
+            padding: 10px;  /* Añadir padding para los elementos dentro de la barra */
+            box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.2);  /* Sombra suave para dar profundidad */
+        }}
+
+        QPushButton {{
+            background-color: {colors['button-bg']};  /* Color de fondo de los botones */
+            color: {colors['button-text']};
             border-radius: 5px;
+            padding: 8px 16px;
+            font-size: 14px;
+        }}
+        QPushButton:hover {{
+            background-color: {colors['button-hover-bg']};  /* Color hover */
+        }}
+        QPushButton:pressed {{
+            background-color: {colors['dark']};  /* Color cuando se presiona */
         }}
     """)
+
+
 
 
 # Crear contenedores con estilo
@@ -235,12 +227,25 @@ def crear_contenedor_con_estilo():
 
 def aplicar_estilos_search_button(search_button):
     search_button.setStyleSheet(f"""
-        QPushButton {{
+        QPushButton#search_button {{
             background-color: {colors['search-button-bg']};
-            font: 700 italic 10pt "Segoe UI";
             border-radius: 8px;
+            padding: 10px;
+            font: bold 12px;
+            color: {colors['snow']};
+        }}
+
+        QPushButton#search_button:hover {{
+            background-color: {colors['ocean']};
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);  /* Sombra al pasar el mouse */
+        }}
+
+        QPushButton#search_button:pressed {{
+            background-color: {colors['dark']};
+            border: 1px solid {colors['nav-bar-bg']};  /* Bordes más claros cuando el botón es presionado */
         }}
     """)
+
 
 def aplicar_estilos_search_input(search_input):
     search_input.setStyleSheet(f"""
