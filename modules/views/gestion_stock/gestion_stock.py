@@ -232,44 +232,44 @@ class GestionStockView(QTabWidget):
         self.boton_cancelar.setEnabled(habilitar)
 
 
-def confirmar_ajustes(self):
-    """Confirma los ajustes realizados en la tabla de stock y los registra en la base de datos."""
-    db = next(get_db())
-    try:
-        for row in range(self.table_ajustes.rowCount()):
-            ubicacion = self.table_ajustes.item(row, 0).text()  # Ubicación
-            codigo = self.table_ajustes.item(row, 1).text()  # Código del producto
-            cantidad = float(self.table_ajustes.item(row, 3).text())  # Cantidad ajustada
-            fecha = datetime.strptime(self.table_ajustes.item(row, 4).text(), "%d/%m/%Y")  # Fecha de ajuste
+    def confirmar_ajustes(self):
+        """Confirma los ajustes realizados en la tabla de stock y los registra en la base de datos."""
+        db = next(get_db())
+        try:
+            for row in range(self.table_ajustes.rowCount()):
+                ubicacion = self.table_ajustes.item(row, 0).text()  # Ubicación
+                codigo = self.table_ajustes.item(row, 1).text()  # Código del producto
+                cantidad = float(self.table_ajustes.item(row, 3).text())  # Cantidad ajustada
+                fecha = datetime.strptime(self.table_ajustes.item(row, 4).text(), "%d/%m/%Y")  # Fecha de ajuste
 
-            # Buscar el stock del producto en la ubicación indicada
-            stock_item = db.query(Stock).join(Producto).filter(Stock.ubicacion == ubicacion, Producto.codigo == codigo).first()
-            if stock_item:
-                # Actualizar la cantidad en el stock
-                stock_item.cantidad = cantidad
-                stock_item.fecha = fecha
+                # Buscar el stock del producto en la ubicación indicada
+                stock_item = db.query(Stock).join(Producto).filter(Stock.ubicacion == ubicacion, Producto.codigo == codigo).first()
+                if stock_item:
+                    # Actualizar la cantidad en el stock
+                    stock_item.cantidad = cantidad
+                    stock_item.fecha = fecha
 
-                # Registrar el ajuste como un movimiento en la tabla Movimiento
-                movimiento = Movimiento(
-                    ubicacion=ubicacion,
-                    codigo=codigo,
-                    cantidad=cantidad,
-                    fecha=fecha,
-                    nota_devolucion="Ajuste de Stock",
-                    tipo_movimiento="Ajuste",
-                    observaciones="Ajuste manual desde la pestaña Ajustes"
-                )
-                db.add(movimiento)
+                    # Registrar el ajuste como un movimiento en la tabla Movimiento
+                    movimiento = Movimiento(
+                        ubicacion=ubicacion,
+                        codigo=codigo,
+                        cantidad=cantidad,
+                        fecha=fecha,
+                        nota_devolucion="Ajuste de Stock",
+                        tipo_movimiento="Ajuste",
+                        observaciones="Ajuste manual desde la pestaña Ajustes"
+                    )
+                    db.add(movimiento)
 
-        db.commit()  # Confirmar los cambios
-        QMessageBox.information(self, "Éxito", "Los ajustes han sido confirmados y guardados correctamente.")
-        print("Ajustes confirmados y guardados correctamente.")
+            db.commit()  # Confirmar los cambios
+            QMessageBox.information(self, "Éxito", "Los ajustes han sido confirmados y guardados correctamente.")
+            print("Ajustes confirmados y guardados correctamente.")
 
-    except Exception as e:
-        db.rollback()
-        QMessageBox.critical(self, "Error", f"Error al confirmar ajustes: {e}")
-        print(f"Error al confirmar ajustes: {e}")
+        except Exception as e:
+            db.rollback()
+            QMessageBox.critical(self, "Error", f"Error al confirmar ajustes: {e}")
+            print(f"Error al confirmar ajustes: {e}")
 
-    finally:
-        db.close()
-    
+        finally:
+            db.close()
+        
