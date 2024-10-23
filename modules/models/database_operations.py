@@ -25,21 +25,31 @@ def registrar_movimiento(session: Session, movimiento_data):
         print(f"Error al registrar el movimiento: {e}")
 
 # Obtener el consolidado de stock con un filtro opcional
-def obtener_consolidado_stock(filtro=None):
+def obtener_consolidado_stock(filtro=None, temporada=None, categoria=None):
     db = next(get_db())
     try:
+        query = db.query(Stock).join(Producto)
+        
         if filtro:
-            consolidado = db.query(Stock).join(Producto).filter(
-                (Producto.codigo.contains(filtro)) | (Producto.descripcion.contains(filtro))
-            ).all()
-        else:
-            consolidado = db.query(Stock).all()
+            query = query.filter(
+                (Producto.codigo.contains(filtro)) |
+                (Producto.descripcion.contains(filtro))
+            )
+        
+        if temporada:
+            query = query.filter(Producto.temporada.contains(temporada))
+        
+        if categoria:
+            query = query.filter(Producto.categoria == categoria)
+        
+        consolidado = query.all()
         return consolidado
     except Exception as e:
         print(f"Error al obtener el consolidado de stock: {e}")
         return []
     finally:
         db.close()
+
 
 # Realizar ajuste de stock
 def realizar_ajuste_stock(codigo: str, ubicacion: str, nueva_cantidad: float):
@@ -51,11 +61,11 @@ def realizar_ajuste_stock(codigo: str, ubicacion: str, nueva_cantidad: float):
             movimiento = Movimiento(
                 ubicacion=ubicacion,
                 codigo=codigo,
-                cantidad=nueva_cantidad,
+                cantidad=nueva_cantidad - stock_item.cantidad,  # Diferencia entre lo anterior y lo nuevo
                 fecha=datetime.now(),
                 nota_devolucion="Ajuste manual",
                 tipo_movimiento="Ajuste",
-                observaciones="Ajuste de stock"
+                observaciones="Ajuste de stock realizado manualmente"
             )
             db.add(movimiento)
             db.commit()
@@ -75,6 +85,20 @@ def mover_pallet(codigo: str, ubicacion_origen: str, ubicacion_destino: str, can
         stock_origen = db.query(Stock).join(Producto).filter(Stock.ubicacion == ubicacion_origen, Producto.codigo == codigo).first()
         if stock_origen and stock_origen.cantidad >= cantidad:
             stock_origen.cantidad -= cantidad
+
+            # Movimiento desde la ubicación origen
+            movimiento_origen = Movimiento(
+                ubicacion=ubicacion_origen,
+                codigo=codigo,
+                cantidad=-cantidad,  # Se resta de la cantidad en origen
+                fecha=datetime.now(),
+                nota_devolucion="Movimiento de pallet",
+                tipo_movimiento="Movimiento",
+                observaciones=f"Producto movido desde {ubicacion_origen} a {ubicacion_destino}"
+            )
+            db.add(movimiento_origen)
+
+            # Verificar si ya existe stock en el destino
             stock_destino = db.query(Stock).join(Producto).filter(Stock.ubicacion == ubicacion_destino, Producto.codigo == codigo).first()
             if stock_destino:
                 stock_destino.cantidad += cantidad
@@ -86,16 +110,18 @@ def mover_pallet(codigo: str, ubicacion_origen: str, ubicacion_destino: str, can
                 )
                 db.add(nuevo_stock)
 
-            movimiento = Movimiento(
-                ubicacion=ubicacion_origen,
+            # Movimiento hacia la ubicación destino
+            movimiento_destino = Movimiento(
+                ubicacion=ubicacion_destino,
                 codigo=codigo,
-                cantidad=-cantidad,
+                cantidad=cantidad,  # Se suma a la cantidad en destino
                 fecha=datetime.now(),
                 nota_devolucion="Movimiento de pallet",
                 tipo_movimiento="Movimiento",
-                observaciones=f"Movido a {ubicacion_destino}"
+                observaciones=f"Producto recibido desde {ubicacion_origen}"
             )
-            db.add(movimiento)
+            db.add(movimiento_destino)
+
             db.commit()
             print(f"Pallet movido de {ubicacion_origen} a {ubicacion_destino}")
         else:
@@ -105,6 +131,7 @@ def mover_pallet(codigo: str, ubicacion_origen: str, ubicacion_destino: str, can
         print(f"Error al mover el pallet: {e}")
     finally:
         db.close()
+
 
 # Función para registrar un pendiente
 def registrar_pendiente(session: Session, codigo: str, descripcion: str, cantidad: float, fecha: str, motivo: str, ubicacion: str = None):
