@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QWidget, QVBoxLayout, QFormLayout, QLineEdit, QPushButton, QLabel
 from modules.utils.ui_functions import crear_campo_formulario, cargar_ingreso, cargar_egreso
-from modules.utils.ui_styles import aplicar_estilos_especiales
+from modules.utils.ui_styles import aplicar_estilos_especiales, colors
 from PyQt6.uic import loadUi
 
 
@@ -19,6 +19,12 @@ class IngresosEgresosWindow(QWidget):
         self.procesar_movimiento_button.clicked.connect(self.cargar_ingreso)
         self.cancelar_movimiento_button.clicked.connect(self.limpiar_formulario)
         self.limpiar_formulario_button.clicked.connect(self.limpiar_formulario)
+        
+        # Aplicar los estilos a los botones usando las variables de color
+        aplicar_estilos_especiales(
+            [self.procesar_movimiento_button, self.cancelar_movimiento_button, self.limpiar_formulario_button],
+            ['green', 'red', 'blue']
+        )
         
         # Actualizar la barra inferior con los botones específicos de esta vista
         self.actualizar_barra_inferior()
