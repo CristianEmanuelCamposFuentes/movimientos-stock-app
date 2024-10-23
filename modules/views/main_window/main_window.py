@@ -1,6 +1,5 @@
 from PyQt6.QtWidgets import QMainWindow,QHBoxLayout, QPushButton, QStackedWidget, QFileDialog, QMessageBox, QWidget
 from modules.views.ingresos_egresos.ingresos_egresos import IngresosEgresosWindow
-from modules.views.ajustes.ajustes import AjustesView
 from modules.views.gestion_stock.gestion_stock import GestionStockView
 from modules.views.notas_pedido.notas_pedido import NotasPedidoView
 from modules.views.admin_productos.admin_productos import AdminProductosView
@@ -29,7 +28,7 @@ class MainWindow(QMainWindow):
         
         # Inicialización de las vistas con `parent`
         self.ingresos_egresos_page = self.stack.findChild(QWidget, "ingresos_egresos_page")
-        self.ajustes_page = self.stack.findChild(QWidget, "ajustes_page")
+        # self.ajustes_page = self.stack.findChild(QWidget, "ajustes_page")
         self.gestion_stock_page = self.stack.findChild(QWidget, "gestion_stock_page")
         self.notas_pedido_page = self.stack.findChild(QWidget, "notas_pedido_page")
         self.admin_productos_page = self.stack.findChild(QWidget, "admin_productos_page")
@@ -38,7 +37,6 @@ class MainWindow(QMainWindow):
         
         # Inicialización de las vistas con `parent`
         self.ingresos_egresos_view = IngresosEgresosWindow(self.usuario, self)
-        self.ajustes_view = AjustesView(self)
         self.gestion_stock_view = GestionStockView(self)
         self.notas_pedido_view = NotasPedidoView(self)
         self.admin_productos_view = AdminProductosView(self)
@@ -47,12 +45,11 @@ class MainWindow(QMainWindow):
         
         # Asignar las vistas personalizadas a las páginas del QStackedWidget
         self.stack.insertWidget(0, self.ingresos_egresos_view)  # Insertar la vista personalizada
-        self.stack.insertWidget(1, self.ajustes_view)
-        self.stack.insertWidget(2, self.gestion_stock_view)
-        self.stack.insertWidget(3, self.notas_pedido_view)
-        self.stack.insertWidget(4, self.admin_productos_view)
-        self.stack.insertWidget(5, self.registros_movimientos_view)
-        self.stack.insertWidget(6, self.gestion_usuarios_view)
+        self.stack.insertWidget(1, self.gestion_stock_view)
+        self.stack.insertWidget(2, self.notas_pedido_view)
+        self.stack.insertWidget(3, self.admin_productos_view)
+        self.stack.insertWidget(4, self.registros_movimientos_view)
+        self.stack.insertWidget(5, self.gestion_usuarios_view)
 
         # Configurar los eventos de los botones
         self.crear_eventos()
@@ -101,9 +98,6 @@ class MainWindow(QMainWindow):
 
     def mostrar_gestion_usuarios(self):
         self.mostrar_vista(self.gestion_usuarios_view, "Gestión de Usuarios")
-
-    def mostrar_ajustes(self):
-        self.mostrar_vista(self.ajustes_view, "Ajustes de Stock")
 
     # Función para cambiar entre vistas y actualizar el título
     def mostrar_vista(self, vista, titulo):
