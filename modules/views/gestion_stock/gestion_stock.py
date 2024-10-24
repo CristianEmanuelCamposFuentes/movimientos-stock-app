@@ -9,9 +9,10 @@ from PyQt6.QtWidgets import QInputDialog
 from datetime import datetime
 
 class GestionStockView(QTabWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None,stack = None):
         super().__init__(parent)
         self.parent = parent  # Referencia a la ventana principal
+        self.stack = stack
         # Cargar la interfaz de Qt Designer
         loadUi("modules\\views\\gestion_stock\\gestion_stock.ui", self)
 
@@ -20,7 +21,10 @@ class GestionStockView(QTabWidget):
 
     def initUI(self):
         self.setWindowTitle("Gestión de Stock")
-
+        
+        # Conectar el cambio de pestaña a la actualización de la barra inferior
+        self.currentChanged.connect(self.actualizar_barra_inferior)
+        # Actualizar la barra inferior inicialmente con los botones de la primera pestaña
         self.actualizar_barra_inferior(0)
 
     # Función para cambiar la vista en el QStackedWidget
@@ -141,7 +145,7 @@ class GestionStockView(QTabWidget):
             print("Error: No hay productos en los pallets seleccionados.")
             return
 
-        # Validar cantidades y mover productos
+        # TODO: Validar cantidades y mover productos
         # Implementar la lógica para mover de origen a destino
         # Esto implica modificar la tabla Stock y registrar el movimiento en la tabla de Movimiento
 

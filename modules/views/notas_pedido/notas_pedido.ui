@@ -1,0 +1,607 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TabWidget</class>
+ <widget class="QTabWidget" name="TabWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>859</width>
+    <height>647</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>TabWidget</string>
+  </property>
+  <property name="currentIndex">
+   <number>1</number>
+  </property>
+  <widget class="QWidget" name="tab_generar_nota">
+   <attribute name="title">
+    <string>Generar</string>
+   </attribute>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>20</x>
+      <y>0</y>
+      <width>801</width>
+      <height>611</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_4">
+     <item row="0" column="0">
+      <widget class="QWidget" name="widget_header" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>60</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 249, 242);</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="lbl_header_titulo">
+            <property name="text">
+             <string>NOTA DE PEDIDO DE MATERIALES</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Maximum</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="lbl_header_planta">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="lbl_header_observacion">
+            <property name="text">
+             <string>TextLabel</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QWidget" name="widget_body" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>110</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 249, 242);</string>
+       </property>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>9</x>
+          <y>9</y>
+          <width>135</width>
+          <height>96</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QLabel" name="lbl_numero_nota">
+           <property name="text">
+            <string>PEDIDO N°</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="input_numero_nota"/>
+         </item>
+         <item>
+          <widget class="QLabel" name="lbl_fecha">
+           <property name="text">
+            <string>FECHA</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="input_fecha"/>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>210</x>
+          <y>10</y>
+          <width>100</width>
+          <height>91</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <item>
+          <widget class="QLabel" name="lbl_planta">
+           <property name="text">
+            <string>PLANTA</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cb_planta">
+           <item>
+            <property name="text">
+             <string>GOLOSINAS</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>CHOCOLATE</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>41</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+       <widget class="QWidget" name="">
+        <property name="geometry">
+         <rect>
+          <x>375</x>
+          <y>10</y>
+          <width>421</width>
+          <height>93</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <widget class="QLabel" name="lbl_observacion">
+           <property name="text">
+            <string>OBSERVACION</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="input_observacion"/>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_2">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>41</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QTableWidget" name="table_generar_nota">
+       <property name="minimumSize">
+        <size>
+         <width>791</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>801</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustIgnored</enum>
+       </property>
+       <column>
+        <property name="text">
+         <string>CODIGO</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>CANTIDAD</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>DESCRIPCION</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>OBSERVACION</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>UBICACIONES</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QWidget" name="tab_cargar_nota">
+   <attribute name="title">
+    <string>Cargar</string>
+   </attribute>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>831</width>
+      <height>601</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="0">
+      <widget class="QWidget" name="widget_header_2" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>60</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 249, 242);</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="lbl_header_titulo_2">
+            <property name="text">
+             <string>CARGAR NOTAS DE PEDIDO</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>158</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="lbl_header_planta_2">
+            <property name="text">
+             <string>PEDIDO N°</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="input_numero_nota_2"/>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QTableWidget" name="table_cargar_nota">
+       <property name="minimumSize">
+        <size>
+         <width>791</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustIgnored</enum>
+       </property>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <row>
+        <property name="text">
+         <string>Nueva fila</string>
+        </property>
+       </row>
+       <column>
+        <property name="text">
+         <string>CODIGO</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>CANTIDAD</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>DESCRIPCION</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>OBSERVACION</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>UBICACIONES</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QWidget" name="tab_registros">
+   <attribute name="title">
+    <string>Registros</string>
+   </attribute>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>10</y>
+      <width>793</width>
+      <height>601</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout_6">
+     <item row="0" column="0">
+      <widget class="QWidget" name="widget_header_3" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>60</height>
+        </size>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 249, 242);</string>
+       </property>
+       <layout class="QGridLayout" name="gridLayout_5">
+        <item row="0" column="0">
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <spacer name="horizontalSpacer_8">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="lbl_header_titulo_registros">
+            <property name="text">
+             <string>REGISTROS HISTORICOS DE NOTAS DE PEDIDO</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_7">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QTableWidget" name="table_registros_notas">
+       <property name="minimumSize">
+        <size>
+         <width>791</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>801</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustIgnored</enum>
+       </property>
+       <property name="sortingEnabled">
+        <bool>false</bool>
+       </property>
+       <column>
+        <property name="text">
+         <string>NOTA PEDIDO</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>PLANTA</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>CODIGO</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>CANTIDAD</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>DESCRIPCION</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>OBSERVACION</string>
+        </property>
+       </column>
+       <column>
+        <property name="text">
+         <string>UBICACIONES</string>
+        </property>
+       </column>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

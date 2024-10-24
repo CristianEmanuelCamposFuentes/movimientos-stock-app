@@ -2,11 +2,13 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTab
 from modules.models.database_operations import agregar_producto, obtener_productos, editar_producto, eliminar_producto
 from modules.models.database import get_db
 from modules.utils.ui_styles import aplicar_estilos_especiales
+from modules.views.main_window.main_window import stack
 
 class AdminProductosView(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent  # Referencia al contenedor principal
+        self.stack = stack
         self.initUI()
 
     def initUI(self):

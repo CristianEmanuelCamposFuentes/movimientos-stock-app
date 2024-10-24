@@ -3,12 +3,14 @@ from PyQt6.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QTab
 from modules.models.database_operations import obtener_movimientos_historicos, obtener_movimientos_pendientes, generar_pdf, exportar_csv
 from modules.utils.ui_styles import aplicar_estilos_especiales
 from modules.models.database import get_db, Movimiento, Pendiente
+from modules.views.main_window.main_window import stack
 
 
 class RegistrosMovimientosView(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.parent = parent  # Referencia a la ventana principal
+        self.stack = stack
         self.initUI()
 
     def initUI(self):

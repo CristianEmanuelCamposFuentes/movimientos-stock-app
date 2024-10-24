@@ -37,10 +37,10 @@ class MainWindow(QMainWindow):
         
         # Inicialización de las vistas con `parent`
         self.ingresos_egresos_view = IngresosEgresosWindow(self.usuario, self)
-        self.gestion_stock_view = GestionStockView(self)
-        self.notas_pedido_view = NotasPedidoView(self)
-        self.admin_productos_view = AdminProductosView(self)
-        self.registros_movimientos_view = RegistrosMovimientosView(self)
+        self.gestion_stock_view = GestionStockView(self, self.stack)
+        self.notas_pedido_view = NotasPedidoView(self, self.stack)
+        self.admin_productos_view = AdminProductosView(self, self.stack)
+        self.registros_movimientos_view = RegistrosMovimientosView(self, self.stack)
         self.gestion_usuarios_view = GestionUsuariosView(self)        
         
         # Asignar las vistas personalizadas a las páginas del QStackedWidget
@@ -53,11 +53,10 @@ class MainWindow(QMainWindow):
 
         # Configurar los eventos de los botones
         self.crear_eventos()
-        #self.cambiar_pestana(0) # Ingresos/Egresos será la vista por defecto al arrancar
-        
-        # Llamar a la función para actualizar la barra inferior de "Ingresos/Egresos"
-        #self.ingresos_egresos_view.actualizar_barra_inferior()
+
         self.stack.setCurrentIndex(0)  # Ingresos/Egresos será la vista por defecto al arrancar
+        # Llamar a la función de actualización de la barra inferior para la vista inicial
+        self.ingresos_egresos_view.actualizar_barra_inferior(0)
 
     def crear_barra_botones_inferiores(self, personalizaciones):
         # Crear la bottom-bar personalizable según la vista
@@ -83,21 +82,29 @@ class MainWindow(QMainWindow):
     # Funciones para mostrar cada vista
     def mostrar_ingresos_egresos(self):
         self.mostrar_vista(self.ingresos_egresos_view, "Ingresos/Egresos")
+        self.ingresos_egresos_view.actualizar_barra_inferior(0)
 
     def mostrar_gestion_stock(self):
         self.mostrar_vista(self.gestion_stock_view, "Gestión de Stock")
+        self.gestion_stock_view.tabs.setCurrentIndex(0)
+        self.gestion_stock_view.actualizar_barra_inferior(0)
 
     def mostrar_notas_pedido(self):
         self.mostrar_vista(self.notas_pedido_view, "Notas de Pedido")
+        self.notas_pedido_view.tabs.setCurrentIndex(0)
+        self.notas_pedido_view.actualizar_barra_inferior(0)
 
     def mostrar_admin_productos(self):
         self.mostrar_vista(self.admin_productos_view, "Administrar Productos")
+        self.admin_productos_view.actualizar_barra_inferior(0)
 
     def mostrar_registros_movimientos(self):
         self.mostrar_vista(self.registros_movimientos_view, "Registros de Movimientos")
+        self.registros_movimientos_view.actualizar_barra_inferior(0)
 
     def mostrar_gestion_usuarios(self):
         self.mostrar_vista(self.gestion_usuarios_view, "Gestión de Usuarios")
+        self.gestion_usuarios_view.actualizar_barra_inferior(0)
 
     # Función para cambiar entre vistas y actualizar el título
     def mostrar_vista(self, vista, titulo):
